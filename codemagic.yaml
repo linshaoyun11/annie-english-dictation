@@ -17,14 +17,12 @@ workflows:
       app_store_connect: App Store Connect
     environment:
       node: 22
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.annie.dictation
       vars:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_VERSION: 1.0.0
         APP_BUILD: 1
+        BUNDLE_ID: com.annie.dictation
     scripts:
       - name: 安装依赖
         script: npm ci
@@ -72,7 +70,20 @@ workflows:
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PLIST"
 
-      - name: 应用签名描述文件
+      # 显式自动签名：找不到描述文件时会自动创建（--create）
+      - name: 初始化签名钥匙串
+        script: keychain initialize
+
+      - name: 获取/创建签名文件
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+
+      - name: 添加签名证书到钥匙串
+        script: keychain add-certificates
+
+      - name: 应用签名描述文件到 Xcode 工程
         script: xcode-project use-profiles
 
       - name: 打包 IPA
@@ -86,5 +97,8 @@ workflows:
 
     publishing:
       app_store_connect:
-        auth: integration
+        # 直接使用 Codemagic 为 App Store Connect 集成注入的环境变量
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
