@@ -70,7 +70,7 @@ Xcode、签名、iOS 编译只能在 macOS 上运行，但 Codemagic 会在云�
 2. **注册 Apple Developer 账号**（$99/年）并完成激活；
 3. **创建 App Store Connect API 密钥**：登录 [App Store Connect](https://appstoreconnect.apple.com) → 用户和访问 → 集成 → 「+」创建密钥，权限选 **App Manager**，下载 `.p8` 文件并记下 Key ID 和 Issuer ID；
 4. **注册 Codemagic**（<https://codemagic.io>，可用 GitHub 账号登录）：免费额度 500 分钟/月；
-5. 在 Codemagic → Teams → App Store Connect API keys 中录入第 3 步的密钥（用于云端签名与上传）；
+5. 在 Codemagic → Teams/Personal settings → Integrations → App Store Connect API keys 中录入第 3 步的密钥（用于云端签名与上传）。**注意：名称（Name）必须填 `App Store Connect`**，`codemagic.yaml` 中的 `integrations.app_store_connect` 按此名称引用，不一致会导致构建校验失败；
 6. 在 Codemagic → Applications 中关联 Git 仓库，Codemagic 会自动识别 `codemagic.yaml`。
 
 ### 3.3 触发构建
