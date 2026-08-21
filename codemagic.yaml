@@ -37,13 +37,17 @@ workflows:
       # ios/ 已加入 .gitignore，由 CI 现场生成，
       # 避免在 Windows 上执行 cap sync ios 产生跨平台路径问题
       # @capacitor/ios 仅云端生成原生工程时需要，--no-save 不改动 lock 文件
+      # 注意：Capacitor 8 默认用 SPM 模板（无 xcworkspace），必须指定
+      # CocoaPods 模板才能生成下方 XCODE_WORKSPACE 指向的 App.xcworkspace
       - name: 生成并同步 iOS 原生工程
         script: |
           npm install @capacitor/ios@8.5.0 --no-save --no-audit --no-fund --loglevel=error
           if [ ! -d ios ]; then
-            npx cap add ios
+            npx cap add ios --packagemanager CocoaPods
           fi
           npx cap sync ios
+          echo "--- iOS 工程结构 ---"
+          ls ios/App/
 
       - name: 配置 App 图标（1024 单尺寸）
         script: |
