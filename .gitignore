@@ -30,3 +30,6 @@ capacitor.config.local.ts
 *.njsproj
 *.sln
 *.sw?
+
+# Local npm cache (used for registry access through mirrors)
+.workbuddy/npm-cache/

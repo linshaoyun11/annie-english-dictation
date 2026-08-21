@@ -32,8 +32,10 @@ workflows:
 
       # ios/ 已加入 .gitignore，由 CI 现场生成，
       # 避免在 Windows 上执行 cap sync ios 产生跨平台路径问题
+      # @capacitor/ios 仅云端生成原生工程时需要，--no-save 不改动 lock 文件
       - name: 生成并同步 iOS 原生工程
         script: |
+          npm install @capacitor/ios@8.5.0 --no-save --no-audit --no-fund --loglevel=error
           if [ ! -d ios ]; then
             npx cap add ios
           fi
