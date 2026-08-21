@@ -17,6 +17,10 @@ workflows:
       app_store_connect: annie-english-dictation
     environment:
       node: 22
+      # code-signing 变量组：在 Codemagic 网页端 App 设置 → Environment variables
+      # 中创建，包含 CERTIFICATE_PRIVATE_KEY（iOS 发布证书私钥，Secure 加密存储）
+      groups:
+        - code-signing
       vars:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App

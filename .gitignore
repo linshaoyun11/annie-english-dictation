@@ -33,3 +33,6 @@ capacitor.config.local.ts
 
 # Local npm cache (used for registry access through mirrors)
 .workbuddy/npm-cache/
+
+# iOS signing private key (stored in Codemagic env vars, never in repo)
+.workbuddy/ios-cert-private-key
