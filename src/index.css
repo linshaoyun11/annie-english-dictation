@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #534ab7;
+  --color-primary-light: #edebff;
+  --color-primary-lighter: #f4f2ff;
+  --color-bg: #f8f7ff;
+  --color-surface: #ffffff;
+  --color-text: #1f1d2e;
+  --color-text2: #6b6780;
+  --color-text3: #9b98ad;
+  --color-success: #1d9e75;
+  --color-success-light: #e1f5ee;
+  --color-error: #e24b4a;
+  --color-error-light: #fdeceb;
+  --color-gold: #f5b800;
+  --color-gold-light: #fff8e0;
+  --color-border: rgba(83, 74, 183, 0.10);
+  --color-border-light: rgba(83, 74, 183, 0.06);
+  --shadow-card: 0 2px 16px rgba(83, 74, 183, 0.08);
+  --shadow-button: 0 6px 20px rgba(83, 74, 183, 0.35);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input {
+  outline: none;
+}
+
+/* 柔和波浪 */
+@keyframes waveBar {
+  from {
+    transform: scaleY(0.45);
+  }
+  to {
+    transform: scaleY(1.05);
+  }
+}
+
+@keyframes caretBlink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15%,
+  45%,
+  75% {
+    transform: translateX(-8px);
+  }
+  30%,
+  60%,
+  90% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes revealPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  60% {
+    transform: scale(1.08) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes badgePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkDraw {
+  from {
+    stroke-dashoffset: 26;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ringOut {
+  from {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+@keyframes autoNextBar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}

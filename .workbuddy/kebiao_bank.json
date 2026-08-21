@@ -1,0 +1,9716 @@
+[
+{
+"en": "a",
+"ph": "/ə/",
+"cn": "art. 一（个）",
+"band": 3
+},
+{
+"en": "a.m.",
+"ph": "/ˌeɪ ˈem/",
+"cn": "n. 上午；午前",
+"band": 3
+},
+{
+"en": "ability",
+"ph": "/əˈbɪləti/",
+"cn": "n. 能力",
+"band": 3
+},
+{
+"en": "able",
+"ph": "/ˈeɪbəl/",
+"cn": "adj. 能干的",
+"band": 3
+},
+{
+"en": "about",
+"ph": "/əˈbaʊt/",
+"cn": "prep. 关于",
+"band": 2
+},
+{
+"en": "above",
+"ph": "/əˈbʌv/",
+"cn": "prep. 在上方",
+"band": 3
+},
+{
+"en": "abroad",
+"ph": "/əˈbrɔːd/",
+"cn": "adv. 往国外",
+"band": 3
+},
+{
+"en": "absent",
+"ph": "/əbˈsent/",
+"cn": "adj. 缺席的",
+"band": 3
+},
+{
+"en": "accept",
+"ph": "/əkˈsept/",
+"cn": "v. 接受",
+"band": 3
+},
+{
+"en": "accident",
+"ph": "/ˈæksɪdənt/",
+"cn": "n. 意外事件",
+"band": 3
+},
+{
+"en": "according to",
+"ph": "/əˈkɔːdɪŋ tuː/",
+"cn": "prep. 根据；按照",
+"band": 3
+},
+{
+"en": "account",
+"ph": "/əˈkaʊnt/",
+"cn": "n. 账户",
+"band": 3
+},
+{
+"en": "ache",
+"ph": "/eɪk/",
+"cn": "n. 疼痛",
+"band": 3
+},
+{
+"en": "achieve",
+"ph": "/ətˈʃiːv/",
+"cn": "v. 达到；实现",
+"band": 3
+},
+{
+"en": "across",
+"ph": "/əˈkrɒs/",
+"cn": "prep. 越过",
+"band": 3
+},
+{
+"en": "act",
+"ph": "/ækt/",
+"cn": "n. 行动",
+"band": 3
+},
+{
+"en": "action",
+"ph": "/ˈækʃən/",
+"cn": "n. 行动",
+"band": 3
+},
+{
+"en": "active",
+"ph": "/ˈæktɪv/",
+"cn": "adj. 活跃的",
+"band": 3
+},
+{
+"en": "activity",
+"ph": "/ækˈtɪvɪti/",
+"cn": "n. 活动",
+"band": 3
+},
+{
+"en": "actor",
+"ph": "/ˈæktə(r)/",
+"cn": "n. 男演员",
+"band": 3
+},
+{
+"en": "actress",
+"ph": "/ˈæktrəs/",
+"cn": "n. 女演员",
+"band": 3
+},
+{
+"en": "actually",
+"ph": "/ˈæktʃuːəli/",
+"cn": "adv. 事实上",
+"band": 3
+},
+{
+"en": "ad",
+"ph": "/æd/",
+"cn": "n. 广告",
+"band": 3
+},
+{
+"en": "address",
+"ph": "/əˈdres/",
+"cn": "n. 住址",
+"band": 3
+},
+{
+"en": "admire",
+"ph": "/ədˈmaɪə(r)/",
+"cn": "v. 钦佩；赞赏",
+"band": 3
+},
+{
+"en": "adult",
+"ph": "/ˈædʌlt/",
+"cn": "n. 成人",
+"band": 3
+},
+{
+"en": "advantage",
+"ph": "/ədˈvɑːntɪdʒ/",
+"cn": "n. 优点",
+"band": 3
+},
+{
+"en": "advertisement",
+"ph": "/ədˈvɜːtɪsmənt/",
+"cn": "n. 广告",
+"band": 3
+},
+{
+"en": "advice",
+"ph": "/ədˈvaɪs/",
+"cn": "n. 建议",
+"band": 3
+},
+{
+"en": "advise",
+"ph": "/ədˈvaɪz/",
+"cn": "v. 劝告",
+"band": 3
+},
+{
+"en": "afford",
+"ph": "/əˈfɔːd/",
+"cn": "v. 买得起",
+"band": 3
+},
+{
+"en": "afraid",
+"ph": "/əˈfreɪd/",
+"cn": "adj. 害怕的",
+"band": 3
+},
+{
+"en": "after",
+"ph": "/ˈɑːftə(r)/",
+"cn": "prep. 在……之后",
+"band": 2
+},
+{
+"en": "afternoon",
+"ph": "/ˌɑːftəˈnuːn/",
+"cn": "n. 午后",
+"band": 2
+},
+{
+"en": "again",
+"ph": "/əˈɡen/",
+"cn": "adv. 再一次",
+"band": 2
+},
+{
+"en": "against",
+"ph": "/əˈɡenst/",
+"cn": "prep. 反对",
+"band": 3
+},
+{
+"en": "age",
+"ph": "/eɪdʒ/",
+"cn": "n. 年龄",
+"band": 2
+},
+{
+"en": "ago",
+"ph": "/əˈɡəʊ/",
+"cn": "adv. 以前",
+"band": 2
+},
+{
+"en": "agree",
+"ph": "/əɡˈriː/",
+"cn": "v. 同意",
+"band": 3
+},
+{
+"en": "ahead",
+"ph": "/əˈhed/",
+"cn": "adj. 领先的",
+"band": 3
+},
+{
+"en": "ai",
+"ph": "/ˌeɪ ˈaɪ/",
+"cn": "n. 人工智能",
+"band": 3
+},
+{
+"en": "aid",
+"ph": "/eɪd/",
+"cn": "n. 帮助",
+"band": 3
+},
+{
+"en": "aim",
+"ph": "/eɪm/",
+"cn": "n. 目标",
+"band": 3
+},
+{
+"en": "air",
+"ph": "/eə(r)/",
+"cn": "n. 空气",
+"band": 2
+},
+{
+"en": "airport",
+"ph": "/ˈeəpɔːt/",
+"cn": "n. 飞机场",
+"band": 3
+},
+{
+"en": "alarm",
+"ph": "/əˈlɑːm/",
+"cn": "n. 闹钟；警报",
+"band": 3
+},
+{
+"en": "all",
+"ph": "/ɔːl/",
+"cn": "adj. 所有的",
+"band": 2
+},
+{
+"en": "allow",
+"ph": "/əˈlaʊ/",
+"cn": "v. 允许",
+"band": 3
+},
+{
+"en": "almost",
+"ph": "/ˈɔːlməʊst/",
+"cn": "adv. 几乎",
+"band": 3
+},
+{
+"en": "alone",
+"ph": "/əˈləʊn/",
+"cn": "adj. 孤独的",
+"band": 3
+},
+{
+"en": "along",
+"ph": "/əˈlɒŋ/",
+"cn": "adv. 平行地",
+"band": 3
+},
+{
+"en": "aloud",
+"ph": "/əˈlaʊd/",
+"cn": "adv. 出声地",
+"band": 3
+},
+{
+"en": "already",
+"ph": "/ɔːlˈredi/",
+"cn": "adv. 已经",
+"band": 3
+},
+{
+"en": "also",
+"ph": "/ˈɒlsəʊ/",
+"cn": "adv. 也",
+"band": 2
+},
+{
+"en": "although",
+"ph": "/ɒlˈðəʊ/",
+"cn": "conj. 虽然",
+"band": 3
+},
+{
+"en": "always",
+"ph": "/ˈɔːlweɪz/",
+"cn": "adv. 总是",
+"band": 2
+},
+{
+"en": "amazing",
+"ph": "/əˈmeɪzɪŋ/",
+"cn": "adj. 令人惊异的",
+"band": 3
+},
+{
+"en": "among",
+"ph": "/əˈmʌŋ/",
+"cn": "prep. 在...之中",
+"band": 3
+},
+{
+"en": "an",
+"ph": "/ən/",
+"cn": "art. 一（个）",
+"band": 3
+},
+{
+"en": "ancient",
+"ph": "/ˈeɪnʃənt/",
+"cn": "adj. 古代的",
+"band": 3
+},
+{
+"en": "and",
+"ph": "/ænd/",
+"cn": "conj. 和",
+"band": 2
+},
+{
+"en": "angry",
+"ph": "/ˈæŋɡri/",
+"cn": "adj. 生气的",
+"band": 2
+},
+{
+"en": "animal",
+"ph": "/ˈænɪməl/",
+"cn": "n. 动物",
+"band": 2
+},
+{
+"en": "another",
+"ph": "/əˈnʌðə(r)/",
+"cn": "adj. 另外的",
+"band": 3
+},
+{
+"en": "answer",
+"ph": "/ˈɑːnsə(r)/",
+"cn": "v. 回答；n. 答案",
+"band": 2
+},
+{
+"en": "ant",
+"ph": "/ænt/",
+"cn": "n. 蚂蚁",
+"band": 3
+},
+{
+"en": "any",
+"ph": "/ˈeni/",
+"cn": "adj. 任何的",
+"band": 2
+},
+{
+"en": "anybody",
+"ph": "/ˈenɪˌbɒdi/",
+"cn": "pron. 任何人",
+"band": 3
+},
+{
+"en": "anyone",
+"ph": "/ˈenɪˌwɒn/",
+"cn": "pron. 任何人",
+"band": 3
+},
+{
+"en": "anything",
+"ph": "/ˈenɪˌθɪŋ/",
+"cn": "pron. 任何事",
+"band": 3
+},
+{
+"en": "anyway",
+"ph": "/ˈenɪˌweɪ/",
+"cn": "adv. 无论如何",
+"band": 3
+},
+{
+"en": "anywhere",
+"ph": "/ˈenɪˌweə(r)/",
+"cn": "adv. 无论何处",
+"band": 3
+},
+{
+"en": "apartment",
+"ph": "/əˈpɑːtmənt/",
+"cn": "n. 公寓",
+"band": 3
+},
+{
+"en": "app",
+"ph": "/æp/",
+"cn": "n. 应用程序",
+"band": 3
+},
+{
+"en": "appear",
+"ph": "/əˈpɪə(r)/",
+"cn": "v. 出现",
+"band": 3
+},
+{
+"en": "apple",
+"ph": "/ˈæpəl/",
+"cn": "n. 苹果",
+"band": 2
+},
+{
+"en": "area",
+"ph": "/ˈeərɪə/",
+"cn": "n. 区域",
+"band": 3
+},
+{
+"en": "arm",
+"ph": "/ɑːm/",
+"cn": "n. 手臂",
+"band": 2
+},
+{
+"en": "army",
+"ph": "/ˈɑːmi/",
+"cn": "n. 军队",
+"band": 3
+},
+{
+"en": "around",
+"ph": "/əˈraʊnd/",
+"cn": "prep. 在……周围",
+"band": 3
+},
+{
+"en": "arrive",
+"ph": "/əˈraɪv/",
+"cn": "v. 到达",
+"band": 3
+},
+{
+"en": "art",
+"ph": "/ɑːt/",
+"cn": "n. 艺术",
+"band": 2
+},
+{
+"en": "article",
+"ph": "/ˈɑːtɪkəl/",
+"cn": "n. 文章",
+"band": 3
+},
+{
+"en": "artist",
+"ph": "/ˈɑːtɪst/",
+"cn": "n. 艺术家",
+"band": 3
+},
+{
+"en": "as",
+"ph": "/əz/",
+"cn": "adv. 同样地",
+"band": 3
+},
+{
+"en": "ask",
+"ph": "/ɑːsk/",
+"cn": "v. 问；请求",
+"band": 2
+},
+{
+"en": "asleep",
+"ph": "/əˈsliːp/",
+"cn": "adj. 睡着的",
+"band": 3
+},
+{
+"en": "astronaut",
+"ph": "/ˈæstrənɔːt/",
+"cn": "n. 太空旅行者",
+"band": 2
+},
+{
+"en": "at",
+"ph": "/æt/",
+"cn": "prep. 在",
+"band": 2
+},
+{
+"en": "athlete",
+"ph": "/ˈæθliːt/",
+"cn": "n. 运动员",
+"band": 3
+},
+{
+"en": "attack",
+"ph": "/əˈtæk/",
+"cn": "n. 攻击",
+"band": 3
+},
+{
+"en": "attend",
+"ph": "/əˈtend/",
+"cn": "v. 参加",
+"band": 3
+},
+{
+"en": "attention",
+"ph": "/əˈtenʃən/",
+"cn": "n. 注意",
+"band": 3
+},
+{
+"en": "aunt",
+"ph": "/ɑːnt/",
+"cn": "n. 阿姨",
+"band": 2
+},
+{
+"en": "autumn",
+"ph": "/ˈɔːtʌm/",
+"cn": "n. 秋天",
+"band": 2
+},
+{
+"en": "average",
+"ph": "/ˈævrɪdʒ/",
+"cn": "adj. 平均的；普通的",
+"band": 3
+},
+{
+"en": "avoid",
+"ph": "/əˈvɔɪd/",
+"cn": "v. 避免",
+"band": 3
+},
+{
+"en": "awake",
+"ph": "/əˈweɪk/",
+"cn": "adj. 醒着的",
+"band": 3
+},
+{
+"en": "award",
+"ph": "/əˈwɔːd/",
+"cn": "n. 奖品",
+"band": 3
+},
+{
+"en": "aware",
+"ph": "/əˈweə(r)/",
+"cn": "adj. 知道的",
+"band": 3
+},
+{
+"en": "away",
+"ph": "/əˈweɪ/",
+"cn": "adv. 离开",
+"band": 3
+},
+{
+"en": "awful",
+"ph": "/ˈɔːfəl/",
+"cn": "adj. 可怕的",
+"band": 3
+},
+{
+"en": "baby",
+"ph": "/ˈbeɪbi/",
+"cn": "n. 婴儿",
+"band": 3
+},
+{
+"en": "back",
+"ph": "/bæk/",
+"cn": "adv. 回；向后",
+"band": 2
+},
+{
+"en": "background",
+"ph": "/ˈbækɡraʊnd/",
+"cn": "n. 背景",
+"band": 3
+},
+{
+"en": "bad",
+"ph": "/bæd/",
+"cn": "adj. 坏的",
+"band": 2
+},
+{
+"en": "badminton",
+"ph": "/ˈbædmɪntən/",
+"cn": "n. 羽毛球运动",
+"band": 3
+},
+{
+"en": "bag",
+"ph": "/bæɡ/",
+"cn": "n. 袋子",
+"band": 2
+},
+{
+"en": "balance",
+"ph": "/ˈbæləns/",
+"cn": "n. 平衡",
+"band": 3
+},
+{
+"en": "ball",
+"ph": "/bɔːl/",
+"cn": "n. 球",
+"band": 2
+},
+{
+"en": "balloon",
+"ph": "/bəˈluːn/",
+"cn": "n. 气球",
+"band": 3
+},
+{
+"en": "bamboo",
+"ph": "/ˌbæmˈbuː/",
+"cn": "n. 竹子",
+"band": 3
+},
+{
+"en": "banana",
+"ph": "/bəˈnɑːnə/",
+"cn": "n. 香蕉",
+"band": 2
+},
+{
+"en": "band",
+"ph": "/bænd/",
+"cn": "n. 乐队",
+"band": 3
+},
+{
+"en": "bank",
+"ph": "/bæŋk/",
+"cn": "n. 银行",
+"band": 3
+},
+{
+"en": "baseball",
+"ph": "/ˈbeɪsbɔːl/",
+"cn": "n. 棒球",
+"band": 3
+},
+{
+"en": "basic",
+"ph": "/ˈbeɪsɪk/",
+"cn": "n. 基本原理",
+"band": 3
+},
+{
+"en": "basket",
+"ph": "/ˈbɑːskɪt/",
+"cn": "n. 篮",
+"band": 3
+},
+{
+"en": "basketball",
+"ph": "/ˈbɑːskɪtbɔːl/",
+"cn": "n. 篮球",
+"band": 2
+},
+{
+"en": "bat",
+"ph": "/bæt/",
+"cn": "n. 蝙蝠",
+"band": 3
+},
+{
+"en": "bath",
+"ph": "/bɑːθ/",
+"cn": "n. 洗澡；浴室",
+"band": 3
+},
+{
+"en": "bathroom",
+"ph": "/ˈbɑːθruːm/",
+"cn": "n. 浴室",
+"band": 3
+},
+{
+"en": "be",
+"ph": "/biː/",
+"cn": "v. 是（am/is/are 的原形）",
+"band": 2
+},
+{
+"en": "beach",
+"ph": "/biːtʃ/",
+"cn": "n. 海滩",
+"band": 2
+},
+{
+"en": "bean",
+"ph": "/biːn/",
+"cn": "n. 豆子",
+"band": 3
+},
+{
+"en": "bear",
+"ph": "/beə(r)/",
+"cn": "n. 熊",
+"band": 2
+},
+{
+"en": "beat",
+"ph": "/biːt/",
+"cn": "n. 心跳(声)",
+"band": 3
+},
+{
+"en": "beautiful",
+"ph": "/ˈbjuːtɪfəl/",
+"cn": "adj. 美丽的",
+"band": 2
+},
+{
+"en": "because",
+"ph": "/bɪˈkʌz/",
+"cn": "conj. 因为",
+"band": 2
+},
+{
+"en": "become",
+"ph": "/bɪˈkʌm/",
+"cn": "v. 变成",
+"band": 3
+},
+{
+"en": "bed",
+"ph": "/bed/",
+"cn": "n. 床",
+"band": 2
+},
+{
+"en": "bedroom",
+"ph": "/ˈbedruːm/",
+"cn": "n. 卧室",
+"band": 3
+},
+{
+"en": "bee",
+"ph": "/biː/",
+"cn": "n. 蜜蜂",
+"band": 2
+},
+{
+"en": "beef",
+"ph": "/biːf/",
+"cn": "n. 牛肉",
+"band": 3
+},
+{
+"en": "before",
+"ph": "/bɪˈfɔː(r)/",
+"cn": "prep. 在……之前",
+"band": 2
+},
+{
+"en": "begin",
+"ph": "/bɪˈɡɪn/",
+"cn": "v. 开始",
+"band": 2
+},
+{
+"en": "behave",
+"ph": "/bɪˈheɪv/",
+"cn": "v. 举止端正",
+"band": 3
+},
+{
+"en": "behind",
+"ph": "/bɪˈhaɪnd/",
+"cn": "prep. 在……后面",
+"band": 2
+},
+{
+"en": "believe",
+"ph": "/bɪˈliːv/",
+"cn": "v. 相信",
+"band": 3
+},
+{
+"en": "bell",
+"ph": "/bel/",
+"cn": "n. 铃",
+"band": 3
+},
+{
+"en": "belong",
+"ph": "/bɪˈlɒŋ/",
+"cn": "v. 属于",
+"band": 3
+},
+{
+"en": "below",
+"ph": "/bɪˈləʊ/",
+"cn": "prep. 在下面",
+"band": 3
+},
+{
+"en": "belt",
+"ph": "/belt/",
+"cn": "n. 腰带",
+"band": 3
+},
+{
+"en": "benefit",
+"ph": "/ˈbenɪfɪt/",
+"cn": "n. 好处",
+"band": 3
+},
+{
+"en": "beside",
+"ph": "/bɪˈsaɪd/",
+"cn": "prep. 在……旁边",
+"band": 2
+},
+{
+"en": "best",
+"ph": "/best/",
+"cn": "adj. 最好的",
+"band": 2
+},
+{
+"en": "better",
+"ph": "/ˈbetə(r)/",
+"cn": "adj. 较好的",
+"band": 3
+},
+{
+"en": "between",
+"ph": "/bɪˈtwiːn/",
+"cn": "prep. 在……之间",
+"band": 2
+},
+{
+"en": "big",
+"ph": "/bɪɡ/",
+"cn": "adj. 大的",
+"band": 2
+},
+{
+"en": "bike",
+"ph": "/baɪk/",
+"cn": "n. 自行车",
+"band": 2
+},
+{
+"en": "bill",
+"ph": "/bɪl/",
+"cn": "n. 账单",
+"band": 3
+},
+{
+"en": "bin",
+"ph": "/bɪn/",
+"cn": "n. (贮存谷物等的)容器",
+"band": 3
+},
+{
+"en": "biology",
+"ph": "/baɪˈɒlədʒi/",
+"cn": "n. 生物学",
+"band": 3
+},
+{
+"en": "bird",
+"ph": "/bɜːd/",
+"cn": "n. 鸟",
+"band": 2
+},
+{
+"en": "birth",
+"ph": "/bɜːθ/",
+"cn": "n. 出生",
+"band": 3
+},
+{
+"en": "birthday",
+"ph": "/ˈbɜːθdeɪ/",
+"cn": "n. 生日",
+"band": 2
+},
+{
+"en": "biscuit",
+"ph": "/ˈbɪskɪt/",
+"cn": "n. 饼干",
+"band": 3
+},
+{
+"en": "bit",
+"ph": "/bɪt/",
+"cn": "n. 少量",
+"band": 3
+},
+{
+"en": "black",
+"ph": "/blæk/",
+"cn": "adj. 黑色的",
+"band": 2
+},
+{
+"en": "blackboard",
+"ph": "/ˈblækbɔːd/",
+"cn": "n. 黑板",
+"band": 2
+},
+{
+"en": "bleed",
+"ph": "/bliːd/",
+"cn": "v. 流血",
+"band": 3
+},
+{
+"en": "blind",
+"ph": "/blaɪnd/",
+"cn": "n. 蒙蔽物",
+"band": 3
+},
+{
+"en": "block",
+"ph": "/blɒk/",
+"cn": "n. 街区",
+"band": 3
+},
+{
+"en": "blood",
+"ph": "/blʌd/",
+"cn": "n. 血",
+"band": 3
+},
+{
+"en": "blouse",
+"ph": "/blaʊz/",
+"cn": "n. 宽松的上衣",
+"band": 3
+},
+{
+"en": "blow",
+"ph": "/bləʊ/",
+"cn": "v. 吹",
+"band": 3
+},
+{
+"en": "blue",
+"ph": "/bluː/",
+"cn": "adj. 蓝色的",
+"band": 2
+},
+{
+"en": "board",
+"ph": "/bɔːd/",
+"cn": "n. 木板",
+"band": 3
+},
+{
+"en": "boat",
+"ph": "/bəʊt/",
+"cn": "n. 船",
+"band": 2
+},
+{
+"en": "body",
+"ph": "/ˈbɒdi/",
+"cn": "n. 身体",
+"band": 2
+},
+{
+"en": "boil",
+"ph": "/bɔɪl/",
+"cn": "v. 煮；烧开",
+"band": 3
+},
+{
+"en": "book",
+"ph": "/bʊk/",
+"cn": "n. 书",
+"band": 2
+},
+{
+"en": "boring",
+"ph": "/ˈbɔːrɪŋ/",
+"cn": "adj. 烦人的",
+"band": 3
+},
+{
+"en": "born",
+"ph": "/bɔːn/",
+"cn": "adj. 天生的",
+"band": 3
+},
+{
+"en": "borrow",
+"ph": "/ˈbɒrəʊ/",
+"cn": "v. 借入",
+"band": 3
+},
+{
+"en": "boss",
+"ph": "/bɒs/",
+"cn": "n. 老板",
+"band": 3
+},
+{
+"en": "both",
+"ph": "/bəʊθ/",
+"cn": "adj. 两者的",
+"band": 3
+},
+{
+"en": "bottle",
+"ph": "/ˈbɒtəl/",
+"cn": "n. 瓶子",
+"band": 3
+},
+{
+"en": "bowl",
+"ph": "/bəʊl/",
+"cn": "n. 碗",
+"band": 3
+},
+{
+"en": "box",
+"ph": "/bɒks/",
+"cn": "n. 盒子",
+"band": 2
+},
+{
+"en": "boy",
+"ph": "/bɔɪ/",
+"cn": "n. 男孩",
+"band": 2
+},
+{
+"en": "brain",
+"ph": "/breɪn/",
+"cn": "n. 大脑",
+"band": 3
+},
+{
+"en": "brave",
+"ph": "/breɪv/",
+"cn": "adj. 勇敢的",
+"band": 3
+},
+{
+"en": "bread",
+"ph": "/bred/",
+"cn": "n. 面包",
+"band": 2
+},
+{
+"en": "break",
+"ph": "/breɪk/",
+"cn": "v. 打破；n. 休息",
+"band": 3
+},
+{
+"en": "breakfast",
+"ph": "/ˈbrekfəst/",
+"cn": "n. 早餐",
+"band": 2
+},
+{
+"en": "breath",
+"ph": "/breθ/",
+"cn": "n. 呼吸",
+"band": 3
+},
+{
+"en": "bridge",
+"ph": "/brɪdʒ/",
+"cn": "n. 桥",
+"band": 3
+},
+{
+"en": "bright",
+"ph": "/braɪt/",
+"cn": "adj. 明亮的",
+"band": 3
+},
+{
+"en": "bring",
+"ph": "/brɪŋ/",
+"cn": "v. 带来",
+"band": 2
+},
+{
+"en": "brother",
+"ph": "/ˈbrʌðə(r)/",
+"cn": "n. 兄弟",
+"band": 2
+},
+{
+"en": "brown",
+"ph": "/braʊn/",
+"cn": "adj. 棕色的",
+"band": 2
+},
+{
+"en": "brush",
+"ph": "/brʌʃ/",
+"cn": "n. 刷子；v. 刷",
+"band": 3
+},
+{
+"en": "budget",
+"ph": "/ˈbʌdʒɪt/",
+"cn": "n. 预算",
+"band": 3
+},
+{
+"en": "build",
+"ph": "/bɪld/",
+"cn": "v. 建立",
+"band": 3
+},
+{
+"en": "building",
+"ph": "/ˈbɪldɪŋ/",
+"cn": "n. 建筑物",
+"band": 3
+},
+{
+"en": "bully",
+"ph": "/ˈbʊli/",
+"cn": "n. 欺凌弱小者",
+"band": 3
+},
+{
+"en": "burn",
+"ph": "/bɜːn/",
+"cn": "v. 烧",
+"band": 3
+},
+{
+"en": "bus",
+"ph": "/bʌs/",
+"cn": "n. 公共汽车",
+"band": 2
+},
+{
+"en": "business",
+"ph": "/ˈbɪznəs/",
+"cn": "n. 生意",
+"band": 3
+},
+{
+"en": "busy",
+"ph": "/ˈbɪzi/",
+"cn": "adj. 忙碌的",
+"band": 2
+},
+{
+"en": "but",
+"ph": "/bʌt/",
+"cn": "conj. 但是",
+"band": 2
+},
+{
+"en": "butter",
+"ph": "/ˈbʌtə(r)/",
+"cn": "n. 奶油",
+"band": 3
+},
+{
+"en": "butterfly",
+"ph": "/ˈbʌtəflaɪ/",
+"cn": "n. 蝴蝶",
+"band": 3
+},
+{
+"en": "buy",
+"ph": "/baɪ/",
+"cn": "v. 买",
+"band": 2
+},
+{
+"en": "by",
+"ph": "/baɪ/",
+"cn": "prep. 通过；被",
+"band": 2
+},
+{
+"en": "cabbage",
+"ph": "/ˈkæbɪdʒ/",
+"cn": "n. 卷心菜",
+"band": 3
+},
+{
+"en": "cake",
+"ph": "/keɪk/",
+"cn": "n. 蛋糕",
+"band": 2
+},
+{
+"en": "calendar",
+"ph": "/ˈkæləndə(r)/",
+"cn": "n. 日历",
+"band": 3
+},
+{
+"en": "call",
+"ph": "/kɔːl/",
+"cn": "v. 打电话；称呼",
+"band": 2
+},
+{
+"en": "calm",
+"ph": "/kɑːm/",
+"cn": "adj. 平静的；镇静的",
+"band": 3
+},
+{
+"en": "camera",
+"ph": "/ˈkæmrə/",
+"cn": "n. 照相机",
+"band": 3
+},
+{
+"en": "camp",
+"ph": "/kæmp/",
+"cn": "n. 露营",
+"band": 3
+},
+{
+"en": "can",
+"ph": "/kæn/",
+"cn": "aux. 能；可以",
+"band": 2
+},
+{
+"en": "cancel",
+"ph": "/ˈkænsəl/",
+"cn": "v. 取消",
+"band": 3
+},
+{
+"en": "cancer",
+"ph": "/ˈkænsə(r)/",
+"cn": "n. 癌",
+"band": 3
+},
+{
+"en": "candle",
+"ph": "/ˈkændəl/",
+"cn": "n. 蜡烛",
+"band": 2
+},
+{
+"en": "candy",
+"ph": "/ˈkændi/",
+"cn": "n. 糖果",
+"band": 2
+},
+{
+"en": "cap",
+"ph": "/kæp/",
+"cn": "n. 帽子",
+"band": 2
+},
+{
+"en": "capital",
+"ph": "/ˈkæpɪtəl/",
+"cn": "n. 首都",
+"band": 3
+},
+{
+"en": "car",
+"ph": "/kɑː(r)/",
+"cn": "n. 汽车",
+"band": 2
+},
+{
+"en": "card",
+"ph": "/kɑːd/",
+"cn": "n. 卡片",
+"band": 2
+},
+{
+"en": "care",
+"ph": "/keə(r)/",
+"cn": "n. 照顾；v. 关心",
+"band": 3
+},
+{
+"en": "careful",
+"ph": "/ˈkeəfəl/",
+"cn": "adj. 小心的",
+"band": 2
+},
+{
+"en": "careless",
+"ph": "/ˈkeələs/",
+"cn": "adj. 粗心的",
+"band": 3
+},
+{
+"en": "carrot",
+"ph": "/ˈkærət/",
+"cn": "n. 胡萝卜",
+"band": 3
+},
+{
+"en": "carry",
+"ph": "/ˈkæri/",
+"cn": "v. 携带；搬运",
+"band": 3
+},
+{
+"en": "cartoon",
+"ph": "/kɑːˈtuːn/",
+"cn": "n. 动画片；卡通",
+"band": 3
+},
+{
+"en": "case",
+"ph": "/keɪs/",
+"cn": "n. 情况",
+"band": 3
+},
+{
+"en": "cat",
+"ph": "/kæt/",
+"cn": "n. 猫",
+"band": 2
+},
+{
+"en": "catch",
+"ph": "/kætʃ/",
+"cn": "v. 抓住；接住",
+"band": 2
+},
+{
+"en": "cause",
+"ph": "/kɔːz/",
+"cn": "n. 原因；v. 导致",
+"band": 3
+},
+{
+"en": "celebrate",
+"ph": "/ˈseləbreɪt/",
+"cn": "v. 庆祝",
+"band": 3
+},
+{
+"en": "cent",
+"ph": "/sent/",
+"cn": "n. 分",
+"band": 3
+},
+{
+"en": "central",
+"ph": "/ˈsentrəl/",
+"cn": "adj. 中央的",
+"band": 3
+},
+{
+"en": "centre",
+"ph": "/ˈsentə(r)/",
+"cn": "n. 中心",
+"band": 3
+},
+{
+"en": "century",
+"ph": "/ˈsentʃəri/",
+"cn": "n. 世纪",
+"band": 3
+},
+{
+"en": "certain",
+"ph": "/ˈsɜːtən/",
+"cn": "adj. 确定的",
+"band": 3
+},
+{
+"en": "chair",
+"ph": "/tʃeə(r)/",
+"cn": "n. 椅子",
+"band": 2
+},
+{
+"en": "chalk",
+"ph": "/tʃɔːk/",
+"cn": "n. 粉笔",
+"band": 3
+},
+{
+"en": "challenge",
+"ph": "/ˈtʃælɪndʒ/",
+"cn": "n. 挑战",
+"band": 3
+},
+{
+"en": "champion",
+"ph": "/ˈtʃæmpɪən/",
+"cn": "n. 冠军",
+"band": 3
+},
+{
+"en": "chance",
+"ph": "/tʃɑːns/",
+"cn": "n. 机会",
+"band": 3
+},
+{
+"en": "change",
+"ph": "/tʃeɪndʒ/",
+"cn": "v. 改变；n. 零钱",
+"band": 3
+},
+{
+"en": "character",
+"ph": "/ˈkærɪktə(r)/",
+"cn": "n. 角色；性格",
+"band": 3
+},
+{
+"en": "characteristic",
+"ph": "/ˌkærɪktəˈrɪstɪk/",
+"cn": "n. 特性",
+"band": 3
+},
+{
+"en": "charity",
+"ph": "/ˈtʃærɪti/",
+"cn": "n. 慈善",
+"band": 3
+},
+{
+"en": "chat",
+"ph": "/tʃæt/",
+"cn": "v. 聊天",
+"band": 3
+},
+{
+"en": "cheap",
+"ph": "/tʃiːp/",
+"cn": "adj. 便宜的",
+"band": 3
+},
+{
+"en": "cheat",
+"ph": "/tʃiːt/",
+"cn": "v. 作弊；欺骗",
+"band": 3
+},
+{
+"en": "check",
+"ph": "/tʃek/",
+"cn": "v. 检查；核对",
+"band": 3
+},
+{
+"en": "cheer",
+"ph": "/tʃɪə(r)/",
+"cn": "v. 欢呼；加油",
+"band": 3
+},
+{
+"en": "cheese",
+"ph": "/tʃiːz/",
+"cn": "n. 奶酪",
+"band": 3
+},
+{
+"en": "chemistry",
+"ph": "/ˈkemɪstri/",
+"cn": "n. 化学",
+"band": 3
+},
+{
+"en": "chess",
+"ph": "/tʃes/",
+"cn": "n. 国际象棋",
+"band": 3
+},
+{
+"en": "chicken",
+"ph": "/ˈtʃɪkɪn/",
+"cn": "n. 鸡；鸡肉",
+"band": 2
+},
+{
+"en": "child",
+"ph": "/tʃaɪld/",
+"cn": "n. 孩子",
+"band": 2
+},
+{
+"en": "children",
+"ph": "/ˈtʃɪldrən/",
+"cn": "n. 孩子们（child 的复数）",
+"band": 3
+},
+{
+"en": "china",
+"ph": "/ˈtʃaɪnə/",
+"cn": "n. 中国",
+"band": 2
+},
+{
+"en": "chinese",
+"ph": "/ˌtʃaɪˈniːz/",
+"cn": "n. 中文；中国人",
+"band": 2
+},
+{
+"en": "chip",
+"ph": "/tʃɪp/",
+"cn": "n. 薯条；芯片",
+"band": 3
+},
+{
+"en": "chocolate",
+"ph": "/ˈtʃɒklət/",
+"cn": "n. 巧克力",
+"band": 3
+},
+{
+"en": "choice",
+"ph": "/tʃɔɪs/",
+"cn": "n. 选择",
+"band": 3
+},
+{
+"en": "choose",
+"ph": "/tʃuːz/",
+"cn": "v. 选择",
+"band": 3
+},
+{
+"en": "chopsticks",
+"ph": "/ˈtʃɒpstɪks/",
+"cn": "n. 筷子",
+"band": 3
+},
+{
+"en": "chore",
+"ph": "/tʃɔː(r)/",
+"cn": "n. 家务活",
+"band": 2
+},
+{
+"en": "christmas",
+"ph": "/ˈkrɪsməs/",
+"cn": "n. 圣诞节",
+"band": 3
+},
+{
+"en": "cinema",
+"ph": "/ˈsɪnəmə/",
+"cn": "n. 电影院",
+"band": 2
+},
+{
+"en": "circle",
+"ph": "/ˈsɜːkəl/",
+"cn": "n. 圆；圆圈",
+"band": 3
+},
+{
+"en": "citizen",
+"ph": "/ˈsɪtɪzən/",
+"cn": "n. 市民",
+"band": 3
+},
+{
+"en": "city",
+"ph": "/ˈsɪti/",
+"cn": "n. 城市",
+"band": 2
+},
+{
+"en": "class",
+"ph": "/klɑːs/",
+"cn": "n. 班级",
+"band": 2
+},
+{
+"en": "classic",
+"ph": "/ˈklæsɪk/",
+"cn": "n. 古典作品",
+"band": 3
+},
+{
+"en": "classmate",
+"ph": "/ˈklɑːsmeɪt/",
+"cn": "n. 同班同学",
+"band": 3
+},
+{
+"en": "classroom",
+"ph": "/ˈklɑːsruːm/",
+"cn": "n. 教室",
+"band": 2
+},
+{
+"en": "clean",
+"ph": "/kliːn/",
+"cn": "v. 打扫；干净的",
+"band": 2
+},
+{
+"en": "clear",
+"ph": "/klɪə(r)/",
+"cn": "adj. 清楚的",
+"band": 3
+},
+{
+"en": "clever",
+"ph": "/ˈklevə(r)/",
+"cn": "adj. 聪明的",
+"band": 2
+},
+{
+"en": "click",
+"ph": "/klɪk/",
+"cn": "n. 咔哒声",
+"band": 3
+},
+{
+"en": "climate",
+"ph": "/ˈklaɪmət/",
+"cn": "n. 气候",
+"band": 3
+},
+{
+"en": "clock",
+"ph": "/klɒk/",
+"cn": "n. 时钟",
+"band": 2
+},
+{
+"en": "close",
+"ph": "/kləʊs/",
+"cn": "v. 关闭；adj. 近的",
+"band": 2
+},
+{
+"en": "clothes",
+"ph": "/kləʊðz/",
+"cn": "n. 衣服",
+"band": 2
+},
+{
+"en": "cloud",
+"ph": "/klaʊd/",
+"cn": "n. 云",
+"band": 3
+},
+{
+"en": "cloudy",
+"ph": "/ˈklaʊdi/",
+"cn": "adj. 多云的",
+"band": 2
+},
+{
+"en": "club",
+"ph": "/klʌb/",
+"cn": "n. 俱乐部",
+"band": 3
+},
+{
+"en": "coach",
+"ph": "/kəʊtʃ/",
+"cn": "n. 教练",
+"band": 3
+},
+{
+"en": "coast",
+"ph": "/kəʊst/",
+"cn": "n. 海岸",
+"band": 3
+},
+{
+"en": "coat",
+"ph": "/kəʊt/",
+"cn": "n. 外套",
+"band": 2
+},
+{
+"en": "coffee",
+"ph": "/ˈkɒfi/",
+"cn": "n. 咖啡",
+"band": 3
+},
+{
+"en": "coin",
+"ph": "/kɔɪn/",
+"cn": "n. 硬币",
+"band": 3
+},
+{
+"en": "cold",
+"ph": "/kəʊld/",
+"cn": "adj. 冷的；n. 感冒",
+"band": 2
+},
+{
+"en": "collect",
+"ph": "/kəˈlekt/",
+"cn": "v. 收集",
+"band": 3
+},
+{
+"en": "college",
+"ph": "/ˈkɒlɪdʒ/",
+"cn": "n. 学院",
+"band": 3
+},
+{
+"en": "colour",
+"ph": "/ˈkʌlə(r)/",
+"cn": "n. 颜色",
+"band": 2
+},
+{
+"en": "come",
+"ph": "/kʌm/",
+"cn": "v. 来",
+"band": 2
+},
+{
+"en": "comfortable",
+"ph": "/ˈkʌmftəbəl/",
+"cn": "adj. 舒服的",
+"band": 3
+},
+{
+"en": "common",
+"ph": "/ˈkɒmən/",
+"cn": "adj. 通常的",
+"band": 3
+},
+{
+"en": "communicate",
+"ph": "/kəmˈjuːnɪkeɪt/",
+"cn": "v. 交流；沟通",
+"band": 3
+},
+{
+"en": "community",
+"ph": "/kəmˈjuːnɪti/",
+"cn": "n. 社区",
+"band": 3
+},
+{
+"en": "company",
+"ph": "/ˈkʌmpəni/",
+"cn": "n. 公司",
+"band": 3
+},
+{
+"en": "compare",
+"ph": "/kəmˈpeə(r)/",
+"cn": "v. 比较",
+"band": 3
+},
+{
+"en": "compete",
+"ph": "/kəmˈpiːt/",
+"cn": "v. 竞争",
+"band": 3
+},
+{
+"en": "computer",
+"ph": "/kəmpˈjuːtə(r)/",
+"cn": "n. 电脑",
+"band": 2
+},
+{
+"en": "concert",
+"ph": "/ˈkɒnsət/",
+"cn": "n. 音乐会",
+"band": 3
+},
+{
+"en": "condition",
+"ph": "/kənˈdɪʃən/",
+"cn": "n. 情况",
+"band": 3
+},
+{
+"en": "confidence",
+"ph": "/ˈkɒnfɪdəns/",
+"cn": "n. 信心",
+"band": 3
+},
+{
+"en": "congratulation",
+"ph": "/kənˌɡrætʃuˈleɪʃn/",
+"cn": "n. 祝贺",
+"band": 3
+},
+{
+"en": "connect",
+"ph": "/kəˈnekt/",
+"cn": "v. 连接",
+"band": 3
+},
+{
+"en": "consider",
+"ph": "/kənˈsɪdə(r)/",
+"cn": "v. 考虑；认为",
+"band": 3
+},
+{
+"en": "continue",
+"ph": "/kənˈtɪnjuː/",
+"cn": "v. 继续",
+"band": 3
+},
+{
+"en": "control",
+"ph": "/kənˈtrəʊl/",
+"cn": "n. 控制",
+"band": 3
+},
+{
+"en": "convenient",
+"ph": "/kənˈviːnɪənt/",
+"cn": "adj. 方便的",
+"band": 3
+},
+{
+"en": "conversation",
+"ph": "/kɒnvəˈseɪʃən/",
+"cn": "n. 对话",
+"band": 3
+},
+{
+"en": "cook",
+"ph": "/kʊk/",
+"cn": "v. 烹调；煮",
+"band": 2
+},
+{
+"en": "cookie",
+"ph": "/ˈkʊki/",
+"cn": "n. 饼干",
+"band": 3
+},
+{
+"en": "cool",
+"ph": "/kuːl/",
+"cn": "adj. 凉的；酷的",
+"band": 2
+},
+{
+"en": "cooperate",
+"ph": "/kəʊˈɒpəreɪt/",
+"cn": "v. 合作",
+"band": 3
+},
+{
+"en": "copy",
+"ph": "/ˈkɒpi/",
+"cn": "v. 复制；复印",
+"band": 3
+},
+{
+"en": "corn",
+"ph": "/kɔːn/",
+"cn": "n. 玉米",
+"band": 3
+},
+{
+"en": "corner",
+"ph": "/ˈkɔːnə(r)/",
+"cn": "n. 角落",
+"band": 3
+},
+{
+"en": "correct",
+"ph": "/kəˈrekt/",
+"cn": "adj. 正确的",
+"band": 3
+},
+{
+"en": "cost",
+"ph": "/kɒst/",
+"cn": "v. 花费；n. 费用",
+"band": 3
+},
+{
+"en": "cotton",
+"ph": "/ˈkɒtən/",
+"cn": "n. 棉花",
+"band": 3
+},
+{
+"en": "cough",
+"ph": "/kɒf/",
+"cn": "n. 咳嗽",
+"band": 3
+},
+{
+"en": "could",
+"ph": "/kʊd/",
+"cn": "aux. 可以",
+"band": 3
+},
+{
+"en": "count",
+"ph": "/kaʊnt/",
+"cn": "v. 数数；计算",
+"band": 3
+},
+{
+"en": "country",
+"ph": "/ˈkʌntri/",
+"cn": "n. 国家",
+"band": 3
+},
+{
+"en": "countryside",
+"ph": "/ˈkʌntrɪsaɪd/",
+"cn": "n. 乡下地方",
+"band": 3
+},
+{
+"en": "couple",
+"ph": "/ˈkʌpəl/",
+"cn": "n. 一对；几个",
+"band": 3
+},
+{
+"en": "courage",
+"ph": "/ˈkʌrɪdʒ/",
+"cn": "n. 勇气",
+"band": 3
+},
+{
+"en": "course",
+"ph": "/kɔːs/",
+"cn": "n. 课程",
+"band": 3
+},
+{
+"en": "cousin",
+"ph": "/ˈkʌzən/",
+"cn": "n. 堂兄弟姊妹",
+"band": 2
+},
+{
+"en": "cover",
+"ph": "/ˈkʌvə(r)/",
+"cn": "v. 覆盖；n. 封面",
+"band": 3
+},
+{
+"en": "cow",
+"ph": "/kaʊ/",
+"cn": "n. 奶牛",
+"band": 2
+},
+{
+"en": "crazy",
+"ph": "/ˈkreɪzi/",
+"cn": "adj. 发狂的",
+"band": 3
+},
+{
+"en": "create",
+"ph": "/kriːˈeɪt/",
+"cn": "v. 创造",
+"band": 3
+},
+{
+"en": "creative",
+"ph": "/kriːˈeɪtɪv/",
+"cn": "adj. 有创造力的",
+"band": 3
+},
+{
+"en": "cross",
+"ph": "/krɒs/",
+"cn": "v. 穿过",
+"band": 3
+},
+{
+"en": "crowded",
+"ph": "/ˈkraʊdɪd/",
+"cn": "adj. 拥挤的",
+"band": 3
+},
+{
+"en": "cry",
+"ph": "/kraɪ/",
+"cn": "v. 哭；喊",
+"band": 2
+},
+{
+"en": "cucumber",
+"ph": "/ˈkjuːkʌmbə(r)/",
+"cn": "n. 黄瓜",
+"band": 3
+},
+{
+"en": "culture",
+"ph": "/ˈkʌltʃə(r)/",
+"cn": "n. 文化",
+"band": 3
+},
+{
+"en": "cup",
+"ph": "/kʌp/",
+"cn": "n. 杯子",
+"band": 2
+},
+{
+"en": "curious",
+"ph": "/ˈkjʊrɪəs/",
+"cn": "adj. 好奇的",
+"band": 3
+},
+{
+"en": "customer",
+"ph": "/ˈkʌstəmə(r)/",
+"cn": "n. 消费者",
+"band": 3
+},
+{
+"en": "cut",
+"ph": "/kʌt/",
+"cn": "v. 切；剪",
+"band": 3
+},
+{
+"en": "cute",
+"ph": "/kjuːt/",
+"cn": "adj. 可爱的",
+"band": 2
+},
+{
+"en": "daily",
+"ph": "/ˈdeɪli/",
+"cn": "adj. 每日的",
+"band": 3
+},
+{
+"en": "dance",
+"ph": "/dɑːns/",
+"cn": "v. 跳舞",
+"band": 2
+},
+{
+"en": "danger",
+"ph": "/ˈdeɪndʒə(r)/",
+"cn": "n. 危险",
+"band": 3
+},
+{
+"en": "dangerous",
+"ph": "/ˈdeɪndʒərəs/",
+"cn": "adj. 危险的",
+"band": 3
+},
+{
+"en": "dark",
+"ph": "/dɑːk/",
+"cn": "adj. 黑暗的",
+"band": 3
+},
+{
+"en": "day",
+"ph": "/deɪ/",
+"cn": "n. 天",
+"band": 2
+},
+{
+"en": "dead",
+"ph": "/ded/",
+"cn": "adj. 死的",
+"band": 3
+},
+{
+"en": "deaf",
+"ph": "/def/",
+"cn": "adj. 聋的",
+"band": 3
+},
+{
+"en": "deal",
+"ph": "/diːl/",
+"cn": "v. 处理；n. 协议",
+"band": 3
+},
+{
+"en": "dear",
+"ph": "/dɪə(r)/",
+"cn": "int. 哎呀；adj. 亲爱的",
+"band": 2
+},
+{
+"en": "death",
+"ph": "/deθ/",
+"cn": "n. 死亡",
+"band": 3
+},
+{
+"en": "decide",
+"ph": "/dɪˈsaɪd/",
+"cn": "v. 决定",
+"band": 3
+},
+{
+"en": "deep",
+"ph": "/diːp/",
+"cn": "adj. 深的",
+"band": 3
+},
+{
+"en": "degree",
+"ph": "/dɪɡˈriː/",
+"cn": "n. 程度",
+"band": 3
+},
+{
+"en": "delicious",
+"ph": "/dɪˈlɪʃəs/",
+"cn": "adj. 美味的",
+"band": 3
+},
+{
+"en": "dentist",
+"ph": "/ˈdentɪst/",
+"cn": "n. 牙科医生",
+"band": 3
+},
+{
+"en": "depend",
+"ph": "/dɪˈpend/",
+"cn": "v. 依靠；取决于",
+"band": 3
+},
+{
+"en": "describe",
+"ph": "/dɪˈskraɪb/",
+"cn": "v. 描述",
+"band": 3
+},
+{
+"en": "desert",
+"ph": "/ˈdezət/",
+"cn": "n. 沙漠",
+"band": 3
+},
+{
+"en": "design",
+"ph": "/dɪˈzaɪn/",
+"cn": "v. 设计",
+"band": 3
+},
+{
+"en": "desk",
+"ph": "/desk/",
+"cn": "n. 书桌",
+"band": 2
+},
+{
+"en": "develop",
+"ph": "/dɪˈveləp/",
+"cn": "v. 发展",
+"band": 3
+},
+{
+"en": "dialogue",
+"ph": "/ˈdaɪəlɒɡ/",
+"cn": "n. 对话",
+"band": 3
+},
+{
+"en": "diary",
+"ph": "/ˈdaɪəri/",
+"cn": "n. 日记",
+"band": 3
+},
+{
+"en": "dictionary",
+"ph": "/ˈdɪkʃənəri/",
+"cn": "n. 词典",
+"band": 3
+},
+{
+"en": "die",
+"ph": "/daɪ/",
+"cn": "v. 死；死亡",
+"band": 3
+},
+{
+"en": "diet",
+"ph": "/ˈdaɪət/",
+"cn": "n. 日常饮食",
+"band": 3
+},
+{
+"en": "difference",
+"ph": "/ˈdɪfrəns/",
+"cn": "n. 不同",
+"band": 3
+},
+{
+"en": "different",
+"ph": "/ˈdɪfrənt/",
+"cn": "adj. 不同的",
+"band": 3
+},
+{
+"en": "difficult",
+"ph": "/ˈdɪfɪkəlt/",
+"cn": "adj. 困难的",
+"band": 2
+},
+{
+"en": "dig",
+"ph": "/dɪɡ/",
+"cn": "v. 挖",
+"band": 3
+},
+{
+"en": "digital",
+"ph": "/ˈdɪdʒɪtəl/",
+"cn": "adj. 数字显示的",
+"band": 3
+},
+{
+"en": "dining",
+"ph": "/ˈdaɪnɪŋ/",
+"cn": "n. 用餐",
+"band": 3
+},
+{
+"en": "dinner",
+"ph": "/ˈdɪnə(r)/",
+"cn": "n. 晚餐",
+"band": 2
+},
+{
+"en": "direct",
+"ph": "/daɪˈrekt/",
+"cn": "adj. 直接的",
+"band": 3
+},
+{
+"en": "director",
+"ph": "/daɪˈrektə(r)/",
+"cn": "n. 导演；主管",
+"band": 3
+},
+{
+"en": "dirty",
+"ph": "/ˈdɜːti/",
+"cn": "adj. 肮脏的",
+"band": 2
+},
+{
+"en": "disappoint",
+"ph": "/ˌdɪsəˈpɔɪnt/",
+"cn": "v. 使失望",
+"band": 3
+},
+{
+"en": "disaster",
+"ph": "/ˌdɪˈsɑːstə(r)/",
+"cn": "n. 灾难",
+"band": 3
+},
+{
+"en": "discover",
+"ph": "/dɪˈskʌvə(r)/",
+"cn": "v. 发现",
+"band": 3
+},
+{
+"en": "discuss",
+"ph": "/dɪˈskʌs/",
+"cn": "v. 讨论",
+"band": 3
+},
+{
+"en": "disease",
+"ph": "/dɪˈziːz/",
+"cn": "n. 疾病",
+"band": 3
+},
+{
+"en": "dish",
+"ph": "/dɪʃ/",
+"cn": "n. 盘子",
+"band": 3
+},
+{
+"en": "divide",
+"ph": "/dɪˈvaɪd/",
+"cn": "v. 分开",
+"band": 3
+},
+{
+"en": "do",
+"ph": "/duː/",
+"cn": "v. 做",
+"band": 2
+},
+{
+"en": "doctor",
+"ph": "/ˈdɒktə(r)/",
+"cn": "n. 医生",
+"band": 2
+},
+{
+"en": "dog",
+"ph": "/dɒɡ/",
+"cn": "n. 狗",
+"band": 2
+},
+{
+"en": "doll",
+"ph": "/dɒl/",
+"cn": "n. 洋娃娃",
+"band": 2
+},
+{
+"en": "dollar",
+"ph": "/ˈdɒlə(r)/",
+"cn": "n. 美元",
+"band": 3
+},
+{
+"en": "donate",
+"ph": "/dəʊˈneɪt/",
+"cn": "v. 捐赠",
+"band": 3
+},
+{
+"en": "door",
+"ph": "/dɔː(r)/",
+"cn": "n. 门",
+"band": 2
+},
+{
+"en": "double",
+"ph": "/ˈdʌbəl/",
+"cn": "adj. 两倍的；双的",
+"band": 3
+},
+{
+"en": "doubt",
+"ph": "/daʊt/",
+"cn": "n. 怀疑",
+"band": 3
+},
+{
+"en": "down",
+"ph": "/daʊn/",
+"cn": "adv. 向下",
+"band": 2
+},
+{
+"en": "download",
+"ph": "/ˈdaʊnləʊd/",
+"cn": "v. 下载",
+"band": 3
+},
+{
+"en": "dragon",
+"ph": "/ˈdræɡən/",
+"cn": "n. 龙",
+"band": 3
+},
+{
+"en": "drama",
+"ph": "/ˈdrɑːmə/",
+"cn": "n. 戏剧",
+"band": 3
+},
+{
+"en": "draw",
+"ph": "/drɔː/",
+"cn": "v. 画",
+"band": 2
+},
+{
+"en": "dream",
+"ph": "/driːm/",
+"cn": "n. 梦；梦想",
+"band": 3
+},
+{
+"en": "dress",
+"ph": "/dres/",
+"cn": "n. 连衣裙",
+"band": 2
+},
+{
+"en": "drink",
+"ph": "/drɪŋk/",
+"cn": "v. 喝；饮",
+"band": 2
+},
+{
+"en": "drive",
+"ph": "/draɪv/",
+"cn": "v. 驾驶",
+"band": 3
+},
+{
+"en": "driver",
+"ph": "/ˈdraɪvə(r)/",
+"cn": "n. 驾驶员",
+"band": 2
+},
+{
+"en": "drop",
+"ph": "/drɒp/",
+"cn": "v. 掉落；落下",
+"band": 3
+},
+{
+"en": "dry",
+"ph": "/draɪ/",
+"cn": "adj. 干的",
+"band": 3
+},
+{
+"en": "duck",
+"ph": "/dʌk/",
+"cn": "n. 鸭子",
+"band": 2
+},
+{
+"en": "dumpling",
+"ph": "/ˈdʌmplɪŋ/",
+"cn": "n. 饺子",
+"band": 3
+},
+{
+"en": "during",
+"ph": "/ˈdjɔːrɪŋ/",
+"cn": "prep. 在...的时候",
+"band": 3
+},
+{
+"en": "duty",
+"ph": "/ˈdjuːti/",
+"cn": "n. 责任",
+"band": 3
+},
+{
+"en": "each",
+"ph": "/iːtʃ/",
+"cn": "adj. 每个",
+"band": 3
+},
+{
+"en": "eagle",
+"ph": "/ˈiːɡəl/",
+"cn": "n. 鹰",
+"band": 3
+},
+{
+"en": "ear",
+"ph": "/ɪə(r)/",
+"cn": "n. 耳朵",
+"band": 2
+},
+{
+"en": "early",
+"ph": "/ˈɜːli/",
+"cn": "adj. 早的",
+"band": 2
+},
+{
+"en": "earth",
+"ph": "/ɜːθ/",
+"cn": "n. 地球",
+"band": 2
+},
+{
+"en": "earthquake",
+"ph": "/ˈɜːθkweɪk/",
+"cn": "n. 地震",
+"band": 3
+},
+{
+"en": "east",
+"ph": "/iːst/",
+"cn": "n. 东方",
+"band": 3
+},
+{
+"en": "easy",
+"ph": "/ˈiːzi/",
+"cn": "adj. 容易的",
+"band": 2
+},
+{
+"en": "eat",
+"ph": "/iːt/",
+"cn": "v. 吃",
+"band": 2
+},
+{
+"en": "education",
+"ph": "/ˌedʒuːˈkeɪʃən/",
+"cn": "n. 教育",
+"band": 3
+},
+{
+"en": "effect",
+"ph": "/ɪˈfekt/",
+"cn": "n. 效果；影响",
+"band": 3
+},
+{
+"en": "effort",
+"ph": "/ˈefət/",
+"cn": "n. 努力",
+"band": 3
+},
+{
+"en": "egg",
+"ph": "/eɡ/",
+"cn": "n. 蛋",
+"band": 2
+},
+{
+"en": "either",
+"ph": "/ˈaɪðə(r)/",
+"cn": "adj. (两者之中)任一的",
+"band": 3
+},
+{
+"en": "elder",
+"ph": "/ˈeldə(r)/",
+"cn": "n. 年长者",
+"band": 3
+},
+{
+"en": "electric",
+"ph": "/ɪˈlektrɪk/",
+"cn": "adj. 电的",
+"band": 3
+},
+{
+"en": "electronic",
+"ph": "/ˌelɪkˈtrɒnɪk/",
+"cn": "adj. 电子的",
+"band": 3
+},
+{
+"en": "elephant",
+"ph": "/ˈelɪfənt/",
+"cn": "n. 大象",
+"band": 2
+},
+{
+"en": "else",
+"ph": "/els/",
+"cn": "adv. 另外；其他",
+"band": 3
+},
+{
+"en": "email",
+"ph": "/ˈiːmeɪl/",
+"cn": "n. 电子信函",
+"band": 2
+},
+{
+"en": "emergency",
+"ph": "/ɪˈmɜːdʒənsi/",
+"cn": "n. 紧急状况",
+"band": 3
+},
+{
+"en": "emperor",
+"ph": "/ˈempərə(r)/",
+"cn": "n. 皇帝",
+"band": 3
+},
+{
+"en": "empress",
+"ph": "/ˈempres/",
+"cn": "n. 皇后",
+"band": 3
+},
+{
+"en": "encourage",
+"ph": "/ɪnˈkʌrɪdʒ/",
+"cn": "v. 鼓励",
+"band": 3
+},
+{
+"en": "end",
+"ph": "/end/",
+"cn": "n. 结束",
+"band": 3
+},
+{
+"en": "enemy",
+"ph": "/ˈenəmi/",
+"cn": "n. 敌人",
+"band": 3
+},
+{
+"en": "energetic",
+"ph": "/ˌenədˈʒetɪk/",
+"cn": "adj. 精力充沛的",
+"band": 3
+},
+{
+"en": "energy",
+"ph": "/ˈenədʒi/",
+"cn": "n. 精力",
+"band": 3
+},
+{
+"en": "engineer",
+"ph": "/ˌendʒɪˈnɪə(r)/",
+"cn": "n. 工程师",
+"band": 3
+},
+{
+"en": "english",
+"ph": "/ˈɪŋɡlɪʃ/",
+"cn": "n. 英语",
+"band": 2
+},
+{
+"en": "enjoy",
+"ph": "/endˈʒɔɪ/",
+"cn": "v. 享受；喜爱",
+"band": 3
+},
+{
+"en": "enough",
+"ph": "/ɪˈnʌf/",
+"cn": "adj. 足够的；adv. 足够地",
+"band": 3
+},
+{
+"en": "enter",
+"ph": "/ˈentə(r)/",
+"cn": "v. 进入",
+"band": 3
+},
+{
+"en": "environment",
+"ph": "/ɪnˈvaɪrənmənt/",
+"cn": "n. 环境",
+"band": 3
+},
+{
+"en": "era",
+"ph": "/ˈɪərə/",
+"cn": "n. 时代",
+"band": 3
+},
+{
+"en": "eraser",
+"ph": "/ɪˈreɪzə(r)/",
+"cn": "n. 橡皮",
+"band": 3
+},
+{
+"en": "especially",
+"ph": "/ɪˈspeʃəli/",
+"cn": "adv. 尤其",
+"band": 3
+},
+{
+"en": "even",
+"ph": "/ˈiːvən/",
+"cn": "adv. 甚至",
+"band": 3
+},
+{
+"en": "evening",
+"ph": "/ˈiːvnɪŋ/",
+"cn": "n. 傍晚",
+"band": 2
+},
+{
+"en": "event",
+"ph": "/ɪˈvent/",
+"cn": "n. 事件",
+"band": 3
+},
+{
+"en": "ever",
+"ph": "/ˈevə(r)/",
+"cn": "adv. 曾经",
+"band": 3
+},
+{
+"en": "every",
+"ph": "/ˈevri/",
+"cn": "adj. 每一",
+"band": 2
+},
+{
+"en": "everybody",
+"ph": "/ˈevrɪˌbɒdi/",
+"cn": "pron. 每个人",
+"band": 3
+},
+{
+"en": "everyday",
+"ph": "/ˈevrɪdeɪ/",
+"cn": "adj. 每天的",
+"band": 3
+},
+{
+"en": "everyone",
+"ph": "/ˈevrɪˌwɒn/",
+"cn": "pron. 每个人",
+"band": 3
+},
+{
+"en": "everything",
+"ph": "/ˈevrɪˌθɪŋ/",
+"cn": "pron. 每件事物",
+"band": 3
+},
+{
+"en": "everywhere",
+"ph": "/ˈevrɪˌweə(r)/",
+"cn": "adv. 到处",
+"band": 3
+},
+{
+"en": "exactly",
+"ph": "/ɪɡˈzæktli/",
+"cn": "adv. 确切地",
+"band": 3
+},
+{
+"en": "exam",
+"ph": "/ɪɡˈzæm/",
+"cn": "n. 考试",
+"band": 3
+},
+{
+"en": "examination",
+"ph": "/ɪɡˌzæmɪˈneɪʃn/",
+"cn": "n. 考试",
+"band": 3
+},
+{
+"en": "example",
+"ph": "/ɪɡˈzɑːmpəl/",
+"cn": "n. 例子",
+"band": 3
+},
+{
+"en": "excellent",
+"ph": "/ˈeksələnt/",
+"cn": "adj. 优良的",
+"band": 3
+},
+{
+"en": "except",
+"ph": "/ɪkˈsept/",
+"cn": "prep. 除……之外",
+"band": 3
+},
+{
+"en": "excited",
+"ph": "/ɪkˈsaɪtɪd/",
+"cn": "adj. 兴奋的",
+"band": 2
+},
+{
+"en": "exciting",
+"ph": "/ɪkˈsaɪtɪŋ/",
+"cn": "adj. 令人兴奋的",
+"band": 3
+},
+{
+"en": "excuse",
+"ph": "/ɪkˈskjuːs/",
+"cn": "v. 原谅",
+"band": 3
+},
+{
+"en": "exercise",
+"ph": "/ˈeksəsaɪz/",
+"cn": "n. 锻炼；练习",
+"band": 2
+},
+{
+"en": "expect",
+"ph": "/ɪkˈspekt/",
+"cn": "v. 预期",
+"band": 3
+},
+{
+"en": "expensive",
+"ph": "/ɪkˈspensɪv/",
+"cn": "adj. 昂贵的",
+"band": 3
+},
+{
+"en": "experience",
+"ph": "/ɪkˈspɪəriəns/",
+"cn": "n. 经历",
+"band": 3
+},
+{
+"en": "expert",
+"ph": "/ˈekspɜːt/",
+"cn": "n. 专家",
+"band": 3
+},
+{
+"en": "explain",
+"ph": "/ɪkˈspleɪn/",
+"cn": "v. 解释",
+"band": 3
+},
+{
+"en": "explore",
+"ph": "/ɪkˈsplɔː(r)/",
+"cn": "v. 探险",
+"band": 3
+},
+{
+"en": "express",
+"ph": "/ɪkˈspres/",
+"cn": "v. 表达",
+"band": 3
+},
+{
+"en": "eye",
+"ph": "/aɪ/",
+"cn": "n. 眼睛",
+"band": 2
+},
+{
+"en": "face",
+"ph": "/feɪs/",
+"cn": "n. 脸",
+"band": 2
+},
+{
+"en": "fact",
+"ph": "/fækt/",
+"cn": "n. 事实",
+"band": 3
+},
+{
+"en": "factory",
+"ph": "/ˈfæktəri/",
+"cn": "n. 工厂",
+"band": 3
+},
+{
+"en": "fail",
+"ph": "/feɪl/",
+"cn": "v. 失败；不及格",
+"band": 3
+},
+{
+"en": "fair",
+"ph": "/feə(r)/",
+"cn": "adj. 公平的",
+"band": 3
+},
+{
+"en": "fall",
+"ph": "/fɔːl/",
+"cn": "v. 落下；跌倒",
+"band": 3
+},
+{
+"en": "false",
+"ph": "/fɒls/",
+"cn": "adj. 错误的",
+"band": 3
+},
+{
+"en": "familiar",
+"ph": "/fəˈmɪlɪə(r)/",
+"cn": "adj. 熟悉的",
+"band": 3
+},
+{
+"en": "family",
+"ph": "/ˈfæmɪli/",
+"cn": "n. 家庭",
+"band": 2
+},
+{
+"en": "famous",
+"ph": "/ˈfeɪməs/",
+"cn": "adj. 出名的",
+"band": 2
+},
+{
+"en": "fan",
+"ph": "/fæn/",
+"cn": "n. 迷；风扇",
+"band": 2
+},
+{
+"en": "fantastic",
+"ph": "/fɑːnˈtæstɪk/",
+"cn": "adj. 奇妙的",
+"band": 3
+},
+{
+"en": "far",
+"ph": "/fɑː(r)/",
+"cn": "adj. 远的",
+"band": 2
+},
+{
+"en": "farm",
+"ph": "/fɑːm/",
+"cn": "n. 农场",
+"band": 2
+},
+{
+"en": "farmer",
+"ph": "/ˈfɑːmə(r)/",
+"cn": "n. 农夫",
+"band": 2
+},
+{
+"en": "fashion",
+"ph": "/ˈfæʃən/",
+"cn": "n. 时尚",
+"band": 3
+},
+{
+"en": "fast",
+"ph": "/fɑːst/",
+"cn": "adj. 快速的",
+"band": 2
+},
+{
+"en": "fat",
+"ph": "/fæt/",
+"cn": "adj. 胖的；n. 脂肪",
+"band": 3
+},
+{
+"en": "father",
+"ph": "/ˈfɑːðə(r)/",
+"cn": "n. 父亲",
+"band": 2
+},
+{
+"en": "favourite",
+"ph": "/ˈfeɪvrɪt/",
+"cn": "n. 喜欢的事物",
+"band": 2
+},
+{
+"en": "fear",
+"ph": "/fɪə(r)/",
+"cn": "n. 害怕；恐惧",
+"band": 3
+},
+{
+"en": "feed",
+"ph": "/fiːd/",
+"cn": "v. 喂养",
+"band": 3
+},
+{
+"en": "feel",
+"ph": "/fiːl/",
+"cn": "v. 感觉",
+"band": 2
+},
+{
+"en": "feeling",
+"ph": "/ˈfiːlɪŋ/",
+"cn": "n. 感觉",
+"band": 3
+},
+{
+"en": "feet",
+"ph": "/fiːt/",
+"cn": "n. 脚（foot 的复数）",
+"band": 3
+},
+{
+"en": "festival",
+"ph": "/ˈfestɪvəl/",
+"cn": "adj. 节日的",
+"band": 3
+},
+{
+"en": "fever",
+"ph": "/ˈfiːvə(r)/",
+"cn": "n. 发烧",
+"band": 3
+},
+{
+"en": "few",
+"ph": "/fjuː/",
+"cn": "adj. 很少的",
+"band": 3
+},
+{
+"en": "field",
+"ph": "/fiːld/",
+"cn": "n. 田地；领域",
+"band": 3
+},
+{
+"en": "fight",
+"ph": "/faɪt/",
+"cn": "v. 打架；打仗",
+"band": 3
+},
+{
+"en": "fill",
+"ph": "/fɪl/",
+"cn": "v. 装满；填满",
+"band": 3
+},
+{
+"en": "film",
+"ph": "/fɪlm/",
+"cn": "n. 电影",
+"band": 2
+},
+{
+"en": "final",
+"ph": "/ˈfaɪnəl/",
+"cn": "n. 期末考试",
+"band": 3
+},
+{
+"en": "find",
+"ph": "/faɪnd/",
+"cn": "v. 找到；发现",
+"band": 2
+},
+{
+"en": "fine",
+"ph": "/faɪn/",
+"cn": "adj. 好的；晴朗的",
+"band": 2
+},
+{
+"en": "finger",
+"ph": "/ˈfɪŋɡə(r)/",
+"cn": "n. 手指",
+"band": 3
+},
+{
+"en": "finish",
+"ph": "/ˈfɪnɪʃ/",
+"cn": "v. 完成；结束",
+"band": 3
+},
+{
+"en": "fire",
+"ph": "/ˈfaɪə(r)/",
+"cn": "n. 火",
+"band": 2
+},
+{
+"en": "fireman",
+"ph": "/ˈfaɪəmən/",
+"cn": "n. 救火队员",
+"band": 3
+},
+{
+"en": "firemen",
+"ph": "/ˈfaɪəmen/",
+"cn": "n. 消防员（fireman 的复数）",
+"band": 3
+},
+{
+"en": "firework",
+"ph": "/ˈfaɪəwɜːk/",
+"cn": "n. 烟火具",
+"band": 3
+},
+{
+"en": "fish",
+"ph": "/fɪʃ/",
+"cn": "n. 鱼",
+"band": 2
+},
+{
+"en": "fit",
+"ph": "/fɪt/",
+"cn": "v. 适合；adj. 健康的",
+"band": 3
+},
+{
+"en": "fix",
+"ph": "/fɪks/",
+"cn": "v. 修理",
+"band": 3
+},
+{
+"en": "flag",
+"ph": "/flæɡ/",
+"cn": "n. 旗",
+"band": 3
+},
+{
+"en": "flat",
+"ph": "/flæt/",
+"cn": "n. 公寓",
+"band": 3
+},
+{
+"en": "flood",
+"ph": "/flʌd/",
+"cn": "n. 洪水",
+"band": 3
+},
+{
+"en": "floor",
+"ph": "/flɔː(r)/",
+"cn": "n. 地板",
+"band": 2
+},
+{
+"en": "flower",
+"ph": "/ˈflaʊə(r)/",
+"cn": "n. 花",
+"band": 2
+},
+{
+"en": "flu",
+"ph": "/fluː/",
+"cn": "n. 流感",
+"band": 3
+},
+{
+"en": "fly",
+"ph": "/flaɪ/",
+"cn": "v. 飞；放（风筝）",
+"band": 2
+},
+{
+"en": "focus",
+"ph": "/ˈfəʊkəs/",
+"cn": "n. 焦点",
+"band": 3
+},
+{
+"en": "fog",
+"ph": "/fɒɡ/",
+"cn": "n. 雾",
+"band": 3
+},
+{
+"en": "folk",
+"ph": "/fəʊk/",
+"cn": "n. 民间；人们",
+"band": 3
+},
+{
+"en": "follow",
+"ph": "/ˈfɒləʊ/",
+"cn": "v. 跟随；接着",
+"band": 3
+},
+{
+"en": "food",
+"ph": "/fuːd/",
+"cn": "n. 食物",
+"band": 2
+},
+{
+"en": "fool",
+"ph": "/fuːl/",
+"cn": "n. 傻瓜",
+"band": 3
+},
+{
+"en": "foot",
+"ph": "/fʊt/",
+"cn": "n. 脚",
+"band": 2
+},
+{
+"en": "football",
+"ph": "/ˈfʊtbɔːl/",
+"cn": "n. 足球",
+"band": 2
+},
+{
+"en": "for",
+"ph": "/fɔː(r)/",
+"cn": "prep. 为；给",
+"band": 2
+},
+{
+"en": "force",
+"ph": "/fɔːs/",
+"cn": "n. 力量",
+"band": 3
+},
+{
+"en": "foreign",
+"ph": "/ˈfɒrən/",
+"cn": "adj. 外国的",
+"band": 3
+},
+{
+"en": "forest",
+"ph": "/ˈfɒrɪst/",
+"cn": "n. 森林",
+"band": 3
+},
+{
+"en": "forever",
+"ph": "/fəˈrevə(r)/",
+"cn": "adv. 永远",
+"band": 3
+},
+{
+"en": "forget",
+"ph": "/fəˈɡet/",
+"cn": "v. 忘记",
+"band": 3
+},
+{
+"en": "fork",
+"ph": "/fɔːk/",
+"cn": "n. 叉子",
+"band": 3
+},
+{
+"en": "form",
+"ph": "/fɔːm/",
+"cn": "n. 形式；表格",
+"band": 3
+},
+{
+"en": "forward",
+"ph": "/ˈfɔːwəd/",
+"cn": "adj. 向前的",
+"band": 3
+},
+{
+"en": "found",
+"ph": "/faʊnd/",
+"cn": "v. 创建；成立",
+"band": 3
+},
+{
+"en": "fox",
+"ph": "/fɒks/",
+"cn": "n. 狐狸",
+"band": 3
+},
+{
+"en": "free",
+"ph": "/friː/",
+"cn": "adj. 自由的",
+"band": 2
+},
+{
+"en": "freeze",
+"ph": "/friːz/",
+"cn": "v. 冻结",
+"band": 3
+},
+{
+"en": "fresh",
+"ph": "/freʃ/",
+"cn": "adj. 新鲜的",
+"band": 3
+},
+{
+"en": "fridge",
+"ph": "/frɪdʒ/",
+"cn": "n. 电冰箱",
+"band": 3
+},
+{
+"en": "friend",
+"ph": "/frend/",
+"cn": "n. 朋友",
+"band": 2
+},
+{
+"en": "friendship",
+"ph": "/ˈfrendʃɪp/",
+"cn": "n. 友谊",
+"band": 3
+},
+{
+"en": "from",
+"ph": "/frɒm/",
+"cn": "prep. 从",
+"band": 2
+},
+{
+"en": "front",
+"ph": "/frʌnt/",
+"cn": "n. 前面",
+"band": 2
+},
+{
+"en": "fruit",
+"ph": "/fruːt/",
+"cn": "n. 水果",
+"band": 2
+},
+{
+"en": "full",
+"ph": "/fʊl/",
+"cn": "adj. 满的",
+"band": 3
+},
+{
+"en": "fun",
+"ph": "/fʌn/",
+"cn": "n. 乐趣",
+"band": 3
+},
+{
+"en": "funny",
+"ph": "/ˈfʌni/",
+"cn": "adj. 好笑的",
+"band": 3
+},
+{
+"en": "future",
+"ph": "/ˈfjuːtʃə(r)/",
+"cn": "n. 未来",
+"band": 3
+},
+{
+"en": "game",
+"ph": "/ɡeɪm/",
+"cn": "n. 游戏；比赛",
+"band": 2
+},
+{
+"en": "garden",
+"ph": "/ˈɡɑːdən/",
+"cn": "n. 花园",
+"band": 2
+},
+{
+"en": "gas",
+"ph": "/ɡæs/",
+"cn": "n. 气体；煤气",
+"band": 3
+},
+{
+"en": "gate",
+"ph": "/ɡeɪt/",
+"cn": "n. 门",
+"band": 3
+},
+{
+"en": "general",
+"ph": "/ˈdʒenərəl/",
+"cn": "adj. 一般的；大体的",
+"band": 3
+},
+{
+"en": "gentleman",
+"ph": "/ˈdʒentəlmən/",
+"cn": "n. 绅士",
+"band": 3
+},
+{
+"en": "gentlemen",
+"ph": "/ˈdʒentəlmən/",
+"cn": "n. 先生们（gentleman 的复数）",
+"band": 3
+},
+{
+"en": "geography",
+"ph": "/dʒɪˈɒɡrəfi/",
+"cn": "n. 地理学",
+"band": 3
+},
+{
+"en": "get",
+"ph": "/ɡet/",
+"cn": "v. 得到",
+"band": 2
+},
+{
+"en": "gift",
+"ph": "/ɡɪft/",
+"cn": "n. 礼物",
+"band": 2
+},
+{
+"en": "giraffe",
+"ph": "/dʒɪˈrɑːf/",
+"cn": "n. 长颈鹿",
+"band": 3
+},
+{
+"en": "girl",
+"ph": "/ɡɜːl/",
+"cn": "n. 女孩",
+"band": 2
+},
+{
+"en": "give",
+"ph": "/ɡɪv/",
+"cn": "v. 给",
+"band": 2
+},
+{
+"en": "glad",
+"ph": "/ɡlæd/",
+"cn": "adj. 高兴的",
+"band": 3
+},
+{
+"en": "glass",
+"ph": "/ɡlɑːs/",
+"cn": "n. 玻璃",
+"band": 2
+},
+{
+"en": "glove",
+"ph": "/ɡlʌv/",
+"cn": "n. 手套",
+"band": 3
+},
+{
+"en": "glue",
+"ph": "/ɡluː/",
+"cn": "n. 胶",
+"band": 3
+},
+{
+"en": "go",
+"ph": "/ɡəʊ/",
+"cn": "v. 去",
+"band": 2
+},
+{
+"en": "goal",
+"ph": "/ɡəʊl/",
+"cn": "n. 目标；进球",
+"band": 3
+},
+{
+"en": "god",
+"ph": "/ɡɒd/",
+"cn": "n. 上帝",
+"band": 3
+},
+{
+"en": "gold",
+"ph": "/ɡəʊld/",
+"cn": "n. 黄金",
+"band": 3
+},
+{
+"en": "good",
+"ph": "/ɡʊd/",
+"cn": "adj. 好的",
+"band": 2
+},
+{
+"en": "goodbye",
+"ph": "/ˌɡʊdˈbaɪ/",
+"cn": "int. 再见",
+"band": 2
+},
+{
+"en": "grade",
+"ph": "/ɡreɪd/",
+"cn": "n. 年级；分数",
+"band": 3
+},
+{
+"en": "graduate",
+"ph": "/ˈɡrædʒuət/",
+"cn": "n. 毕业生",
+"band": 3
+},
+{
+"en": "grammar",
+"ph": "/ˈɡræmə(r)/",
+"cn": "n. 语法学",
+"band": 3
+},
+{
+"en": "grandfather",
+"ph": "/ˈɡrændfɑːðə(r)/",
+"cn": "n. 祖父",
+"band": 2
+},
+{
+"en": "grandma",
+"ph": "/ˈɡrændmɑː/",
+"cn": "n. 奶奶",
+"band": 3
+},
+{
+"en": "grandmother",
+"ph": "/ˈɡrændmʌðə(r)/",
+"cn": "n. 祖母",
+"band": 2
+},
+{
+"en": "grandpa",
+"ph": "/ˈɡrændpɑː/",
+"cn": "n. 爷爷",
+"band": 3
+},
+{
+"en": "grape",
+"ph": "/ɡreɪp/",
+"cn": "n. 葡萄",
+"band": 2
+},
+{
+"en": "grass",
+"ph": "/ɡrɑːs/",
+"cn": "n. 草",
+"band": 2
+},
+{
+"en": "gray",
+"ph": "/ɡreɪ/",
+"cn": "adj. 灰色的",
+"band": 3
+},
+{
+"en": "great",
+"ph": "/ɡreɪt/",
+"cn": "adj. 伟大的；好极的",
+"band": 2
+},
+{
+"en": "green",
+"ph": "/ɡriːn/",
+"cn": "adj. 绿色的",
+"band": 2
+},
+{
+"en": "greet",
+"ph": "/ɡriːt/",
+"cn": "v. 问候",
+"band": 3
+},
+{
+"en": "grey",
+"ph": "/ɡreɪ/",
+"cn": "adj. 灰色的",
+"band": 3
+},
+{
+"en": "ground",
+"ph": "/ɡraʊnd/",
+"cn": "n. 地面",
+"band": 3
+},
+{
+"en": "group",
+"ph": "/ɡruːp/",
+"cn": "n. 团体",
+"band": 3
+},
+{
+"en": "grow",
+"ph": "/ɡrəʊ/",
+"cn": "v. 生长；种植",
+"band": 3
+},
+{
+"en": "guard",
+"ph": "/ɡɑːd/",
+"cn": "n. 守卫者",
+"band": 3
+},
+{
+"en": "guess",
+"ph": "/ɡes/",
+"cn": "v. 猜",
+"band": 3
+},
+{
+"en": "guest",
+"ph": "/ɡest/",
+"cn": "n. 客人",
+"band": 3
+},
+{
+"en": "guide",
+"ph": "/ɡaɪd/",
+"cn": "n. 引导者",
+"band": 3
+},
+{
+"en": "guitar",
+"ph": "/ɡɪˈtɑː(r)/",
+"cn": "n. 吉他",
+"band": 3
+},
+{
+"en": "gun",
+"ph": "/ɡʌn/",
+"cn": "n. 枪",
+"band": 3
+},
+{
+"en": "gym",
+"ph": "/dʒɪm/",
+"cn": "n. +体育馆",
+"band": 3
+},
+{
+"en": "habit",
+"ph": "/ˈhæbɪt/",
+"cn": "n. 习惯",
+"band": 3
+},
+{
+"en": "hair",
+"ph": "/heə(r)/",
+"cn": "n. 头发",
+"band": 2
+},
+{
+"en": "half",
+"ph": "/hɑːf/",
+"cn": "n. 一半",
+"band": 2
+},
+{
+"en": "hall",
+"ph": "/hɔːl/",
+"cn": "n. 大厅",
+"band": 3
+},
+{
+"en": "hamburger",
+"ph": "/ˈhæmbɜːɡə(r)/",
+"cn": "n. 汉堡(德国港口)",
+"band": 3
+},
+{
+"en": "hand",
+"ph": "/hænd/",
+"cn": "n. 手",
+"band": 2
+},
+{
+"en": "handsome",
+"ph": "/ˈhændsʌm/",
+"cn": "adj. 英俊的",
+"band": 3
+},
+{
+"en": "hang",
+"ph": "/hæŋ/",
+"cn": "v. 悬挂",
+"band": 3
+},
+{
+"en": "happen",
+"ph": "/ˈhæpən/",
+"cn": "v. 发生",
+"band": 3
+},
+{
+"en": "happy",
+"ph": "/ˈhæpi/",
+"cn": "adj. 快乐的",
+"band": 2
+},
+{
+"en": "hard",
+"ph": "/hɑːd/",
+"cn": "adj. 坚硬的",
+"band": 2
+},
+{
+"en": "hardly",
+"ph": "/ˈhɑːdli/",
+"cn": "adv. 刚刚",
+"band": 3
+},
+{
+"en": "harm",
+"ph": "/hɑːm/",
+"cn": "n. 伤害",
+"band": 3
+},
+{
+"en": "has",
+"ph": "/hæz/",
+"cn": "v. 有（have 的第三人称单数）",
+"band": 3
+},
+{
+"en": "hat",
+"ph": "/hæt/",
+"cn": "n. 帽子",
+"band": 3
+},
+{
+"en": "hate",
+"ph": "/heɪt/",
+"cn": "v. 讨厌；恨",
+"band": 3
+},
+{
+"en": "have",
+"ph": "/hæv/",
+"cn": "v. 有",
+"band": 2
+},
+{
+"en": "he",
+"ph": "/hiː/",
+"cn": "pron. 他",
+"band": 2
+},
+{
+"en": "head",
+"ph": "/hed/",
+"cn": "n. 头",
+"band": 2
+},
+{
+"en": "health",
+"ph": "/helθ/",
+"cn": "n. 健康",
+"band": 3
+},
+{
+"en": "healthy",
+"ph": "/ˈhelθi/",
+"cn": "adj. 健康的",
+"band": 2
+},
+{
+"en": "hear",
+"ph": "/hɪə(r)/",
+"cn": "v. 听见",
+"band": 2
+},
+{
+"en": "heart",
+"ph": "/hɑːt/",
+"cn": "n. 心",
+"band": 3
+},
+{
+"en": "heavy",
+"ph": "/ˈhevi/",
+"cn": "adj. 重的",
+"band": 2
+},
+{
+"en": "height",
+"ph": "/haɪt/",
+"cn": "n. 高度",
+"band": 3
+},
+{
+"en": "hello",
+"ph": "/həˈləʊ/",
+"cn": "int. 喂；你好",
+"band": 2
+},
+{
+"en": "help",
+"ph": "/help/",
+"cn": "v. 帮助",
+"band": 2
+},
+{
+"en": "helpful",
+"ph": "/ˈhelpfəl/",
+"cn": "adj. 有帮助的",
+"band": 2
+},
+{
+"en": "hen",
+"ph": "/hen/",
+"cn": "n. 母鸡",
+"band": 3
+},
+{
+"en": "her",
+"ph": "/hɜː(r)/",
+"cn": "pron. 她的",
+"band": 2
+},
+{
+"en": "here",
+"ph": "/hɪə(r)/",
+"cn": "adv. 这里",
+"band": 2
+},
+{
+"en": "hero",
+"ph": "/ˈhɪərəʊ/",
+"cn": "n. 英雄",
+"band": 3
+},
+{
+"en": "hers",
+"ph": "/hɜːz/",
+"cn": "pron. 她的",
+"band": 3
+},
+{
+"en": "herself",
+"ph": "/hɜːˈself/",
+"cn": "pron. 她自己",
+"band": 3
+},
+{
+"en": "hi",
+"ph": "/haɪ/",
+"cn": "int. 喂；你好",
+"band": 2
+},
+{
+"en": "hide",
+"ph": "/haɪd/",
+"cn": "v. 藏；躲藏",
+"band": 3
+},
+{
+"en": "high",
+"ph": "/haɪ/",
+"cn": "adj. 高的",
+"band": 3
+},
+{
+"en": "hike",
+"ph": "/haɪk/",
+"cn": "n. 徒步旅行",
+"band": 3
+},
+{
+"en": "hill",
+"ph": "/hɪl/",
+"cn": "n. 小山",
+"band": 2
+},
+{
+"en": "him",
+"ph": "/hɪm/",
+"cn": "pron. 他",
+"band": 2
+},
+{
+"en": "himself",
+"ph": "/hɪmˈself/",
+"cn": "pron. 他自己",
+"band": 3
+},
+{
+"en": "his",
+"ph": "/hɪz/",
+"cn": "pron. 他的",
+"band": 2
+},
+{
+"en": "history",
+"ph": "/ˈhɪstəri/",
+"cn": "n. 历史",
+"band": 3
+},
+{
+"en": "hit",
+"ph": "/hɪt/",
+"cn": "n. 打击",
+"band": 3
+},
+{
+"en": "hobby",
+"ph": "/ˈhɒbi/",
+"cn": "n. 业余爱好",
+"band": 3
+},
+{
+"en": "hold",
+"ph": "/həʊld/",
+"cn": "v. 拿着；举行",
+"band": 3
+},
+{
+"en": "hole",
+"ph": "/həʊl/",
+"cn": "n. 洞",
+"band": 3
+},
+{
+"en": "holiday",
+"ph": "/ˈhɒlɪdeɪ/",
+"cn": "n. 假日",
+"band": 2
+},
+{
+"en": "home",
+"ph": "/həʊm/",
+"cn": "n. 家；adv. 在家",
+"band": 2
+},
+{
+"en": "hometown",
+"ph": "/ˈhəʊmtaʊn/",
+"cn": "n. 故乡",
+"band": 2
+},
+{
+"en": "homework",
+"ph": "/ˈhəʊmwɜːk/",
+"cn": "n. 家庭作业",
+"band": 3
+},
+{
+"en": "honest",
+"ph": "/ˈɒnɪst/",
+"cn": "adj. 诚实的",
+"band": 3
+},
+{
+"en": "honey",
+"ph": "/ˈhʌni/",
+"cn": "n. 蜂蜜",
+"band": 3
+},
+{
+"en": "honour",
+"ph": "/ˈɒnə(r)/",
+"cn": "n. 荣誉",
+"band": 3
+},
+{
+"en": "hope",
+"ph": "/həʊp/",
+"cn": "v. 希望",
+"band": 3
+},
+{
+"en": "horse",
+"ph": "/hɔːs/",
+"cn": "n. 马",
+"band": 2
+},
+{
+"en": "hospital",
+"ph": "/ˈhɒspɪtəl/",
+"cn": "n. 医院",
+"band": 2
+},
+{
+"en": "host",
+"ph": "/həʊst/",
+"cn": "n. 主人",
+"band": 3
+},
+{
+"en": "hostess",
+"ph": "/ˈhəʊstes/",
+"cn": "n. 女主人",
+"band": 3
+},
+{
+"en": "hot",
+"ph": "/hɒt/",
+"cn": "adj. 热的",
+"band": 2
+},
+{
+"en": "hotel",
+"ph": "/həʊˈtel/",
+"cn": "n. 旅馆",
+"band": 3
+},
+{
+"en": "hour",
+"ph": "/ˈaʊə(r)/",
+"cn": "n. 小时",
+"band": 2
+},
+{
+"en": "house",
+"ph": "/haʊs/",
+"cn": "n. 房子",
+"band": 2
+},
+{
+"en": "housework",
+"ph": "/ˈhaʊswɜːk/",
+"cn": "n. 家务",
+"band": 3
+},
+{
+"en": "how",
+"ph": "/haʊ/",
+"cn": "adv. 怎样；多么",
+"band": 2
+},
+{
+"en": "however",
+"ph": "/haʊˈevə(r)/",
+"cn": "adv. 然而",
+"band": 3
+},
+{
+"en": "hug",
+"ph": "/hʌɡ/",
+"cn": "v. 拥抱",
+"band": 3
+},
+{
+"en": "huge",
+"ph": "/hjuːdʒ/",
+"cn": "adj. 极大的",
+"band": 3
+},
+{
+"en": "human",
+"ph": "/ˈhjuːmən/",
+"cn": "n. 人",
+"band": 3
+},
+{
+"en": "humour",
+"ph": "/ˈhjuːmə(r)/",
+"cn": "n. 幽默",
+"band": 3
+},
+{
+"en": "hungry",
+"ph": "/ˈhʌŋɡri/",
+"cn": "adj. 饥饿的",
+"band": 2
+},
+{
+"en": "hunt",
+"ph": "/hʌnt/",
+"cn": "v. 打猎",
+"band": 3
+},
+{
+"en": "hurry",
+"ph": "/ˈhʌri/",
+"cn": "v. 匆忙；赶紧",
+"band": 2
+},
+{
+"en": "hurt",
+"ph": "/hɜːt/",
+"cn": "v. 弄疼；受伤",
+"band": 2
+},
+{
+"en": "husband",
+"ph": "/ˈhʌsbənd/",
+"cn": "n. 丈夫",
+"band": 3
+},
+{
+"en": "i",
+"ph": "/aɪ/",
+"cn": "pron. 我",
+"band": 2
+},
+{
+"en": "ice",
+"ph": "/aɪs/",
+"cn": "n. 冰",
+"band": 3
+},
+{
+"en": "ice cream",
+"ph": "/ˌaɪs ˈkriːm/",
+"cn": "n. 冰淇淋",
+"band": 2
+},
+{
+"en": "idea",
+"ph": "/aɪˈdɪə/",
+"cn": "n. 主意",
+"band": 2
+},
+{
+"en": "if",
+"ph": "/ɪf/",
+"cn": "conj. 如果",
+"band": 3
+},
+{
+"en": "ill",
+"ph": "/ɪl/",
+"cn": "adj. 生病的",
+"band": 2
+},
+{
+"en": "illness",
+"ph": "/ˈɪlnəs/",
+"cn": "n. 疾病",
+"band": 3
+},
+{
+"en": "imagine",
+"ph": "/ɪˈmædʒɪn/",
+"cn": "v. 想象",
+"band": 3
+},
+{
+"en": "important",
+"ph": "/ɪmˈpɔːtənt/",
+"cn": "adj. 重要的",
+"band": 3
+},
+{
+"en": "impossible",
+"ph": "/ɪmˈpɒsəbəl/",
+"cn": "adj. 不可能的",
+"band": 3
+},
+{
+"en": "improve",
+"ph": "/ɪmˈpruːv/",
+"cn": "v. 改进；提高",
+"band": 3
+},
+{
+"en": "in",
+"ph": "/ɪn/",
+"cn": "prep. 在……里",
+"band": 2
+},
+{
+"en": "include",
+"ph": "/ɪnˈkluːd/",
+"cn": "v. 包括",
+"band": 3
+},
+{
+"en": "increase",
+"ph": "/ɪnˈkriːs/",
+"cn": "n. 增加",
+"band": 3
+},
+{
+"en": "industry",
+"ph": "/ˈɪndʌstri/",
+"cn": "n. 工业",
+"band": 3
+},
+{
+"en": "influence",
+"ph": "/ˈɪnfluːəns/",
+"cn": "n. 影响",
+"band": 3
+},
+{
+"en": "information",
+"ph": "/ˌɪnfəˈmeɪʃən/",
+"cn": "n. 信息",
+"band": 3
+},
+{
+"en": "insect",
+"ph": "/ˈɪnsekt/",
+"cn": "n. 昆虫",
+"band": 3
+},
+{
+"en": "inside",
+"ph": "/ˌɪnˈsaɪd/",
+"cn": "n. 内部",
+"band": 3
+},
+{
+"en": "instead",
+"ph": "/ɪnˈsted/",
+"cn": "adv. 作为替代",
+"band": 3
+},
+{
+"en": "instruction",
+"ph": "/ɪnˈstrʌkʃən/",
+"cn": "n. 说明；指示",
+"band": 3
+},
+{
+"en": "instrument",
+"ph": "/ˈɪnstrəmənt/",
+"cn": "n. 乐器；工具",
+"band": 3
+},
+{
+"en": "interest",
+"ph": "/ˈɪntrəst/",
+"cn": "n. 兴趣",
+"band": 3
+},
+{
+"en": "interesting",
+"ph": "/ˈɪntrəstɪŋ/",
+"cn": "adj. 有趣的",
+"band": 2
+},
+{
+"en": "international",
+"ph": "/ˌɪntəˈnæʃənəl/",
+"cn": "adj. 国际的",
+"band": 3
+},
+{
+"en": "internet",
+"ph": "/ˈɪntənet/",
+"cn": "n. 因特网；互联网",
+"band": 2
+},
+{
+"en": "interview",
+"ph": "/ˈɪntəvjuː/",
+"cn": "n. 面谈",
+"band": 3
+},
+{
+"en": "into",
+"ph": "/ˈɪntuː/",
+"cn": "prep. 到……里面",
+"band": 3
+},
+{
+"en": "introduce",
+"ph": "/ˌɪntrədˈjuːs/",
+"cn": "v. 介绍",
+"band": 3
+},
+{
+"en": "invent",
+"ph": "/ɪnˈvent/",
+"cn": "v. 发明",
+"band": 3
+},
+{
+"en": "invite",
+"ph": "/ɪnˈvaɪt/",
+"cn": "v. 邀请",
+"band": 3
+},
+{
+"en": "island",
+"ph": "/ˈaɪlənd/",
+"cn": "n. 岛",
+"band": 3
+},
+{
+"en": "it",
+"ph": "/ɪt/",
+"cn": "pron. 它",
+"band": 2
+},
+{
+"en": "its",
+"ph": "/ɪts/",
+"cn": "pron. 它的",
+"band": 2
+},
+{
+"en": "itself",
+"ph": "/ɪtˈself/",
+"cn": "pron. 它本身",
+"band": 3
+},
+{
+"en": "jacket",
+"ph": "/ˈdʒækɪt/",
+"cn": "n. 夹克",
+"band": 3
+},
+{
+"en": "jeans",
+"ph": "/dʒiːnz/",
+"cn": "n. 工装裤",
+"band": 3
+},
+{
+"en": "job",
+"ph": "/dʒɒb/",
+"cn": "n. 工作",
+"band": 2
+},
+{
+"en": "jog",
+"ph": "/dʒɒɡ/",
+"cn": "v. 慢跑",
+"band": 3
+},
+{
+"en": "join",
+"ph": "/dʒɔɪn/",
+"cn": "v. 加入；参加",
+"band": 3
+},
+{
+"en": "joke",
+"ph": "/dʒəʊk/",
+"cn": "n. 笑话",
+"band": 3
+},
+{
+"en": "journey",
+"ph": "/ˈdʒɜːni/",
+"cn": "n. 旅程",
+"band": 3
+},
+{
+"en": "joy",
+"ph": "/dʒɔɪ/",
+"cn": "n. 欢喜",
+"band": 3
+},
+{
+"en": "judge",
+"ph": "/dʒʌdʒ/",
+"cn": "n. 法官",
+"band": 3
+},
+{
+"en": "juice",
+"ph": "/dʒuːs/",
+"cn": "n. 果汁",
+"band": 2
+},
+{
+"en": "jump",
+"ph": "/dʒʌmp/",
+"cn": "v. 跳",
+"band": 2
+},
+{
+"en": "junior",
+"ph": "/ˈdʒuːnjə(r)/",
+"cn": "n. 年少者",
+"band": 3
+},
+{
+"en": "just",
+"ph": "/dʒʌst/",
+"cn": "adv. 刚刚；只是",
+"band": 3
+},
+{
+"en": "keep",
+"ph": "/kiːp/",
+"cn": "v. 保持；保存",
+"band": 2
+},
+{
+"en": "key",
+"ph": "/kiː/",
+"cn": "n. 钥匙",
+"band": 3
+},
+{
+"en": "keyboard",
+"ph": "/ˈkiːbɔːd/",
+"cn": "n. 键盘",
+"band": 3
+},
+{
+"en": "kick",
+"ph": "/kɪk/",
+"cn": "v. 踢",
+"band": 3
+},
+{
+"en": "kid",
+"ph": "/kɪd/",
+"cn": "n. 小孩",
+"band": 2
+},
+{
+"en": "kill",
+"ph": "/kɪl/",
+"cn": "v. 杀死",
+"band": 3
+},
+{
+"en": "kilo",
+"ph": "/ˈkiːləʊ/",
+"cn": "n. 千克",
+"band": 3
+},
+{
+"en": "kilogram",
+"ph": "/ˈkɪləɡræm/",
+"cn": "n. 千克",
+"band": 3
+},
+{
+"en": "kilometer",
+"ph": "/kɪˈlɒmɪtə(r)/",
+"cn": "n. 千米",
+"band": 3
+},
+{
+"en": "kind",
+"ph": "/kaɪnd/",
+"cn": "adj. 友好的；n. 种类",
+"band": 2
+},
+{
+"en": "king",
+"ph": "/kɪŋ/",
+"cn": "n. 国王",
+"band": 3
+},
+{
+"en": "kiss",
+"ph": "/kɪs/",
+"cn": "v. 吻",
+"band": 3
+},
+{
+"en": "kitchen",
+"ph": "/ˈkɪtʃən/",
+"cn": "n. 厨房",
+"band": 2
+},
+{
+"en": "kite",
+"ph": "/kaɪt/",
+"cn": "n. 风筝",
+"band": 2
+},
+{
+"en": "knee",
+"ph": "/niː/",
+"cn": "n. 膝盖",
+"band": 3
+},
+{
+"en": "knife",
+"ph": "/naɪf/",
+"cn": "n. 小刀",
+"band": 3
+},
+{
+"en": "knock",
+"ph": "/nɒk/",
+"cn": "v. 敲",
+"band": 3
+},
+{
+"en": "know",
+"ph": "/nəʊ/",
+"cn": "v. 知道；了解",
+"band": 2
+},
+{
+"en": "knowledge",
+"ph": "/ˈnɒlɪdʒ/",
+"cn": "n. 知识",
+"band": 3
+},
+{
+"en": "kung fu",
+"ph": "/ˌkʌŋ ˈfuː/",
+"cn": "n. 功夫",
+"band": 3
+},
+{
+"en": "lab",
+"ph": "/læb/",
+"cn": "n. 实验室",
+"band": 3
+},
+{
+"en": "lady",
+"ph": "/ˈleɪdi/",
+"cn": "n. 淑女",
+"band": 3
+},
+{
+"en": "lake",
+"ph": "/leɪk/",
+"cn": "n. 湖",
+"band": 2
+},
+{
+"en": "lamp",
+"ph": "/læmp/",
+"cn": "n. 灯",
+"band": 3
+},
+{
+"en": "land",
+"ph": "/lænd/",
+"cn": "n. 陆地",
+"band": 3
+},
+{
+"en": "landscape",
+"ph": "/ˈlændskeɪp/",
+"cn": "n. 风景",
+"band": 3
+},
+{
+"en": "language",
+"ph": "/ˈlæŋɡwɪdʒ/",
+"cn": "n. 语言",
+"band": 3
+},
+{
+"en": "lantern",
+"ph": "/ˈlɑːntən/",
+"cn": "n. 灯笼",
+"band": 3
+},
+{
+"en": "laptop",
+"ph": "/ˈlæptɒp/",
+"cn": "n. 笔记本电脑",
+"band": 3
+},
+{
+"en": "large",
+"ph": "/lɑːdʒ/",
+"cn": "adj. 大的",
+"band": 3
+},
+{
+"en": "last",
+"ph": "/lɑːst/",
+"cn": "adj. 最后的；v. 持续",
+"band": 2
+},
+{
+"en": "late",
+"ph": "/leɪt/",
+"cn": "adj. 迟的",
+"band": 2
+},
+{
+"en": "later",
+"ph": "/ˈleɪtə(r)/",
+"cn": "adv. 稍后",
+"band": 3
+},
+{
+"en": "laugh",
+"ph": "/lɑːf/",
+"cn": "v. 笑",
+"band": 3
+},
+{
+"en": "law",
+"ph": "/lɔː/",
+"cn": "n. 法律",
+"band": 3
+},
+{
+"en": "lawyer",
+"ph": "/ˈlɔːjə(r)/",
+"cn": "n. 律师",
+"band": 3
+},
+{
+"en": "lay",
+"ph": "/leɪ/",
+"cn": "v. 放置；下蛋",
+"band": 3
+},
+{
+"en": "lazy",
+"ph": "/ˈleɪzi/",
+"cn": "adj. 懒惰的",
+"band": 3
+},
+{
+"en": "lead",
+"ph": "/liːd/",
+"cn": "n. 铅",
+"band": 3
+},
+{
+"en": "leaf",
+"ph": "/liːf/",
+"cn": "n. 叶",
+"band": 3
+},
+{
+"en": "learn",
+"ph": "/lɜːn/",
+"cn": "v. 学习；学会",
+"band": 2
+},
+{
+"en": "least",
+"ph": "/liːst/",
+"cn": "n. 最少",
+"band": 3
+},
+{
+"en": "leaves",
+"ph": "/liːvz/",
+"cn": "n. 树叶（leaf 的复数）",
+"band": 3
+},
+{
+"en": "left",
+"ph": "/left/",
+"cn": "adj. 左边的",
+"band": 3
+},
+{
+"en": "leg",
+"ph": "/leɡ/",
+"cn": "n. 腿",
+"band": 2
+},
+{
+"en": "lemon",
+"ph": "/ˈlemən/",
+"cn": "n. 柠檬",
+"band": 3
+},
+{
+"en": "lend",
+"ph": "/lend/",
+"cn": "v. 借出",
+"band": 3
+},
+{
+"en": "less",
+"ph": "/les/",
+"cn": "adj. 更少的",
+"band": 3
+},
+{
+"en": "lesson",
+"ph": "/ˈlesən/",
+"cn": "n. 课",
+"band": 2
+},
+{
+"en": "let",
+"ph": "/let/",
+"cn": "v. 让",
+"band": 2
+},
+{
+"en": "letter",
+"ph": "/ˈletə(r)/",
+"cn": "n. 信；字母",
+"band": 2
+},
+{
+"en": "level",
+"ph": "/ˈlevəl/",
+"cn": "n. 水平",
+"band": 3
+},
+{
+"en": "library",
+"ph": "/ˈlaɪbrəri/",
+"cn": "n. 图书馆",
+"band": 2
+},
+{
+"en": "lie",
+"ph": "/laɪ/",
+"cn": "v. 躺；撒谎",
+"band": 3
+},
+{
+"en": "life",
+"ph": "/laɪf/",
+"cn": "n. 生活",
+"band": 3
+},
+{
+"en": "lift",
+"ph": "/lɪft/",
+"cn": "n. 电梯；v. 举起",
+"band": 3
+},
+{
+"en": "light",
+"ph": "/laɪt/",
+"cn": "adj. 轻的；明亮的",
+"band": 2
+},
+{
+"en": "lightning",
+"ph": "/ˈlaɪtnɪŋ/",
+"cn": "n. 闪电",
+"band": 3
+},
+{
+"en": "like",
+"ph": "/laɪk/",
+"cn": "v. 喜欢；prep. 像",
+"band": 2
+},
+{
+"en": "likely",
+"ph": "/ˈlaɪkli/",
+"cn": "adj. 有可能的",
+"band": 3
+},
+{
+"en": "line",
+"ph": "/laɪn/",
+"cn": "n. 线；排",
+"band": 3
+},
+{
+"en": "lion",
+"ph": "/ˈlaɪən/",
+"cn": "n. 狮子",
+"band": 2
+},
+{
+"en": "list",
+"ph": "/lɪst/",
+"cn": "n. 目录",
+"band": 3
+},
+{
+"en": "listen",
+"ph": "/ˈlɪsən/",
+"cn": "v. 听",
+"band": 2
+},
+{
+"en": "literature",
+"ph": "/ˈlɪtrɪtʃə(r)/",
+"cn": "n. 文学",
+"band": 3
+},
+{
+"en": "litter",
+"ph": "/ˈlɪtə(r)/",
+"cn": "v. 乱扔垃圾；n. 垃圾",
+"band": 3
+},
+{
+"en": "little",
+"ph": "/ˈlɪtəl/",
+"cn": "adj. 小的",
+"band": 2
+},
+{
+"en": "live",
+"ph": "/lɪv/",
+"cn": "v. 居住；生活",
+"band": 2
+},
+{
+"en": "lively",
+"ph": "/ˈlaɪvli/",
+"cn": "adj. 活泼的",
+"band": 3
+},
+{
+"en": "lives",
+"ph": "/lɪvz/",
+"cn": "n. 生命（life 的复数）",
+"band": 3
+},
+{
+"en": "local",
+"ph": "/ˈləʊkəl/",
+"cn": "adj. 地方性的",
+"band": 3
+},
+{
+"en": "lock",
+"ph": "/lɒk/",
+"cn": "n. 锁",
+"band": 3
+},
+{
+"en": "lonely",
+"ph": "/ˈləʊnli/",
+"cn": "adj. 孤单的",
+"band": 3
+},
+{
+"en": "long",
+"ph": "/lɒŋ/",
+"cn": "adj. 长的",
+"band": 2
+},
+{
+"en": "look",
+"ph": "/lʊk/",
+"cn": "v. 看",
+"band": 2
+},
+{
+"en": "lose",
+"ph": "/luːz/",
+"cn": "v. 丢失；输",
+"band": 3
+},
+{
+"en": "loss",
+"ph": "/lɒs/",
+"cn": "n. 损失",
+"band": 3
+},
+{
+"en": "lost",
+"ph": "/lɒst/",
+"cn": "adj. 失去的",
+"band": 3
+},
+{
+"en": "lot",
+"ph": "/lɒt/",
+"cn": "pron. 许多",
+"band": 2
+},
+{
+"en": "loud",
+"ph": "/laʊd/",
+"cn": "adj. 大声的",
+"band": 3
+},
+{
+"en": "love",
+"ph": "/lʌv/",
+"cn": "v. 爱；喜爱",
+"band": 2
+},
+{
+"en": "lovely",
+"ph": "/ˈlʌvli/",
+"cn": "adj. 可爱的",
+"band": 2
+},
+{
+"en": "low",
+"ph": "/ləʊ/",
+"cn": "adj. 低的",
+"band": 3
+},
+{
+"en": "luck",
+"ph": "/lʌk/",
+"cn": "n. 运气",
+"band": 3
+},
+{
+"en": "lunch",
+"ph": "/lʌntʃ/",
+"cn": "n. 午餐",
+"band": 2
+},
+{
+"en": "machine",
+"ph": "/məˈʃiːn/",
+"cn": "n. 机器",
+"band": 3
+},
+{
+"en": "mad",
+"ph": "/mæd/",
+"cn": "adj. 疯狂的",
+"band": 3
+},
+{
+"en": "madam",
+"ph": "/ˈmædəm/",
+"cn": "n. 夫人；女士",
+"band": 3
+},
+{
+"en": "magazine",
+"ph": "/ˌmæɡəˈziːn/",
+"cn": "n. 杂志",
+"band": 3
+},
+{
+"en": "magic",
+"ph": "/ˈmædʒɪk/",
+"cn": "n. 魔术",
+"band": 3
+},
+{
+"en": "main",
+"ph": "/meɪn/",
+"cn": "n. 主要部分",
+"band": 3
+},
+{
+"en": "make",
+"ph": "/meɪk/",
+"cn": "v. 制作；使得",
+"band": 2
+},
+{
+"en": "mall",
+"ph": "/mæl/",
+"cn": "n. 购物中心",
+"band": 3
+},
+{
+"en": "man",
+"ph": "/mæn/",
+"cn": "n. 男人",
+"band": 2
+},
+{
+"en": "manage",
+"ph": "/ˈmænɪdʒ/",
+"cn": "v. 管理；设法做到",
+"band": 3
+},
+{
+"en": "manner",
+"ph": "/ˈmænə(r)/",
+"cn": "n. 方式；礼貌",
+"band": 3
+},
+{
+"en": "many",
+"ph": "/ˈmeni/",
+"cn": "adj. 许多的",
+"band": 2
+},
+{
+"en": "map",
+"ph": "/mæp/",
+"cn": "n. 地图",
+"band": 2
+},
+{
+"en": "mark",
+"ph": "/mɑːk/",
+"cn": "n. 记号；分数",
+"band": 3
+},
+{
+"en": "market",
+"ph": "/ˈmɑːkɪt/",
+"cn": "n. 市场",
+"band": 3
+},
+{
+"en": "marry",
+"ph": "/ˈmæri/",
+"cn": "v. 结婚",
+"band": 3
+},
+{
+"en": "master",
+"ph": "/ˈmɑːstə(r)/",
+"cn": "n. 主人",
+"band": 3
+},
+{
+"en": "match",
+"ph": "/mætʃ/",
+"cn": "n. 比赛；火柴",
+"band": 3
+},
+{
+"en": "material",
+"ph": "/məˈtɪərɪəl/",
+"cn": "n. 材料",
+"band": 3
+},
+{
+"en": "mathematics",
+"ph": "/ˌmæθɪˈmætɪks/",
+"cn": "n. 数学",
+"band": 3
+},
+{
+"en": "maths",
+"ph": "/mæθs/",
+"cn": "n. 数学",
+"band": 2
+},
+{
+"en": "matter",
+"ph": "/ˈmætə(r)/",
+"cn": "v. 要紧；n. 事情",
+"band": 3
+},
+{
+"en": "may",
+"ph": "/meɪ/",
+"cn": "v. 可以；也许",
+"band": 2
+},
+{
+"en": "maybe",
+"ph": "/ˈmeɪbiː/",
+"cn": "adv. 也许",
+"band": 3
+},
+{
+"en": "me",
+"ph": "/miː/",
+"cn": "pron. 我",
+"band": 2
+},
+{
+"en": "meal",
+"ph": "/miːl/",
+"cn": "n. 一餐",
+"band": 3
+},
+{
+"en": "mean",
+"ph": "/miːn/",
+"cn": "v. 意思是",
+"band": 3
+},
+{
+"en": "meaning",
+"ph": "/ˈmiːnɪŋ/",
+"cn": "n. 意义",
+"band": 3
+},
+{
+"en": "meat",
+"ph": "/miːt/",
+"cn": "n. 肉",
+"band": 2
+},
+{
+"en": "medal",
+"ph": "/ˈmedəl/",
+"cn": "n. 奖牌",
+"band": 3
+},
+{
+"en": "media",
+"ph": "/ˈmiːdiːə/",
+"cn": "n. 媒体",
+"band": 3
+},
+{
+"en": "medical",
+"ph": "/ˈmedɪkəl/",
+"cn": "adj. 医学的",
+"band": 3
+},
+{
+"en": "medicine",
+"ph": "/ˈmedsn/",
+"cn": "n. 药",
+"band": 3
+},
+{
+"en": "medium",
+"ph": "/ˈmiːdiəm/",
+"cn": "adj. 中等的",
+"band": 3
+},
+{
+"en": "meet",
+"ph": "/miːt/",
+"cn": "v. 遇见；见面",
+"band": 2
+},
+{
+"en": "meeting",
+"ph": "/ˈmiːtɪŋ/",
+"cn": "n. 会议",
+"band": 3
+},
+{
+"en": "member",
+"ph": "/ˈmembə(r)/",
+"cn": "n. 成员",
+"band": 3
+},
+{
+"en": "men",
+"ph": "/men/",
+"cn": "n. 男人们（man 的复数）",
+"band": 3
+},
+{
+"en": "mention",
+"ph": "/ˈmenʃən/",
+"cn": "v. 提到",
+"band": 3
+},
+{
+"en": "menu",
+"ph": "/ˈmenjuː/",
+"cn": "n. 菜单",
+"band": 3
+},
+{
+"en": "mess",
+"ph": "/mes/",
+"cn": "n. 杂乱",
+"band": 3
+},
+{
+"en": "message",
+"ph": "/ˈmesɪdʒ/",
+"cn": "n. 消息",
+"band": 3
+},
+{
+"en": "meter",
+"ph": "/ˈmiːtə(r)/",
+"cn": "n. 米",
+"band": 3
+},
+{
+"en": "method",
+"ph": "/ˈmeθəd/",
+"cn": "n. 方法",
+"band": 3
+},
+{
+"en": "metre",
+"ph": "/ˈmiːtə(r)/",
+"cn": "n. 米",
+"band": 3
+},
+{
+"en": "mice",
+"ph": "/maɪs/",
+"cn": "n. 老鼠（mouse 的复数）",
+"band": 3
+},
+{
+"en": "middle",
+"ph": "/ˈmɪdəl/",
+"cn": "n. 中央",
+"band": 2
+},
+{
+"en": "might",
+"ph": "/maɪt/",
+"cn": "aux. 可能；也许",
+"band": 3
+},
+{
+"en": "mile",
+"ph": "/maɪl/",
+"cn": "n. 英里",
+"band": 3
+},
+{
+"en": "milk",
+"ph": "/mɪlk/",
+"cn": "n. 牛奶",
+"band": 2
+},
+{
+"en": "mind",
+"ph": "/maɪnd/",
+"cn": "v. 介意；n. 头脑",
+"band": 3
+},
+{
+"en": "mine",
+"ph": "/maɪn/",
+"cn": "pron. 我的",
+"band": 3
+},
+{
+"en": "minute",
+"ph": "/ˈmɪnɪt/",
+"cn": "n. 分",
+"band": 2
+},
+{
+"en": "mirror",
+"ph": "/ˈmɪrə(r)/",
+"cn": "n. 镜子",
+"band": 3
+},
+{
+"en": "miss",
+"ph": "/mɪs/",
+"cn": "n. 女士；错过",
+"band": 2
+},
+{
+"en": "mistake",
+"ph": "/mɪˈsteɪk/",
+"cn": "n. 错误",
+"band": 3
+},
+{
+"en": "mix",
+"ph": "/mɪks/",
+"cn": "n. 混合物",
+"band": 3
+},
+{
+"en": "mobile",
+"ph": "/ˈməʊbaɪl/",
+"cn": "adj. 移动的",
+"band": 3
+},
+{
+"en": "model",
+"ph": "/ˈmɒdəl/",
+"cn": "n. 模型",
+"band": 3
+},
+{
+"en": "modern",
+"ph": "/ˈmɒdən/",
+"cn": "n. 现代人",
+"band": 3
+},
+{
+"en": "mom",
+"ph": "/mɒm/",
+"cn": "n. 妈妈",
+"band": 3
+},
+{
+"en": "moment",
+"ph": "/ˈməʊmənt/",
+"cn": "n. 片刻",
+"band": 3
+},
+{
+"en": "money",
+"ph": "/ˈmʌni/",
+"cn": "n. 金钱",
+"band": 2
+},
+{
+"en": "monkey",
+"ph": "/ˈmʌnki/",
+"cn": "n. 猴子",
+"band": 2
+},
+{
+"en": "month",
+"ph": "/mʌnθ/",
+"cn": "n. 月",
+"band": 2
+},
+{
+"en": "moon",
+"ph": "/muːn/",
+"cn": "n. 月亮",
+"band": 2
+},
+{
+"en": "more",
+"ph": "/mɔː(r)/",
+"cn": "adj. 更多的",
+"band": 3
+},
+{
+"en": "morning",
+"ph": "/ˈmɔːnɪŋ/",
+"cn": "n. 早晨",
+"band": 2
+},
+{
+"en": "most",
+"ph": "/məʊst/",
+"cn": "adj. 大多数的",
+"band": 3
+},
+{
+"en": "mother",
+"ph": "/ˈmʌðə(r)/",
+"cn": "n. 母亲",
+"band": 2
+},
+{
+"en": "mountain",
+"ph": "/ˈmaʊntɪn/",
+"cn": "n. 山",
+"band": 3
+},
+{
+"en": "mouse",
+"ph": "/maʊs/",
+"cn": "n. 老鼠",
+"band": 2
+},
+{
+"en": "mouth",
+"ph": "/maʊθ/",
+"cn": "n. 嘴",
+"band": 2
+},
+{
+"en": "move",
+"ph": "/muːv/",
+"cn": "v. 移动",
+"band": 2
+},
+{
+"en": "movie",
+"ph": "/ˈmuːvi/",
+"cn": "n. 电影",
+"band": 3
+},
+{
+"en": "mr",
+"ph": "/ˈmɪstə(r)/",
+"cn": "n. 先生",
+"band": 2
+},
+{
+"en": "mrs",
+"ph": "/ˈmɪsɪz/",
+"cn": "n. 夫人；太太",
+"band": 2
+},
+{
+"en": "ms",
+"ph": "/mɪz/",
+"cn": "n. 女士",
+"band": 2
+},
+{
+"en": "much",
+"ph": "/mʌtʃ/",
+"cn": "adj. 许多的；adv. 非常",
+"band": 2
+},
+{
+"en": "mum",
+"ph": "/mʌm/",
+"cn": "n. 妈妈",
+"band": 3
+},
+{
+"en": "museum",
+"ph": "/mjuˈziːəm/",
+"cn": "n. 博物馆",
+"band": 3
+},
+{
+"en": "music",
+"ph": "/ˈmjuːzɪk/",
+"cn": "n. 音乐",
+"band": 2
+},
+{
+"en": "must",
+"ph": "/mʌst/",
+"cn": "aux. 必须",
+"band": 2
+},
+{
+"en": "mutton",
+"ph": "/ˈmʌtən/",
+"cn": "n. 羊肉",
+"band": 3
+},
+{
+"en": "my",
+"ph": "/maɪ/",
+"cn": "pron. 我的",
+"band": 2
+},
+{
+"en": "myself",
+"ph": "/maɪˈself/",
+"cn": "pron. 我自己",
+"band": 3
+},
+{
+"en": "name",
+"ph": "/neɪm/",
+"cn": "n. 名字",
+"band": 2
+},
+{
+"en": "narrow",
+"ph": "/ˈnærəʊ/",
+"cn": "n. 狭窄部分",
+"band": 3
+},
+{
+"en": "nation",
+"ph": "/ˈneɪʃən/",
+"cn": "n. 国家",
+"band": 3
+},
+{
+"en": "nature",
+"ph": "/ˈneɪtʃə(r)/",
+"cn": "n. 自然",
+"band": 3
+},
+{
+"en": "near",
+"ph": "/nɪə(r)/",
+"cn": "prep. 在……附近",
+"band": 2
+},
+{
+"en": "nearly",
+"ph": "/ˈnɪəli/",
+"cn": "adv. 几乎",
+"band": 3
+},
+{
+"en": "necessary",
+"ph": "/ˈnesəsəri/",
+"cn": "adj. 必要的",
+"band": 3
+},
+{
+"en": "neck",
+"ph": "/nek/",
+"cn": "n. 脖子",
+"band": 3
+},
+{
+"en": "need",
+"ph": "/niːd/",
+"cn": "v. 需要",
+"band": 3
+},
+{
+"en": "negative",
+"ph": "/ˈneɡətɪv/",
+"cn": "adj. 消极的；否定的",
+"band": 3
+},
+{
+"en": "neighbour",
+"ph": "/ˈneɪbə(r)/",
+"cn": "n. 邻居",
+"band": 3
+},
+{
+"en": "neither",
+"ph": "/ˈnaɪðə(r)/",
+"cn": "adv. 皆不",
+"band": 3
+},
+{
+"en": "nervous",
+"ph": "/ˈnɜːvəs/",
+"cn": "adj. 神经紧张的",
+"band": 3
+},
+{
+"en": "never",
+"ph": "/ˈnevə(r)/",
+"cn": "adv. 从不",
+"band": 2
+},
+{
+"en": "new",
+"ph": "/njuː/",
+"cn": "adj. 新的",
+"band": 2
+},
+{
+"en": "news",
+"ph": "/njuːz/",
+"cn": "n. 新闻",
+"band": 3
+},
+{
+"en": "newspaper",
+"ph": "/ˈnjuːzpeɪpə(r)/",
+"cn": "n. 报纸",
+"band": 3
+},
+{
+"en": "next",
+"ph": "/nekst/",
+"cn": "n. 下一个",
+"band": 2
+},
+{
+"en": "nice",
+"ph": "/naɪs/",
+"cn": "adj. 美好的",
+"band": 2
+},
+{
+"en": "night",
+"ph": "/naɪt/",
+"cn": "n. 夜晚",
+"band": 2
+},
+{
+"en": "no",
+"ph": "/nəʊ/",
+"cn": "adv. 不",
+"band": 2
+},
+{
+"en": "nobody",
+"ph": "/ˈnəʊbɒˌdi/",
+"cn": "n. 小人物",
+"band": 3
+},
+{
+"en": "noise",
+"ph": "/nɔɪz/",
+"cn": "n. 噪音",
+"band": 3
+},
+{
+"en": "none",
+"ph": "/nʌn/",
+"cn": "adv. 一点也不",
+"band": 3
+},
+{
+"en": "noodle",
+"ph": "/ˈnuːdəl/",
+"cn": "n. 面条",
+"band": 2
+},
+{
+"en": "noon",
+"ph": "/nuːn/",
+"cn": "n. 正午",
+"band": 3
+},
+{
+"en": "nor",
+"ph": "/nɔː(r)/",
+"cn": "conj. 也不",
+"band": 3
+},
+{
+"en": "normal",
+"ph": "/ˈnɔːməl/",
+"cn": "adj. 正常的",
+"band": 3
+},
+{
+"en": "north",
+"ph": "/nɔːθ/",
+"cn": "n. 北方",
+"band": 3
+},
+{
+"en": "nose",
+"ph": "/nəʊz/",
+"cn": "n. 鼻子",
+"band": 2
+},
+{
+"en": "not",
+"ph": "/nɒt/",
+"cn": "adv. 不",
+"band": 2
+},
+{
+"en": "note",
+"ph": "/nəʊt/",
+"cn": "n. 笔记",
+"band": 3
+},
+{
+"en": "notebook",
+"ph": "/ˈnəʊtbʊk/",
+"cn": "n. 笔记本",
+"band": 3
+},
+{
+"en": "nothing",
+"ph": "/ˈnʌθɪŋ/",
+"cn": "n. 无",
+"band": 3
+},
+{
+"en": "notice",
+"ph": "/ˈnəʊtɪs/",
+"cn": "v. 注意到；n. 通知",
+"band": 3
+},
+{
+"en": "novel",
+"ph": "/ˈnɒvəl/",
+"cn": "n. 小说",
+"band": 3
+},
+{
+"en": "now",
+"ph": "/naʊ/",
+"cn": "adv. 现在",
+"band": 2
+},
+{
+"en": "number",
+"ph": "/ˈnʌmbə(r)/",
+"cn": "n. 数字；号码",
+"band": 3
+},
+{
+"en": "nurse",
+"ph": "/nɜːs/",
+"cn": "n. 护士",
+"band": 2
+},
+{
+"en": "o'clock",
+"ph": "/əˈklɒk/",
+"cn": "adv. ……点钟",
+"band": 2
+},
+{
+"en": "object",
+"ph": "/ˈɒbdʒɪkt/",
+"cn": "n. 物体",
+"band": 3
+},
+{
+"en": "ocean",
+"ph": "/ˈəʊʃən/",
+"cn": "n. 海洋",
+"band": 3
+},
+{
+"en": "of",
+"ph": "/ɒv/",
+"cn": "prep. ……的",
+"band": 2
+},
+{
+"en": "off",
+"ph": "/ɒf/",
+"cn": "adv. 离开；关",
+"band": 2
+},
+{
+"en": "offer",
+"ph": "/ˈɒfə(r)/",
+"cn": "v. 提供",
+"band": 3
+},
+{
+"en": "office",
+"ph": "/ˈɒfɪs/",
+"cn": "n. 办公室",
+"band": 3
+},
+{
+"en": "officer",
+"ph": "/ˈɒfɪsə(r)/",
+"cn": "n. 军官",
+"band": 3
+},
+{
+"en": "often",
+"ph": "/ˈɒfən/",
+"cn": "adv. 时常",
+"band": 2
+},
+{
+"en": "oil",
+"ph": "/ɔɪl/",
+"cn": "n. 油",
+"band": 3
+},
+{
+"en": "ok",
+"ph": "/ˌəʊˈkeɪ/",
+"cn": "int. 好；行",
+"band": 2
+},
+{
+"en": "old",
+"ph": "/əʊld/",
+"cn": "adj. 老的；旧的",
+"band": 2
+},
+{
+"en": "olympic",
+"ph": "/əˈlɪmpɪk/",
+"cn": "adj. 奥林匹亚的",
+"band": 3
+},
+{
+"en": "on",
+"ph": "/ɒn/",
+"cn": "prep. 在……上",
+"band": 2
+},
+{
+"en": "once",
+"ph": "/wɒns/",
+"cn": "adv. 一次；曾经",
+"band": 3
+},
+{
+"en": "onion",
+"ph": "/ˈʌnjən/",
+"cn": "n. 洋葱",
+"band": 3
+},
+{
+"en": "online",
+"ph": "/ˈɒnlaɪn/",
+"cn": "adj. 在线的；adv. 在网上",
+"band": 3
+},
+{
+"en": "only",
+"ph": "/ˈəʊnli/",
+"cn": "adv. 仅仅；adj. 唯一的",
+"band": 3
+},
+{
+"en": "open",
+"ph": "/ˈəʊpən/",
+"cn": "v. 打开",
+"band": 2
+},
+{
+"en": "opera",
+"ph": "/ˈɒpərə/",
+"cn": "n. 歌剧",
+"band": 3
+},
+{
+"en": "operate",
+"ph": "/ˈɒpəreɪt/",
+"cn": "v. 操作",
+"band": 3
+},
+{
+"en": "opinion",
+"ph": "/əˈpɪnɪən/",
+"cn": "n. 意见",
+"band": 3
+},
+{
+"en": "opposite",
+"ph": "/ˈɒpəsɪt/",
+"cn": "adj. 相对的",
+"band": 3
+},
+{
+"en": "or",
+"ph": "/ɔː(r)/",
+"cn": "conj. 或",
+"band": 2
+},
+{
+"en": "orange",
+"ph": "/ˈɒrɪndʒ/",
+"cn": "n. 橙子；橙色",
+"band": 2
+},
+{
+"en": "order",
+"ph": "/ˈɔːdə(r)/",
+"cn": "n. 顺序；v. 命令",
+"band": 3
+},
+{
+"en": "organise",
+"ph": "/ˈɔːɡənaɪz/",
+"cn": "v. 组织",
+"band": 3
+},
+{
+"en": "organize",
+"ph": "/ˈɔːɡənaɪz/",
+"cn": "v. 组织",
+"band": 3
+},
+{
+"en": "other",
+"ph": "/ˈʌðə(r)/",
+"cn": "adj. 其他的",
+"band": 3
+},
+{
+"en": "our",
+"ph": "/ˈaʊə(r)/",
+"cn": "pron. 我们的",
+"band": 2
+},
+{
+"en": "ours",
+"ph": "/ˈaʊəz/",
+"cn": "pron. 我们的",
+"band": 3
+},
+{
+"en": "ourselves",
+"ph": "/aʊəˈselvz/",
+"cn": "pron. 我们自己",
+"band": 3
+},
+{
+"en": "out",
+"ph": "/aʊt/",
+"cn": "adv. 出；在外",
+"band": 2
+},
+{
+"en": "outside",
+"ph": "/ˌaʊtˈsaɪd/",
+"cn": "n. 外面",
+"band": 3
+},
+{
+"en": "oven",
+"ph": "/ˈʌvən/",
+"cn": "n. 烤箱",
+"band": 3
+},
+{
+"en": "over",
+"ph": "/ˈəʊvə(r)/",
+"cn": "prep. 在……上方",
+"band": 2
+},
+{
+"en": "own",
+"ph": "/əʊn/",
+"cn": "v. 拥有；adj. 自己的",
+"band": 3
+},
+{
+"en": "p.m.",
+"ph": "/ˌpiː ˈem/",
+"cn": "n. 下午；午后",
+"band": 3
+},
+{
+"en": "pack",
+"ph": "/pæk/",
+"cn": "n. 包裹",
+"band": 3
+},
+{
+"en": "packet",
+"ph": "/ˈpækɪt/",
+"cn": "n. 小包",
+"band": 3
+},
+{
+"en": "page",
+"ph": "/peɪdʒ/",
+"cn": "n. 页",
+"band": 3
+},
+{
+"en": "pain",
+"ph": "/peɪn/",
+"cn": "n. 痛苦",
+"band": 3
+},
+{
+"en": "paint",
+"ph": "/peɪnt/",
+"cn": "v. 用颜料画",
+"band": 3
+},
+{
+"en": "pair",
+"ph": "/peə(r)/",
+"cn": "n. 一双",
+"band": 2
+},
+{
+"en": "palace",
+"ph": "/ˈpælɪs/",
+"cn": "n. 宫",
+"band": 3
+},
+{
+"en": "pale",
+"ph": "/peɪl/",
+"cn": "adj. 苍白的",
+"band": 3
+},
+{
+"en": "pancake",
+"ph": "/ˈpænkeɪk/",
+"cn": "n. 薄烤饼",
+"band": 3
+},
+{
+"en": "panda",
+"ph": "/ˈpændə/",
+"cn": "n. 大熊猫",
+"band": 2
+},
+{
+"en": "paper",
+"ph": "/ˈpeɪpə(r)/",
+"cn": "n. 纸",
+"band": 2
+},
+{
+"en": "paragraph",
+"ph": "/ˈpærəɡræf/",
+"cn": "n. 段落",
+"band": 3
+},
+{
+"en": "pardon",
+"ph": "/ˈpɑːdən/",
+"cn": "int. 什么；请再说一遍",
+"band": 3
+},
+{
+"en": "parent",
+"ph": "/ˈpeərənt/",
+"cn": "n. 父母",
+"band": 2
+},
+{
+"en": "park",
+"ph": "/pɑːk/",
+"cn": "n. 公园",
+"band": 2
+},
+{
+"en": "part",
+"ph": "/pɑːt/",
+"cn": "n. 部分",
+"band": 3
+},
+{
+"en": "partner",
+"ph": "/ˈpɑːtnə(r)/",
+"cn": "n. 合伙人",
+"band": 3
+},
+{
+"en": "party",
+"ph": "/ˈpɑːti/",
+"cn": "n. 宴会",
+"band": 2
+},
+{
+"en": "pass",
+"ph": "/pɑːs/",
+"cn": "v. 传递；通过",
+"band": 3
+},
+{
+"en": "passage",
+"ph": "/ˈpæsɪdʒ/",
+"cn": "n. 通道",
+"band": 3
+},
+{
+"en": "passenger",
+"ph": "/ˈpæsɪndʒə(r)/",
+"cn": "n. 乘客",
+"band": 3
+},
+{
+"en": "passport",
+"ph": "/ˈpɑːspɔːt/",
+"cn": "n. 护照",
+"band": 3
+},
+{
+"en": "past",
+"ph": "/pɑːst/",
+"cn": "n. 过去",
+"band": 3
+},
+{
+"en": "pay",
+"ph": "/peɪ/",
+"cn": "v. 支付；付钱",
+"band": 3
+},
+{
+"en": "pe",
+"ph": "/ˌpiː ˈiː/",
+"cn": "n. 体育课",
+"band": 2
+},
+{
+"en": "peace",
+"ph": "/piːs/",
+"cn": "n. 和平",
+"band": 3
+},
+{
+"en": "pear",
+"ph": "/peə(r)/",
+"cn": "n. 梨子",
+"band": 3
+},
+{
+"en": "pen",
+"ph": "/pen/",
+"cn": "n. 钢笔",
+"band": 2
+},
+{
+"en": "pencil",
+"ph": "/ˈpensəl/",
+"cn": "n. 铅笔",
+"band": 2
+},
+{
+"en": "penguin",
+"ph": "/ˈpeŋɡwɪn/",
+"cn": "n. 企鹅",
+"band": 3
+},
+{
+"en": "people",
+"ph": "/ˈpiːpəl/",
+"cn": "n. 人们",
+"band": 2
+},
+{
+"en": "pepper",
+"ph": "/ˈpepə(r)/",
+"cn": "n. 胡椒粉",
+"band": 3
+},
+{
+"en": "per cent",
+"ph": "/pə ˈsent/",
+"cn": "n. 百分之……",
+"band": 3
+},
+{
+"en": "perfect",
+"ph": "/ˈpɜːfɪkt/",
+"cn": "n. 完成时",
+"band": 3
+},
+{
+"en": "perform",
+"ph": "/pəˈfɔːm/",
+"cn": "v. 进行",
+"band": 3
+},
+{
+"en": "perhaps",
+"ph": "/pəˈhæps/",
+"cn": "adv. 也许",
+"band": 3
+},
+{
+"en": "period",
+"ph": "/ˈpɪərɪəd/",
+"cn": "n. 时期；课时",
+"band": 3
+},
+{
+"en": "person",
+"ph": "/ˈpɜːsən/",
+"cn": "n. 人",
+"band": 3
+},
+{
+"en": "personal",
+"ph": "/ˈpɜːsənəl/",
+"cn": "adj. 私人的",
+"band": 3
+},
+{
+"en": "pet",
+"ph": "/pet/",
+"cn": "n. 宠物",
+"band": 2
+},
+{
+"en": "phone",
+"ph": "/fəʊn/",
+"cn": "n. 电话",
+"band": 2
+},
+{
+"en": "photo",
+"ph": "/ˈfəʊtəʊ/",
+"cn": "n. 相片",
+"band": 2
+},
+{
+"en": "photograph",
+"ph": "/ˈfəʊtəɡræf/",
+"cn": "n. 相片",
+"band": 3
+},
+{
+"en": "physics",
+"ph": "/ˈfɪzɪks/",
+"cn": "n. 物理学",
+"band": 3
+},
+{
+"en": "piano",
+"ph": "/pɪˈænəʊ/",
+"cn": "n. 钢琴",
+"band": 2
+},
+{
+"en": "pick",
+"ph": "/pɪk/",
+"cn": "v. 挑选；采摘",
+"band": 3
+},
+{
+"en": "picnic",
+"ph": "/ˈpɪknɪk/",
+"cn": "n. 野餐",
+"band": 3
+},
+{
+"en": "picture",
+"ph": "/ˈpɪktʃə(r)/",
+"cn": "n. 图画",
+"band": 2
+},
+{
+"en": "pie",
+"ph": "/paɪ/",
+"cn": "n. 馅饼",
+"band": 3
+},
+{
+"en": "piece",
+"ph": "/piːs/",
+"cn": "n. 块",
+"band": 3
+},
+{
+"en": "pig",
+"ph": "/pɪɡ/",
+"cn": "n. 猪",
+"band": 2
+},
+{
+"en": "pill",
+"ph": "/pɪl/",
+"cn": "n. 药丸",
+"band": 3
+},
+{
+"en": "pilot",
+"ph": "/ˈpaɪlət/",
+"cn": "n. 飞行员",
+"band": 3
+},
+{
+"en": "ping-pong",
+"ph": "/ˈpɪŋ pɒŋ/",
+"cn": "n. 乒乓球",
+"band": 2
+},
+{
+"en": "pink",
+"ph": "/pɪŋk/",
+"cn": "adj. 粉红色的",
+"band": 2
+},
+{
+"en": "pioneer",
+"ph": "/paɪəˈnɪə(r)/",
+"cn": "n. 先锋",
+"band": 3
+},
+{
+"en": "pity",
+"ph": "/ˈpɪti/",
+"cn": "n. 遗憾",
+"band": 3
+},
+{
+"en": "pizza",
+"ph": "/ˈpiːtsə/",
+"cn": "n. 比萨饼",
+"band": 3
+},
+{
+"en": "place",
+"ph": "/pleɪs/",
+"cn": "n. 地方",
+"band": 2
+},
+{
+"en": "plan",
+"ph": "/plæn/",
+"cn": "n. 计划",
+"band": 3
+},
+{
+"en": "plane",
+"ph": "/pleɪn/",
+"cn": "n. 飞机",
+"band": 2
+},
+{
+"en": "planet",
+"ph": "/ˈplænɪt/",
+"cn": "n. 行星",
+"band": 3
+},
+{
+"en": "plant",
+"ph": "/plænt/",
+"cn": "n. 植物",
+"band": 2
+},
+{
+"en": "plastic",
+"ph": "/ˈplɑːstɪk/",
+"cn": "n. 塑料",
+"band": 3
+},
+{
+"en": "plate",
+"ph": "/pleɪt/",
+"cn": "n. 碟",
+"band": 3
+},
+{
+"en": "play",
+"ph": "/pleɪ/",
+"cn": "v. 玩；踢（球）",
+"band": 2
+},
+{
+"en": "playground",
+"ph": "/ˈpleɪɡraʊnd/",
+"cn": "n. 运动场",
+"band": 2
+},
+{
+"en": "please",
+"ph": "/pliːz/",
+"cn": "adv. 请",
+"band": 2
+},
+{
+"en": "pleasure",
+"ph": "/ˈpleʒə(r)/",
+"cn": "n. 高兴；乐事",
+"band": 3
+},
+{
+"en": "plenty",
+"ph": "/ˈplenti/",
+"cn": "n. 充分",
+"band": 3
+},
+{
+"en": "pocket",
+"ph": "/ˈpɒkɪt/",
+"cn": "n. 口袋",
+"band": 3
+},
+{
+"en": "poem",
+"ph": "/ˈpəʊɪm/",
+"cn": "n. 诗",
+"band": 3
+},
+{
+"en": "poet",
+"ph": "/ˈpəʊɪt/",
+"cn": "n. 诗人",
+"band": 3
+},
+{
+"en": "police",
+"ph": "/pəˈliːs/",
+"cn": "n. 警察",
+"band": 2
+},
+{
+"en": "policeman",
+"ph": "/pəˈliːsmən/",
+"cn": "n. 警察",
+"band": 3
+},
+{
+"en": "policemen",
+"ph": "/pəˈliːsmen/",
+"cn": "n. 男警察（policeman 的复数）",
+"band": 3
+},
+{
+"en": "policewoman",
+"ph": "/pəˈliːswʊmən/",
+"cn": "n. 女警察",
+"band": 3
+},
+{
+"en": "polite",
+"ph": "/pəˈlaɪt/",
+"cn": "adj. 有礼貌的",
+"band": 3
+},
+{
+"en": "pollute",
+"ph": "/pəˈluːt/",
+"cn": "v. 污染",
+"band": 3
+},
+{
+"en": "pool",
+"ph": "/puːl/",
+"cn": "n. 游泳池",
+"band": 3
+},
+{
+"en": "poor",
+"ph": "/pɔː(r)/",
+"cn": "adj. 贫穷的",
+"band": 3
+},
+{
+"en": "popular",
+"ph": "/ˈpɒpjʊlə(r)/",
+"cn": "adj. 通俗的",
+"band": 3
+},
+{
+"en": "population",
+"ph": "/ˌpɒpjʊˈleɪʃən/",
+"cn": "n. 人口",
+"band": 3
+},
+{
+"en": "pork",
+"ph": "/pɔːk/",
+"cn": "n. 猪肉",
+"band": 3
+},
+{
+"en": "porridge",
+"ph": "/ˈpɒrɪdʒ/",
+"cn": "n. 粥",
+"band": 3
+},
+{
+"en": "position",
+"ph": "/pəˈzɪʃən/",
+"cn": "n. 位置",
+"band": 3
+},
+{
+"en": "positive",
+"ph": "/ˈpɒzɪtɪv/",
+"cn": "adj. 肯定的",
+"band": 3
+},
+{
+"en": "possible",
+"ph": "/ˈpɒsəbəl/",
+"cn": "adj. 可能的",
+"band": 3
+},
+{
+"en": "post",
+"ph": "/pəʊst/",
+"cn": "v. 邮寄；n. 邮政",
+"band": 3
+},
+{
+"en": "postcard",
+"ph": "/ˈpəʊstkɑːd/",
+"cn": "n. 明信片",
+"band": 3
+},
+{
+"en": "postman",
+"ph": "/ˈpəʊstmən/",
+"cn": "n. 邮递员",
+"band": 3
+},
+{
+"en": "postmen",
+"ph": "/ˈpəʊstmen/",
+"cn": "n. 邮递员（postman 的复数）",
+"band": 3
+},
+{
+"en": "pot",
+"ph": "/pɒt/",
+"cn": "n. 锅；壶",
+"band": 3
+},
+{
+"en": "potato",
+"ph": "/pəˈteɪtəʊ/",
+"cn": "n. 马铃薯",
+"band": 2
+},
+{
+"en": "pound",
+"ph": "/paʊnd/",
+"cn": "n. 磅",
+"band": 3
+},
+{
+"en": "pour",
+"ph": "/pɔː(r)/",
+"cn": "v. 倒；灌",
+"band": 3
+},
+{
+"en": "power",
+"ph": "/ˈpaʊə(r)/",
+"cn": "n. 力量；电力",
+"band": 3
+},
+{
+"en": "practice",
+"ph": "/ˈpræktɪs/",
+"cn": "n. 练习",
+"band": 3
+},
+{
+"en": "praise",
+"ph": "/preɪz/",
+"cn": "v. 表扬",
+"band": 3
+},
+{
+"en": "prefer",
+"ph": "/prɪˈfɜː(r)/",
+"cn": "v. 更喜欢",
+"band": 3
+},
+{
+"en": "prepare",
+"ph": "/prɪˈpeə(r)/",
+"cn": "v. 准备",
+"band": 3
+},
+{
+"en": "present",
+"ph": "/ˈpreznt/",
+"cn": "n. 礼物；adj. 目前的",
+"band": 3
+},
+{
+"en": "president",
+"ph": "/ˈprezɪdənt/",
+"cn": "n. 总统",
+"band": 3
+},
+{
+"en": "press",
+"ph": "/pres/",
+"cn": "v. 按；压",
+"band": 3
+},
+{
+"en": "pressure",
+"ph": "/ˈpreʃə(r)/",
+"cn": "n. 压",
+"band": 3
+},
+{
+"en": "pretty",
+"ph": "/ˈprɪti/",
+"cn": "adj. 漂亮的",
+"band": 3
+},
+{
+"en": "price",
+"ph": "/praɪs/",
+"cn": "n. 价格",
+"band": 3
+},
+{
+"en": "pride",
+"ph": "/praɪd/",
+"cn": "n. 骄傲",
+"band": 3
+},
+{
+"en": "primary",
+"ph": "/ˈpraɪməri/",
+"cn": "n. 最主要者",
+"band": 3
+},
+{
+"en": "prince",
+"ph": "/prɪns/",
+"cn": "n. 王子",
+"band": 3
+},
+{
+"en": "princess",
+"ph": "/ˌprɪnˈses/",
+"cn": "n. 公主",
+"band": 3
+},
+{
+"en": "print",
+"ph": "/prɪnt/",
+"cn": "v. 打印",
+"band": 3
+},
+{
+"en": "private",
+"ph": "/ˈpraɪvət/",
+"cn": "adj. 私人的",
+"band": 3
+},
+{
+"en": "prize",
+"ph": "/praɪz/",
+"cn": "n. 奖赏",
+"band": 3
+},
+{
+"en": "probably",
+"ph": "/ˈprɒbəbli/",
+"cn": "adv. 大概",
+"band": 3
+},
+{
+"en": "problem",
+"ph": "/ˈprɒbləm/",
+"cn": "n. 问题",
+"band": 3
+},
+{
+"en": "produce",
+"ph": "/prəˈdjuːs/",
+"cn": "n. 生产品",
+"band": 3
+},
+{
+"en": "product",
+"ph": "/ˈprɒdʌkt/",
+"cn": "n. 产品",
+"band": 3
+},
+{
+"en": "programme",
+"ph": "/ˈprəʊɡræm/",
+"cn": "n. 节目；计划",
+"band": 3
+},
+{
+"en": "progress",
+"ph": "/ˈprəʊɡres/",
+"cn": "n. 进步",
+"band": 3
+},
+{
+"en": "project",
+"ph": "/ˈprɒdʒekt/",
+"cn": "n. 项目",
+"band": 3
+},
+{
+"en": "promise",
+"ph": "/ˈprɒmɪs/",
+"cn": "v. 承诺；n. 诺言",
+"band": 3
+},
+{
+"en": "pronounce",
+"ph": "/prəˈnaʊns/",
+"cn": "v. 发音",
+"band": 3
+},
+{
+"en": "proper",
+"ph": "/ˈprɒpə(r)/",
+"cn": "adj. 适当的",
+"band": 3
+},
+{
+"en": "protect",
+"ph": "/prəˈtekt/",
+"cn": "v. 保护",
+"band": 3
+},
+{
+"en": "proud",
+"ph": "/praʊd/",
+"cn": "adj. 骄傲的",
+"band": 3
+},
+{
+"en": "prove",
+"ph": "/pruːv/",
+"cn": "v. 证明",
+"band": 3
+},
+{
+"en": "provide",
+"ph": "/prəˈvaɪd/",
+"cn": "v. 提供",
+"band": 3
+},
+{
+"en": "public",
+"ph": "/ˈpʌblɪk/",
+"cn": "adj. 公共的；n. 公众",
+"band": 3
+},
+{
+"en": "publish",
+"ph": "/ˈpʌblɪʃ/",
+"cn": "v. 出版",
+"band": 3
+},
+{
+"en": "pull",
+"ph": "/pʊl/",
+"cn": "v. 拉",
+"band": 3
+},
+{
+"en": "punish",
+"ph": "/ˈpʌnɪʃ/",
+"cn": "v. 处罚",
+"band": 3
+},
+{
+"en": "purple",
+"ph": "/ˈpɜːpəl/",
+"cn": "adj. 紫色的",
+"band": 3
+},
+{
+"en": "purpose",
+"ph": "/ˈpɜːpəs/",
+"cn": "n. 目的",
+"band": 3
+},
+{
+"en": "push",
+"ph": "/pʊʃ/",
+"cn": "v. 推",
+"band": 3
+},
+{
+"en": "put",
+"ph": "/pʊt/",
+"cn": "v. 放",
+"band": 2
+},
+{
+"en": "quality",
+"ph": "/ˈkwɒlɪti/",
+"cn": "n. 品质",
+"band": 3
+},
+{
+"en": "quarter",
+"ph": "/ˈkwɔːtə(r)/",
+"cn": "n. 四分之一",
+"band": 3
+},
+{
+"en": "queen",
+"ph": "/kwiːn/",
+"cn": "n. 王后",
+"band": 3
+},
+{
+"en": "question",
+"ph": "/ˈkwestʃən/",
+"cn": "n. 问题",
+"band": 2
+},
+{
+"en": "quick",
+"ph": "/kwɪk/",
+"cn": "adj. 快的",
+"band": 3
+},
+{
+"en": "quiet",
+"ph": "/ˈkwaɪət/",
+"cn": "adj. 安静的",
+"band": 2
+},
+{
+"en": "quite",
+"ph": "/kwaɪt/",
+"cn": "adv. 相当",
+"band": 3
+},
+{
+"en": "rabbit",
+"ph": "/ˈræbɪt/",
+"cn": "n. 兔子",
+"band": 2
+},
+{
+"en": "race",
+"ph": "/reɪs/",
+"cn": "n. 比赛；赛跑",
+"band": 3
+},
+{
+"en": "radio",
+"ph": "/ˈreɪdiəʊ/",
+"cn": "n. 收音机；无线电",
+"band": 3
+},
+{
+"en": "railway",
+"ph": "/ˈreɪlweɪ/",
+"cn": "n. 铁路",
+"band": 3
+},
+{
+"en": "rain",
+"ph": "/reɪn/",
+"cn": "n. 雨",
+"band": 2
+},
+{
+"en": "rainbow",
+"ph": "/ˈreɪnbəʊ/",
+"cn": "n. 彩虹",
+"band": 3
+},
+{
+"en": "raise",
+"ph": "/reɪz/",
+"cn": "v. 举起；提高",
+"band": 3
+},
+{
+"en": "rapid",
+"ph": "/ˈræpɪd/",
+"cn": "adj. 迅速的",
+"band": 3
+},
+{
+"en": "rather",
+"ph": "/ˈrɑːðə(r)/",
+"cn": "adv. 宁可",
+"band": 3
+},
+{
+"en": "reach",
+"ph": "/riːtʃ/",
+"cn": "v. 到达；伸手拿",
+"band": 3
+},
+{
+"en": "read",
+"ph": "/riːd/",
+"cn": "v. 读",
+"band": 2
+},
+{
+"en": "ready",
+"ph": "/ˈredi/",
+"cn": "n. 预备好的状态",
+"band": 3
+},
+{
+"en": "real",
+"ph": "/ˈrɪəl/",
+"cn": "adj. 真的",
+"band": 3
+},
+{
+"en": "realise",
+"ph": "/ˈriːəlaɪz/",
+"cn": "v. 意识到；实现",
+"band": 3
+},
+{
+"en": "really",
+"ph": "/ˈrɪəli/",
+"cn": "adv. 实际上",
+"band": 3
+},
+{
+"en": "reason",
+"ph": "/ˈriːzən/",
+"cn": "n. 理由",
+"band": 3
+},
+{
+"en": "receive",
+"ph": "/rɪˈsiːv/",
+"cn": "v. 收到",
+"band": 3
+},
+{
+"en": "recent",
+"ph": "/ˈriːsənt/",
+"cn": "adj. 最近的",
+"band": 3
+},
+{
+"en": "recognise",
+"ph": "/ˈrekəɡnaɪz/",
+"cn": "v. 认出；承认",
+"band": 3
+},
+{
+"en": "recommend",
+"ph": "/ˌrekəˈmend/",
+"cn": "v. 推荐",
+"band": 3
+},
+{
+"en": "record",
+"ph": "/ˈrekɔːd/",
+"cn": "n. 记录",
+"band": 3
+},
+{
+"en": "red",
+"ph": "/red/",
+"cn": "adj. 红色的",
+"band": 2
+},
+{
+"en": "reduce",
+"ph": "/rɪdˈjuːs/",
+"cn": "v. 减少",
+"band": 3
+},
+{
+"en": "refuse",
+"ph": "/rɪˈfjuːz/",
+"cn": "v. 拒绝",
+"band": 3
+},
+{
+"en": "regret",
+"ph": "/rɪɡˈret/",
+"cn": "v. 后悔",
+"band": 3
+},
+{
+"en": "relationship",
+"ph": "/rɪˈleɪʃənʃɪp/",
+"cn": "n. 关系",
+"band": 3
+},
+{
+"en": "relative",
+"ph": "/ˈrelətɪv/",
+"cn": "n. 亲戚",
+"band": 3
+},
+{
+"en": "relax",
+"ph": "/rɪˈlæks/",
+"cn": "v. 放松",
+"band": 3
+},
+{
+"en": "remain",
+"ph": "/rɪˈmeɪn/",
+"cn": "v. 保持",
+"band": 3
+},
+{
+"en": "remember",
+"ph": "/rɪˈmembə(r)/",
+"cn": "v. 记得",
+"band": 3
+},
+{
+"en": "remind",
+"ph": "/rɪˈmaɪnd/",
+"cn": "v. 提醒",
+"band": 3
+},
+{
+"en": "repair",
+"ph": "/rɪˈpeə(r)/",
+"cn": "v. 修理",
+"band": 3
+},
+{
+"en": "repeat",
+"ph": "/rɪˈpiːt/",
+"cn": "v. 重复",
+"band": 3
+},
+{
+"en": "reply",
+"ph": "/rɪˈplaɪ/",
+"cn": "v. 回复",
+"band": 3
+},
+{
+"en": "report",
+"ph": "/rɪˈpɔːt/",
+"cn": "n. 报告",
+"band": 3
+},
+{
+"en": "require",
+"ph": "/rɪˈkwaɪə(r)/",
+"cn": "v. 需要",
+"band": 3
+},
+{
+"en": "research",
+"ph": "/rɪˈsɜːtʃ/",
+"cn": "n. 研究",
+"band": 3
+},
+{
+"en": "respect",
+"ph": "/rɪˈspekt/",
+"cn": "n. 尊敬",
+"band": 3
+},
+{
+"en": "responsible",
+"ph": "/rɪˈspɒnsəbəl/",
+"cn": "adj. 有责任的",
+"band": 3
+},
+{
+"en": "rest",
+"ph": "/rest/",
+"cn": "n. 休息",
+"band": 3
+},
+{
+"en": "restaurant",
+"ph": "/ˈrestrɒnt/",
+"cn": "n. 餐馆",
+"band": 3
+},
+{
+"en": "result",
+"ph": "/rɪˈzʌlt/",
+"cn": "n. 结果",
+"band": 3
+},
+{
+"en": "return",
+"ph": "/rɪˈtɜːn/",
+"cn": "n. 回来",
+"band": 3
+},
+{
+"en": "review",
+"ph": "/rɪˈvjuː/",
+"cn": "v. 复习；评论",
+"band": 3
+},
+{
+"en": "rice",
+"ph": "/raɪs/",
+"cn": "n. 米饭",
+"band": 2
+},
+{
+"en": "rich",
+"ph": "/rɪtʃ/",
+"cn": "adj. 富裕的",
+"band": 3
+},
+{
+"en": "ride",
+"ph": "/raɪd/",
+"cn": "v. 骑；乘",
+"band": 3
+},
+{
+"en": "right",
+"ph": "/raɪt/",
+"cn": "adj. 正确的；右边的",
+"band": 2
+},
+{
+"en": "ring",
+"ph": "/rɪŋ/",
+"cn": "n. 戒指；铃响",
+"band": 3
+},
+{
+"en": "rise",
+"ph": "/raɪz/",
+"cn": "v. 上升；升起",
+"band": 3
+},
+{
+"en": "risk",
+"ph": "/rɪsk/",
+"cn": "n. 风险",
+"band": 3
+},
+{
+"en": "river",
+"ph": "/ˈrɪvə(r)/",
+"cn": "n. 河",
+"band": 2
+},
+{
+"en": "road",
+"ph": "/rəʊd/",
+"cn": "n. 路",
+"band": 3
+},
+{
+"en": "robot",
+"ph": "/ˈrəʊbɒt/",
+"cn": "n. 机械人",
+"band": 2
+},
+{
+"en": "rock",
+"ph": "/rɒk/",
+"cn": "n. 岩石",
+"band": 3
+},
+{
+"en": "rocket",
+"ph": "/ˈrɒkɪt/",
+"cn": "n. 火箭",
+"band": 3
+},
+{
+"en": "role",
+"ph": "/rəʊl/",
+"cn": "n. 角色",
+"band": 3
+},
+{
+"en": "room",
+"ph": "/ruːm/",
+"cn": "n. 房间",
+"band": 2
+},
+{
+"en": "rope",
+"ph": "/rəʊp/",
+"cn": "n. 绳",
+"band": 3
+},
+{
+"en": "rose",
+"ph": "/rəʊz/",
+"cn": "n. 玫瑰",
+"band": 3
+},
+{
+"en": "round",
+"ph": "/raʊnd/",
+"cn": "adj. 圆的；adv. 在周围",
+"band": 3
+},
+{
+"en": "row",
+"ph": "/rəʊ/",
+"cn": "n. 排",
+"band": 3
+},
+{
+"en": "rubbish",
+"ph": "/ˈrʌbɪʃ/",
+"cn": "n. 垃圾",
+"band": 3
+},
+{
+"en": "rule",
+"ph": "/ruːl/",
+"cn": "n. 规则",
+"band": 3
+},
+{
+"en": "ruler",
+"ph": "/ˈruːlə(r)/",
+"cn": "n. 统治者",
+"band": 2
+},
+{
+"en": "run",
+"ph": "/rʌn/",
+"cn": "v. 跑；奔跑",
+"band": 2
+},
+{
+"en": "rush",
+"ph": "/rʌʃ/",
+"cn": "v. 冲；匆忙",
+"band": 3
+},
+{
+"en": "sad",
+"ph": "/sæd/",
+"cn": "adj. 忧愁的",
+"band": 2
+},
+{
+"en": "safe",
+"ph": "/seɪf/",
+"cn": "n. 保险箱",
+"band": 2
+},
+{
+"en": "safety",
+"ph": "/ˈseɪfti/",
+"cn": "n. 安全",
+"band": 3
+},
+{
+"en": "salad",
+"ph": "/ˈsæləd/",
+"cn": "n. 色拉",
+"band": 3
+},
+{
+"en": "sale",
+"ph": "/seɪl/",
+"cn": "n. 出售",
+"band": 3
+},
+{
+"en": "salt",
+"ph": "/sɒlt/",
+"cn": "n. 盐",
+"band": 3
+},
+{
+"en": "same",
+"ph": "/seɪm/",
+"cn": "adj. 相同的",
+"band": 3
+},
+{
+"en": "sand",
+"ph": "/sænd/",
+"cn": "n. 沙",
+"band": 3
+},
+{
+"en": "sandwich",
+"ph": "/ˈsændwɪtʃ/",
+"cn": "n. 三明治",
+"band": 3
+},
+{
+"en": "satisfy",
+"ph": "/ˈsætɪsfaɪ/",
+"cn": "v. 使满意",
+"band": 3
+},
+{
+"en": "save",
+"ph": "/seɪv/",
+"cn": "v. 救；节省",
+"band": 3
+},
+{
+"en": "say",
+"ph": "/seɪ/",
+"cn": "v. 说",
+"band": 2
+},
+{
+"en": "scare",
+"ph": "/skeə(r)/",
+"cn": "v. 使害怕",
+"band": 3
+},
+{
+"en": "scarf",
+"ph": "/skɑːf/",
+"cn": "n. 围巾",
+"band": 3
+},
+{
+"en": "school",
+"ph": "/skuːl/",
+"cn": "n. 学校",
+"band": 2
+},
+{
+"en": "schoolbag",
+"ph": "/ˈskuːlbæɡ/",
+"cn": "n. 书包",
+"band": 2
+},
+{
+"en": "science",
+"ph": "/ˈsaɪəns/",
+"cn": "n. 科学",
+"band": 2
+},
+{
+"en": "scientist",
+"ph": "/ˈsaɪəntɪst/",
+"cn": "n. 科学家",
+"band": 3
+},
+{
+"en": "scissors",
+"ph": "/ˈsɪsəz/",
+"cn": "n. 剪刀",
+"band": 3
+},
+{
+"en": "score",
+"ph": "/skɔː(r)/",
+"cn": "n. 得分",
+"band": 3
+},
+{
+"en": "screen",
+"ph": "/skriːn/",
+"cn": "n. 屏幕",
+"band": 3
+},
+{
+"en": "sea",
+"ph": "/siː/",
+"cn": "n. 海",
+"band": 2
+},
+{
+"en": "search",
+"ph": "/sɜːtʃ/",
+"cn": "v. 搜索；搜寻",
+"band": 3
+},
+{
+"en": "season",
+"ph": "/ˈsiːzən/",
+"cn": "n. 季节",
+"band": 2
+},
+{
+"en": "seat",
+"ph": "/siːt/",
+"cn": "n. 座位",
+"band": 3
+},
+{
+"en": "secret",
+"ph": "/ˈsiːkrət/",
+"cn": "n. 秘密",
+"band": 3
+},
+{
+"en": "see",
+"ph": "/siː/",
+"cn": "v. 看见",
+"band": 2
+},
+{
+"en": "seem",
+"ph": "/siːm/",
+"cn": "v. 好像；似乎",
+"band": 3
+},
+{
+"en": "seldom",
+"ph": "/ˈseldəm/",
+"cn": "adj. 不常的",
+"band": 3
+},
+{
+"en": "sell",
+"ph": "/sel/",
+"cn": "v. 卖",
+"band": 2
+},
+{
+"en": "send",
+"ph": "/send/",
+"cn": "v. 送；发送",
+"band": 3
+},
+{
+"en": "sense",
+"ph": "/sens/",
+"cn": "n. 感应",
+"band": 3
+},
+{
+"en": "sentence",
+"ph": "/ˈsentəns/",
+"cn": "n. 句子",
+"band": 3
+},
+{
+"en": "separate",
+"ph": "/ˈseprət/",
+"cn": "n. 独立件",
+"band": 3
+},
+{
+"en": "serious",
+"ph": "/ˈsɪərɪəs/",
+"cn": "adj. 严肃的",
+"band": 3
+},
+{
+"en": "serve",
+"ph": "/sɜːv/",
+"cn": "v. 服务；上菜",
+"band": 3
+},
+{
+"en": "service",
+"ph": "/ˈsɜːvɪs/",
+"cn": "n. 服务",
+"band": 3
+},
+{
+"en": "set",
+"ph": "/set/",
+"cn": "v. 放置；设置",
+"band": 3
+},
+{
+"en": "several",
+"ph": "/ˈsevrəl/",
+"cn": "adj. 几个的",
+"band": 3
+},
+{
+"en": "shake",
+"ph": "/ʃeɪk/",
+"cn": "v. 摇动",
+"band": 3
+},
+{
+"en": "shall",
+"ph": "/ʃæl/",
+"cn": "aux. 将",
+"band": 3
+},
+{
+"en": "shame",
+"ph": "/ʃeɪm/",
+"cn": "n. 羞耻",
+"band": 3
+},
+{
+"en": "shape",
+"ph": "/ʃeɪp/",
+"cn": "n. 形状",
+"band": 3
+},
+{
+"en": "share",
+"ph": "/ʃeə(r)/",
+"cn": "v. 分享",
+"band": 2
+},
+{
+"en": "shark",
+"ph": "/ʃɑːk/",
+"cn": "n. 鲨鱼",
+"band": 3
+},
+{
+"en": "she",
+"ph": "/ʃiː/",
+"cn": "pron. 她",
+"band": 2
+},
+{
+"en": "sheep",
+"ph": "/ʃiːp/",
+"cn": "n. 羊",
+"band": 2
+},
+{
+"en": "shelf",
+"ph": "/ʃelf/",
+"cn": "n. 架子",
+"band": 3
+},
+{
+"en": "shelves",
+"ph": "/ʃelvz/",
+"cn": "n. 架子（shelf 的复数）",
+"band": 3
+},
+{
+"en": "shine",
+"ph": "/ʃaɪn/",
+"cn": "v. 照耀；发光",
+"band": 3
+},
+{
+"en": "ship",
+"ph": "/ʃɪp/",
+"cn": "n. 船",
+"band": 2
+},
+{
+"en": "shirt",
+"ph": "/ʃɜːt/",
+"cn": "n. 衬衫",
+"band": 2
+},
+{
+"en": "shock",
+"ph": "/ʃɒk/",
+"cn": "n. 震惊",
+"band": 3
+},
+{
+"en": "shoe",
+"ph": "/ʃuː/",
+"cn": "n. 鞋",
+"band": 2
+},
+{
+"en": "shoot",
+"ph": "/ʃuːt/",
+"cn": "v. 射击",
+"band": 3
+},
+{
+"en": "shop",
+"ph": "/ʃɒp/",
+"cn": "n. 商店",
+"band": 2
+},
+{
+"en": "short",
+"ph": "/ʃɔːt/",
+"cn": "adj. 短的",
+"band": 2
+},
+{
+"en": "shorts",
+"ph": "/ʃɔːts/",
+"cn": "n. 短裤",
+"band": 2
+},
+{
+"en": "should",
+"ph": "/ʃʊd/",
+"cn": "aux. 应该",
+"band": 2
+},
+{
+"en": "shoulder",
+"ph": "/ˈʃəʊldə(r)/",
+"cn": "n. 肩膀",
+"band": 3
+},
+{
+"en": "shout",
+"ph": "/ʃaʊt/",
+"cn": "v. 喊叫",
+"band": 3
+},
+{
+"en": "show",
+"ph": "/ʃəʊ/",
+"cn": "v. 展示；给……看",
+"band": 2
+},
+{
+"en": "shower",
+"ph": "/ˈʃaʊə(r)/",
+"cn": "n. 淋浴；阵雨",
+"band": 3
+},
+{
+"en": "shut",
+"ph": "/ʃʌt/",
+"cn": "v. 关闭",
+"band": 3
+},
+{
+"en": "shy",
+"ph": "/ʃaɪ/",
+"cn": "adj. 害羞的",
+"band": 3
+},
+{
+"en": "sick",
+"ph": "/sɪk/",
+"cn": "adj. 生病的",
+"band": 3
+},
+{
+"en": "side",
+"ph": "/saɪd/",
+"cn": "n. 旁边",
+"band": 3
+},
+{
+"en": "sign",
+"ph": "/saɪn/",
+"cn": "n. 标志；手势",
+"band": 3
+},
+{
+"en": "silent",
+"ph": "/ˈsaɪlənt/",
+"cn": "adj. 沉默的",
+"band": 3
+},
+{
+"en": "silk",
+"ph": "/sɪlk/",
+"cn": "n. 丝",
+"band": 3
+},
+{
+"en": "silly",
+"ph": "/ˈsɪli/",
+"cn": "adj. 愚蠢的",
+"band": 3
+},
+{
+"en": "silver",
+"ph": "/ˈsɪlvə(r)/",
+"cn": "n. 银",
+"band": 3
+},
+{
+"en": "similar",
+"ph": "/ˈsɪmɪlə(r)/",
+"cn": "adj. 相似的",
+"band": 3
+},
+{
+"en": "simple",
+"ph": "/ˈsɪmpəl/",
+"cn": "adj. 简单的",
+"band": 3
+},
+{
+"en": "since",
+"ph": "/sɪns/",
+"cn": "prep. 自...以后",
+"band": 3
+},
+{
+"en": "sing",
+"ph": "/sɪŋ/",
+"cn": "v. 唱歌",
+"band": 2
+},
+{
+"en": "single",
+"ph": "/ˈsɪŋɡəl/",
+"cn": "adj. 单身的",
+"band": 3
+},
+{
+"en": "sir",
+"ph": "/sɜː(r)/",
+"cn": "n. 先生",
+"band": 3
+},
+{
+"en": "sister",
+"ph": "/ˈsɪstə(r)/",
+"cn": "n. 姐妹",
+"band": 2
+},
+{
+"en": "sit",
+"ph": "/sɪt/",
+"cn": "v. 坐",
+"band": 2
+},
+{
+"en": "situation",
+"ph": "/ˌsɪtʃuːˈeɪʃən/",
+"cn": "n. 情形",
+"band": 3
+},
+{
+"en": "size",
+"ph": "/saɪz/",
+"cn": "n. 大小",
+"band": 3
+},
+{
+"en": "skate",
+"ph": "/skeɪt/",
+"cn": "v. 滑冰",
+"band": 3
+},
+{
+"en": "ski",
+"ph": "/skiː/",
+"cn": "n. 滑雪橇",
+"band": 3
+},
+{
+"en": "skill",
+"ph": "/skɪl/",
+"cn": "n. 技能",
+"band": 3
+},
+{
+"en": "skirt",
+"ph": "/skɜːt/",
+"cn": "n. 裙子",
+"band": 2
+},
+{
+"en": "sky",
+"ph": "/skaɪ/",
+"cn": "n. 天空",
+"band": 3
+},
+{
+"en": "sleep",
+"ph": "/sliːp/",
+"cn": "v. 睡觉",
+"band": 2
+},
+{
+"en": "slim",
+"ph": "/slɪm/",
+"cn": "adj. 瘦的",
+"band": 3
+},
+{
+"en": "slow",
+"ph": "/sləʊ/",
+"cn": "adj. 慢的",
+"band": 2
+},
+{
+"en": "small",
+"ph": "/smɔːl/",
+"cn": "adj. 小的",
+"band": 2
+},
+{
+"en": "smart",
+"ph": "/smɑːt/",
+"cn": "adj. 聪明的",
+"band": 3
+},
+{
+"en": "smell",
+"ph": "/smel/",
+"cn": "v. 闻；n. 气味",
+"band": 3
+},
+{
+"en": "smile",
+"ph": "/smaɪl/",
+"cn": "v. 微笑",
+"band": 3
+},
+{
+"en": "smoke",
+"ph": "/sməʊk/",
+"cn": "n. 烟",
+"band": 3
+},
+{
+"en": "smooth",
+"ph": "/smuːð/",
+"cn": "adj. 平滑的",
+"band": 3
+},
+{
+"en": "snack",
+"ph": "/snæk/",
+"cn": "n. 小吃",
+"band": 3
+},
+{
+"en": "snake",
+"ph": "/sneɪk/",
+"cn": "n. 蛇",
+"band": 3
+},
+{
+"en": "snow",
+"ph": "/snəʊ/",
+"cn": "n. 雪",
+"band": 2
+},
+{
+"en": "so",
+"ph": "/səʊ/",
+"cn": "adv. 如此；因此",
+"band": 2
+},
+{
+"en": "social",
+"ph": "/ˈsəʊʃəl/",
+"cn": "adj. 社会的",
+"band": 3
+},
+{
+"en": "socialism",
+"ph": "/ˈsəʊʃəlɪzəm/",
+"cn": "n. 社会主义",
+"band": 3
+},
+{
+"en": "society",
+"ph": "/səˈsaɪəti/",
+"cn": "n. 社会",
+"band": 3
+},
+{
+"en": "sock",
+"ph": "/sɒk/",
+"cn": "n. 短袜",
+"band": 2
+},
+{
+"en": "sofa",
+"ph": "/ˈsəʊfə/",
+"cn": "n. 沙发",
+"band": 3
+},
+{
+"en": "soft",
+"ph": "/sɒft/",
+"cn": "adj. 软的",
+"band": 3
+},
+{
+"en": "soil",
+"ph": "/sɔɪl/",
+"cn": "n. 土壤",
+"band": 3
+},
+{
+"en": "soldier",
+"ph": "/ˈsəʊldʒə(r)/",
+"cn": "n. 军人",
+"band": 3
+},
+{
+"en": "solve",
+"ph": "/sɒlv/",
+"cn": "v. 解决",
+"band": 3
+},
+{
+"en": "some",
+"ph": "/sʌm/",
+"cn": "pron. 一些",
+"band": 2
+},
+{
+"en": "somebody",
+"ph": "/ˈsʌmbɒdi/",
+"cn": "n. 了不起的人",
+"band": 3
+},
+{
+"en": "someone",
+"ph": "/ˈsʌmwɒn/",
+"cn": "pron. 有人",
+"band": 3
+},
+{
+"en": "something",
+"ph": "/ˈsʌmθɪŋ/",
+"cn": "pron. 某事",
+"band": 3
+},
+{
+"en": "sometimes",
+"ph": "/ˈsʌmtaɪmz/",
+"cn": "adv. 有时",
+"band": 2
+},
+{
+"en": "somewhere",
+"ph": "/ˈsʌmweə(r)/",
+"cn": "adv. 到某处",
+"band": 3
+},
+{
+"en": "son",
+"ph": "/sʌn/",
+"cn": "n. 儿子",
+"band": 3
+},
+{
+"en": "song",
+"ph": "/sɒŋ/",
+"cn": "n. 歌",
+"band": 2
+},
+{
+"en": "soon",
+"ph": "/suːn/",
+"cn": "adv. 不久",
+"band": 3
+},
+{
+"en": "sore",
+"ph": "/sɔː(r)/",
+"cn": "adj. 悲伤的",
+"band": 3
+},
+{
+"en": "sorry",
+"ph": "/ˈsɒri/",
+"cn": "adj. 难过的",
+"band": 2
+},
+{
+"en": "sound",
+"ph": "/saʊnd/",
+"cn": "n. 声音",
+"band": 3
+},
+{
+"en": "soup",
+"ph": "/suːp/",
+"cn": "n. 汤",
+"band": 2
+},
+{
+"en": "south",
+"ph": "/saʊθ/",
+"cn": "n. 南方",
+"band": 3
+},
+{
+"en": "space",
+"ph": "/speɪs/",
+"cn": "n. 太空；空间",
+"band": 2
+},
+{
+"en": "spare",
+"ph": "/speə(r)/",
+"cn": "adj. 空闲的；多余的",
+"band": 3
+},
+{
+"en": "speak",
+"ph": "/spiːk/",
+"cn": "v. 说话",
+"band": 2
+},
+{
+"en": "special",
+"ph": "/ˈspeʃəl/",
+"cn": "adj. 特别的",
+"band": 3
+},
+{
+"en": "speech",
+"ph": "/spiːtʃ/",
+"cn": "n. 演讲",
+"band": 3
+},
+{
+"en": "speed",
+"ph": "/spiːd/",
+"cn": "n. 速度",
+"band": 3
+},
+{
+"en": "spell",
+"ph": "/spel/",
+"cn": "v. 拼写",
+"band": 3
+},
+{
+"en": "spend",
+"ph": "/spend/",
+"cn": "v. 花费",
+"band": 3
+},
+{
+"en": "spirit",
+"ph": "/ˈspɪrɪt/",
+"cn": "n. 精神",
+"band": 3
+},
+{
+"en": "spoon",
+"ph": "/spuːn/",
+"cn": "n. 勺子",
+"band": 3
+},
+{
+"en": "sport",
+"ph": "/spɔːt/",
+"cn": "n. 运动",
+"band": 2
+},
+{
+"en": "spread",
+"ph": "/spred/",
+"cn": "v. 传播；摊开",
+"band": 3
+},
+{
+"en": "spring",
+"ph": "/sprɪŋ/",
+"cn": "n. 春天；泉水",
+"band": 2
+},
+{
+"en": "square",
+"ph": "/skweə(r)/",
+"cn": "n. 正方形",
+"band": 3
+},
+{
+"en": "stage",
+"ph": "/steɪdʒ/",
+"cn": "n. 舞台；阶段",
+"band": 3
+},
+{
+"en": "stamp",
+"ph": "/stæmp/",
+"cn": "n. 邮票",
+"band": 3
+},
+{
+"en": "stand",
+"ph": "/stænd/",
+"cn": "v. 站；站立",
+"band": 2
+},
+{
+"en": "standard",
+"ph": "/ˈstændəd/",
+"cn": "n. 标准",
+"band": 3
+},
+{
+"en": "star",
+"ph": "/stɑː(r)/",
+"cn": "n. 星",
+"band": 2
+},
+{
+"en": "start",
+"ph": "/stɑːt/",
+"cn": "v. 开始；启动",
+"band": 3
+},
+{
+"en": "state",
+"ph": "/steɪt/",
+"cn": "n. 状态；州",
+"band": 3
+},
+{
+"en": "station",
+"ph": "/ˈsteɪʃən/",
+"cn": "n. 车站",
+"band": 3
+},
+{
+"en": "stay",
+"ph": "/steɪ/",
+"cn": "v. 停留",
+"band": 3
+},
+{
+"en": "steal",
+"ph": "/stiːl/",
+"cn": "v. 偷",
+"band": 3
+},
+{
+"en": "step",
+"ph": "/step/",
+"cn": "n. 步骤",
+"band": 3
+},
+{
+"en": "stick",
+"ph": "/stɪk/",
+"cn": "n. 木棍；枝条",
+"band": 3
+},
+{
+"en": "still",
+"ph": "/stɪl/",
+"cn": "adv. 仍然",
+"band": 3
+},
+{
+"en": "stomach",
+"ph": "/ˈstʌmək/",
+"cn": "n. 胃",
+"band": 3
+},
+{
+"en": "stone",
+"ph": "/stəʊn/",
+"cn": "n. 石头",
+"band": 3
+},
+{
+"en": "stop",
+"ph": "/stɒp/",
+"cn": "v. 停止；n. 车站",
+"band": 2
+},
+{
+"en": "store",
+"ph": "/stɔː(r)/",
+"cn": "n. 商店",
+"band": 3
+},
+{
+"en": "storm",
+"ph": "/stɔːm/",
+"cn": "n. 暴风雨",
+"band": 3
+},
+{
+"en": "story",
+"ph": "/ˈstɔːri/",
+"cn": "n. 故事",
+"band": 2
+},
+{
+"en": "straight",
+"ph": "/streɪt/",
+"cn": "adj. 直的",
+"band": 3
+},
+{
+"en": "strange",
+"ph": "/streɪndʒ/",
+"cn": "adj. 奇怪的",
+"band": 3
+},
+{
+"en": "strawberry",
+"ph": "/ˈstrɔːbəri/",
+"cn": "n. 草莓",
+"band": 3
+},
+{
+"en": "street",
+"ph": "/striːt/",
+"cn": "n. 街道",
+"band": 2
+},
+{
+"en": "stress",
+"ph": "/stres/",
+"cn": "n. 压力",
+"band": 3
+},
+{
+"en": "strict",
+"ph": "/strɪkt/",
+"cn": "adj. 严厉的",
+"band": 3
+},
+{
+"en": "strong",
+"ph": "/strɒŋ/",
+"cn": "adj. 强壮的",
+"band": 2
+},
+{
+"en": "student",
+"ph": "/ˈstjuːdənt/",
+"cn": "n. 学生",
+"band": 2
+},
+{
+"en": "study",
+"ph": "/ˈstʌdi/",
+"cn": "v. 学习；n. 书房",
+"band": 2
+},
+{
+"en": "style",
+"ph": "/staɪl/",
+"cn": "n. 风格",
+"band": 3
+},
+{
+"en": "subject",
+"ph": "/ˈsʌbdʒɪkt/",
+"cn": "n. 科目",
+"band": 2
+},
+{
+"en": "succeed",
+"ph": "/səkˈsiːd/",
+"cn": "v. 成功",
+"band": 3
+},
+{
+"en": "success",
+"ph": "/səkˈses/",
+"cn": "n. 成功",
+"band": 3
+},
+{
+"en": "such",
+"ph": "/sʌtʃ/",
+"cn": "adj. 如此的",
+"band": 3
+},
+{
+"en": "sudden",
+"ph": "/ˈsʌdən/",
+"cn": "adj. 突然的",
+"band": 3
+},
+{
+"en": "suffer",
+"ph": "/ˈsʌfə(r)/",
+"cn": "v. 遭受",
+"band": 3
+},
+{
+"en": "sugar",
+"ph": "/ˈʃʊɡə(r)/",
+"cn": "n. 糖",
+"band": 3
+},
+{
+"en": "suggest",
+"ph": "/sədˈʒest/",
+"cn": "v. 建议",
+"band": 3
+},
+{
+"en": "suit",
+"ph": "/suːt/",
+"cn": "n. 套装",
+"band": 3
+},
+{
+"en": "summer",
+"ph": "/ˈsʌmə(r)/",
+"cn": "n. 夏季",
+"band": 2
+},
+{
+"en": "sun",
+"ph": "/sʌn/",
+"cn": "n. 太阳",
+"band": 2
+},
+{
+"en": "sunny",
+"ph": "/ˈsʌni/",
+"cn": "adj. 阳光充足的",
+"band": 2
+},
+{
+"en": "supermarket",
+"ph": "/ˈsuːpəmɑːkɪt/",
+"cn": "n. 超级市场",
+"band": 2
+},
+{
+"en": "support",
+"ph": "/səˈpɔːt/",
+"cn": "v. 支持",
+"band": 3
+},
+{
+"en": "suppose",
+"ph": "/sʌˈpəʊz/",
+"cn": "v. 推想",
+"band": 3
+},
+{
+"en": "sure",
+"ph": "/ʃɔː(r)/",
+"cn": "adj. 确信",
+"band": 2
+},
+{
+"en": "surface",
+"ph": "/ˈsɜːfɪs/",
+"cn": "n. 表面",
+"band": 3
+},
+{
+"en": "surprise",
+"ph": "/səˈpraɪz/",
+"cn": "n. 惊奇",
+"band": 3
+},
+{
+"en": "survey",
+"ph": "/ˈsɜːveɪ/",
+"cn": "n. 调查",
+"band": 3
+},
+{
+"en": "survive",
+"ph": "/səˈvaɪv/",
+"cn": "v. 比...活得长",
+"band": 3
+},
+{
+"en": "sweater",
+"ph": "/ˈswetə(r)/",
+"cn": "n. 毛衣",
+"band": 2
+},
+{
+"en": "sweep",
+"ph": "/swiːp/",
+"cn": "v. 扫；打扫",
+"band": 2
+},
+{
+"en": "sweet",
+"ph": "/swiːt/",
+"cn": "adj. 甜的",
+"band": 3
+},
+{
+"en": "swim",
+"ph": "/swɪm/",
+"cn": "v. 游泳",
+"band": 2
+},
+{
+"en": "symbol",
+"ph": "/ˈsɪmbəl/",
+"cn": "n. 符号",
+"band": 3
+},
+{
+"en": "t-shirt",
+"ph": "/ˈtiː ʃɜːt/",
+"cn": "n. T恤衫",
+"band": 3
+},
+{
+"en": "table",
+"ph": "/ˈteɪbəl/",
+"cn": "n. 桌子",
+"band": 2
+},
+{
+"en": "tail",
+"ph": "/teɪl/",
+"cn": "n. 尾巴",
+"band": 2
+},
+{
+"en": "take",
+"ph": "/teɪk/",
+"cn": "v. 拿；带走",
+"band": 2
+},
+{
+"en": "talent",
+"ph": "/ˈtælənt/",
+"cn": "n. 天才",
+"band": 3
+},
+{
+"en": "talk",
+"ph": "/tɔːk/",
+"cn": "v. 说话；谈话",
+"band": 2
+},
+{
+"en": "tall",
+"ph": "/tɔːl/",
+"cn": "adj. 高的",
+"band": 2
+},
+{
+"en": "tap",
+"ph": "/tæp/",
+"cn": "n. 水龙头",
+"band": 3
+},
+{
+"en": "tape",
+"ph": "/teɪp/",
+"cn": "n. 带子",
+"band": 3
+},
+{
+"en": "task",
+"ph": "/tɑːsk/",
+"cn": "n. 任务",
+"band": 3
+},
+{
+"en": "taste",
+"ph": "/teɪst/",
+"cn": "v. 尝起来；n. 味道",
+"band": 3
+},
+{
+"en": "taxi",
+"ph": "/ˈtæksi/",
+"cn": "n. 出租车",
+"band": 2
+},
+{
+"en": "tea",
+"ph": "/tiː/",
+"cn": "n. 茶",
+"band": 2
+},
+{
+"en": "teach",
+"ph": "/tiːtʃ/",
+"cn": "v. 教",
+"band": 3
+},
+{
+"en": "teacher",
+"ph": "/ˈtiːtʃə(r)/",
+"cn": "n. 教师",
+"band": 2
+},
+{
+"en": "team",
+"ph": "/tiːm/",
+"cn": "n. 队",
+"band": 3
+},
+{
+"en": "teamwork",
+"ph": "/ˈtiːmwɜːk/",
+"cn": "n. 协同作业",
+"band": 3
+},
+{
+"en": "technology",
+"ph": "/tekˈnɒlədʒi/",
+"cn": "n. 技术",
+"band": 3
+},
+{
+"en": "teenage",
+"ph": "/ˈtiːneɪdʒ/",
+"cn": "adj. 十三岁到十九岁的",
+"band": 3
+},
+{
+"en": "teeth",
+"ph": "/tiːθ/",
+"cn": "n. 牙齿（tooth 的复数）",
+"band": 3
+},
+{
+"en": "tell",
+"ph": "/tel/",
+"cn": "v. 告诉",
+"band": 2
+},
+{
+"en": "temperature",
+"ph": "/ˈtemprɪtʃə(r)/",
+"cn": "n. 温度",
+"band": 3
+},
+{
+"en": "tennis",
+"ph": "/ˈtenɪs/",
+"cn": "n. 网球",
+"band": 3
+},
+{
+"en": "tent",
+"ph": "/tent/",
+"cn": "n. 帐篷",
+"band": 3
+},
+{
+"en": "terrible",
+"ph": "/ˈterəbəl/",
+"cn": "adj. 可怕的",
+"band": 3
+},
+{
+"en": "test",
+"ph": "/test/",
+"cn": "n. 测试",
+"band": 3
+},
+{
+"en": "text",
+"ph": "/tekst/",
+"cn": "n. 文本",
+"band": 3
+},
+{
+"en": "than",
+"ph": "/ðən/",
+"cn": "conj. 比",
+"band": 3
+},
+{
+"en": "thank",
+"ph": "/θæŋk/",
+"cn": "v. 感谢",
+"band": 2
+},
+{
+"en": "that",
+"ph": "/ðæt/",
+"cn": "pron. 那；那个",
+"band": 2
+},
+{
+"en": "the",
+"ph": "/ðə/",
+"cn": "art. 这；那",
+"band": 2
+},
+{
+"en": "theatre",
+"ph": "/ˈθɪətə(r)/",
+"cn": "n. 戏院",
+"band": 3
+},
+{
+"en": "their",
+"ph": "/ðeə(r)/",
+"cn": "pron. 他们的",
+"band": 2
+},
+{
+"en": "theirs",
+"ph": "/ðeəz/",
+"cn": "pron. 他们的",
+"band": 3
+},
+{
+"en": "them",
+"ph": "/ðem/",
+"cn": "pron. 他们",
+"band": 2
+},
+{
+"en": "themselves",
+"ph": "/ðemˈselvz/",
+"cn": "pron. 他们自己",
+"band": 3
+},
+{
+"en": "then",
+"ph": "/ðen/",
+"cn": "adv. 然后；那时",
+"band": 2
+},
+{
+"en": "there",
+"ph": "/ðeə(r)/",
+"cn": "adv. 那里",
+"band": 2
+},
+{
+"en": "therefore",
+"ph": "/ˈðeəfɔː(r)/",
+"cn": "adv. 因此",
+"band": 3
+},
+{
+"en": "these",
+"ph": "/ðiːz/",
+"cn": "pron. 这些",
+"band": 2
+},
+{
+"en": "they",
+"ph": "/ðeɪ/",
+"cn": "pron. 他们",
+"band": 2
+},
+{
+"en": "thick",
+"ph": "/θɪk/",
+"cn": "adj. 厚的",
+"band": 3
+},
+{
+"en": "thin",
+"ph": "/θɪn/",
+"cn": "adj. 薄的",
+"band": 2
+},
+{
+"en": "thing",
+"ph": "/θɪŋ/",
+"cn": "n. 事物",
+"band": 3
+},
+{
+"en": "think",
+"ph": "/θɪŋk/",
+"cn": "v. 想；认为",
+"band": 2
+},
+{
+"en": "thirsty",
+"ph": "/ˈθɜːsti/",
+"cn": "adj. 口渴的",
+"band": 3
+},
+{
+"en": "this",
+"ph": "/ðɪs/",
+"cn": "pron. 这；这个",
+"band": 2
+},
+{
+"en": "those",
+"ph": "/ðəʊz/",
+"cn": "pron. 那些",
+"band": 2
+},
+{
+"en": "though",
+"ph": "/ðəʊ/",
+"cn": "conj. 虽然",
+"band": 3
+},
+{
+"en": "thought",
+"ph": "/θɔːt/",
+"cn": "n. 想法",
+"band": 3
+},
+{
+"en": "throat",
+"ph": "/θrəʊt/",
+"cn": "n. 喉咙",
+"band": 3
+},
+{
+"en": "through",
+"ph": "/θruː/",
+"cn": "prep. 穿过",
+"band": 3
+},
+{
+"en": "throw",
+"ph": "/θrəʊ/",
+"cn": "v. 扔；投",
+"band": 3
+},
+{
+"en": "thunder",
+"ph": "/ˈθʌndə(r)/",
+"cn": "n. 雷",
+"band": 3
+},
+{
+"en": "ticket",
+"ph": "/ˈtɪkɪt/",
+"cn": "n. 票",
+"band": 3
+},
+{
+"en": "tidy",
+"ph": "/ˈtaɪdi/",
+"cn": "adj. 整洁的；v. 整理",
+"band": 2
+},
+{
+"en": "tie",
+"ph": "/taɪ/",
+"cn": "n. 领带；v. 系",
+"band": 3
+},
+{
+"en": "tiger",
+"ph": "/ˈtaɪɡə(r)/",
+"cn": "n. 老虎",
+"band": 2
+},
+{
+"en": "till",
+"ph": "/tɪl/",
+"cn": "prep. 直到",
+"band": 3
+},
+{
+"en": "time",
+"ph": "/taɪm/",
+"cn": "n. 时间",
+"band": 2
+},
+{
+"en": "tiny",
+"ph": "/ˈtaɪni/",
+"cn": "adj. 很少的",
+"band": 3
+},
+{
+"en": "tired",
+"ph": "/ˈtaɪəd/",
+"cn": "adj. 疲累的",
+"band": 2
+},
+{
+"en": "to",
+"ph": "/tuː/",
+"cn": "prep. 到；向",
+"band": 2
+},
+{
+"en": "today",
+"ph": "/təˈdeɪ/",
+"cn": "adv. 今天；n. 今天",
+"band": 2
+},
+{
+"en": "tofu",
+"ph": "/ˈtəʊfuː/",
+"cn": "n. 豆腐",
+"band": 3
+},
+{
+"en": "together",
+"ph": "/təˈɡeðə(r)/",
+"cn": "adv. 一起",
+"band": 3
+},
+{
+"en": "toilet",
+"ph": "/ˈtɔɪlət/",
+"cn": "n. 厕所",
+"band": 2
+},
+{
+"en": "tomato",
+"ph": "/təˈmɑːtəʊ/",
+"cn": "n. 番茄",
+"band": 2
+},
+{
+"en": "tomorrow",
+"ph": "/təˈmɒrəʊ/",
+"cn": "adv. 明天；n. 明天",
+"band": 2
+},
+{
+"en": "ton",
+"ph": "/tʌn/",
+"cn": "n. 吨",
+"band": 3
+},
+{
+"en": "tonight",
+"ph": "/təˈnaɪt/",
+"cn": "n. 今晚",
+"band": 3
+},
+{
+"en": "too",
+"ph": "/tuː/",
+"cn": "adv. 也；太",
+"band": 2
+},
+{
+"en": "tool",
+"ph": "/tuːl/",
+"cn": "n. 工具",
+"band": 3
+},
+{
+"en": "tooth",
+"ph": "/tuːθ/",
+"cn": "n. 牙齿",
+"band": 3
+},
+{
+"en": "top",
+"ph": "/tɒp/",
+"cn": "n. 顶部",
+"band": 2
+},
+{
+"en": "touch",
+"ph": "/tʌtʃ/",
+"cn": "v. 触摸",
+"band": 3
+},
+{
+"en": "tour",
+"ph": "/tʊə(r)/",
+"cn": "n. 旅行；观光",
+"band": 3
+},
+{
+"en": "tourist",
+"ph": "/ˈtʊərɪst/",
+"cn": "n. 游客",
+"band": 3
+},
+{
+"en": "towards",
+"ph": "/təˈwɔːdz/",
+"cn": "prep. 朝；向",
+"band": 3
+},
+{
+"en": "tower",
+"ph": "/ˈtaʊə(r)/",
+"cn": "n. 塔",
+"band": 3
+},
+{
+"en": "town",
+"ph": "/taʊn/",
+"cn": "n. 城镇",
+"band": 3
+},
+{
+"en": "toy",
+"ph": "/tɔɪ/",
+"cn": "n. 玩具",
+"band": 2
+},
+{
+"en": "trade",
+"ph": "/treɪd/",
+"cn": "n. 贸易",
+"band": 3
+},
+{
+"en": "tradition",
+"ph": "/trəˈdɪʃən/",
+"cn": "n. 传统",
+"band": 3
+},
+{
+"en": "traffic",
+"ph": "/ˈtræfɪk/",
+"cn": "n. 交通",
+"band": 3
+},
+{
+"en": "train",
+"ph": "/treɪn/",
+"cn": "n. 火车",
+"band": 2
+},
+{
+"en": "training",
+"ph": "/ˈtreɪnɪŋ/",
+"cn": "n. 训练",
+"band": 3
+},
+{
+"en": "translate",
+"ph": "/trænˈsleɪt/",
+"cn": "v. 翻译",
+"band": 3
+},
+{
+"en": "travel",
+"ph": "/ˈtrævəl/",
+"cn": "v. 旅行",
+"band": 2
+},
+{
+"en": "treasure",
+"ph": "/ˈtreʒə(r)/",
+"cn": "n. 宝物",
+"band": 3
+},
+{
+"en": "treat",
+"ph": "/triːt/",
+"cn": "v. 对待；治疗",
+"band": 3
+},
+{
+"en": "tree",
+"ph": "/triː/",
+"cn": "n. 树",
+"band": 2
+},
+{
+"en": "trip",
+"ph": "/trɪp/",
+"cn": "n. 旅行",
+"band": 3
+},
+{
+"en": "trouble",
+"ph": "/ˈtrʌbəl/",
+"cn": "n. 麻烦",
+"band": 3
+},
+{
+"en": "trousers",
+"ph": "/ˈtraʊsəz/",
+"cn": "n. 裤子",
+"band": 2
+},
+{
+"en": "truck",
+"ph": "/trʌk/",
+"cn": "n. 卡车",
+"band": 3
+},
+{
+"en": "true",
+"ph": "/truː/",
+"cn": "adj. 真实的",
+"band": 3
+},
+{
+"en": "trust",
+"ph": "/trʌst/",
+"cn": "v. 信任",
+"band": 3
+},
+{
+"en": "truth",
+"ph": "/truːθ/",
+"cn": "n. 事实",
+"band": 3
+},
+{
+"en": "try",
+"ph": "/traɪ/",
+"cn": "v. 尝试；努力",
+"band": 2
+},
+{
+"en": "turn",
+"ph": "/tɜːn/",
+"cn": "v. 转动；变得",
+"band": 2
+},
+{
+"en": "tv",
+"ph": "/ˌtiː ˈviː/",
+"cn": "n. 电视",
+"band": 2
+},
+{
+"en": "ugly",
+"ph": "/ˈʌɡli/",
+"cn": "adj. 丑陋的",
+"band": 3
+},
+{
+"en": "umbrella",
+"ph": "/ʌmˈbrelə/",
+"cn": "n. 雨伞",
+"band": 2
+},
+{
+"en": "uncle",
+"ph": "/ˈʌŋkəl/",
+"cn": "n. 叔叔",
+"band": 2
+},
+{
+"en": "under",
+"ph": "/ˈʌndə(r)/",
+"cn": "prep. 在……下面",
+"band": 2
+},
+{
+"en": "underground",
+"ph": "/ˈʌndəɡraʊnd/",
+"cn": "n. 地铁",
+"band": 3
+},
+{
+"en": "understand",
+"ph": "/ˌʌndəˈstænd/",
+"cn": "v. 理解",
+"band": 3
+},
+{
+"en": "uniform",
+"ph": "/ˈjuːnɪfɔːm/",
+"cn": "n. 制服",
+"band": 3
+},
+{
+"en": "unit",
+"ph": "/ˈjuːnɪt/",
+"cn": "n. 单位",
+"band": 3
+},
+{
+"en": "universe",
+"ph": "/ˈjuːnɪvɜːs/",
+"cn": "n. 宇宙",
+"band": 3
+},
+{
+"en": "university",
+"ph": "/ˌjuːnɪˈvɜːsɪti/",
+"cn": "n. 大学",
+"band": 3
+},
+{
+"en": "unless",
+"ph": "/ʌnˈles/",
+"cn": "conj. 除非",
+"band": 3
+},
+{
+"en": "until",
+"ph": "/ʌnˈtɪl/",
+"cn": "prep. 直到",
+"band": 3
+},
+{
+"en": "up",
+"ph": "/ʌp/",
+"cn": "adv. 向上",
+"band": 2
+},
+{
+"en": "upon",
+"ph": "/əˈpɒn/",
+"cn": "prep. 在...之上",
+"band": 3
+},
+{
+"en": "us",
+"ph": "/ʌs/",
+"cn": "pron. 我们",
+"band": 2
+},
+{
+"en": "use",
+"ph": "/juːz/",
+"cn": "v. 使用；利用",
+"band": 2
+},
+{
+"en": "usual",
+"ph": "/ˈjuːʒuːəl/",
+"cn": "adj. 平常的",
+"band": 3
+},
+{
+"en": "vacation",
+"ph": "/veɪˈkeɪʃən/",
+"cn": "n. 假期",
+"band": 3
+},
+{
+"en": "value",
+"ph": "/ˈvæljuː/",
+"cn": "n. 价值",
+"band": 3
+},
+{
+"en": "vegetable",
+"ph": "/ˈvedʒɪtəbəl/",
+"cn": "n. 蔬菜",
+"band": 2
+},
+{
+"en": "very",
+"ph": "/ˈveri/",
+"cn": "adj. 真正的",
+"band": 2
+},
+{
+"en": "victory",
+"ph": "/ˈvɪktəri/",
+"cn": "n. 胜利",
+"band": 3
+},
+{
+"en": "video",
+"ph": "/ˈvɪdɪəʊ/",
+"cn": "n. 视频",
+"band": 3
+},
+{
+"en": "view",
+"ph": "/vjuː/",
+"cn": "n. 景色；观点",
+"band": 3
+},
+{
+"en": "village",
+"ph": "/ˈvɪlɪdʒ/",
+"cn": "n. 村庄",
+"band": 3
+},
+{
+"en": "violin",
+"ph": "/vaɪəˈlɪn/",
+"cn": "n. 小提琴",
+"band": 3
+},
+{
+"en": "virus",
+"ph": "/ˈvaɪrəs/",
+"cn": "n. 病毒",
+"band": 3
+},
+{
+"en": "visit",
+"ph": "/ˈvɪzɪt/",
+"cn": "v. 拜访；参观",
+"band": 2
+},
+{
+"en": "voice",
+"ph": "/vɔɪs/",
+"cn": "n. 声音",
+"band": 3
+},
+{
+"en": "volleyball",
+"ph": "/ˈvɒlɪbɔːl/",
+"cn": "n. 排球",
+"band": 3
+},
+{
+"en": "voluntary",
+"ph": "/ˈvɒləntəri/",
+"cn": "adj. 自动的",
+"band": 3
+},
+{
+"en": "volunteer",
+"ph": "/ˌvɒlənˈtɪə(r)/",
+"cn": "n. 志愿者",
+"band": 3
+},
+{
+"en": "vote",
+"ph": "/vəʊt/",
+"cn": "v. 投票",
+"band": 3
+},
+{
+"en": "wait",
+"ph": "/weɪt/",
+"cn": "v. 等待",
+"band": 2
+},
+{
+"en": "wake",
+"ph": "/weɪk/",
+"cn": "v. 醒来",
+"band": 2
+},
+{
+"en": "walk",
+"ph": "/wɔːk/",
+"cn": "v. 走路；散步",
+"band": 2
+},
+{
+"en": "wall",
+"ph": "/wɔːl/",
+"cn": "n. 墙",
+"band": 2
+},
+{
+"en": "wallet",
+"ph": "/ˈwɒlɪt/",
+"cn": "n. 钱包",
+"band": 3
+},
+{
+"en": "want",
+"ph": "/wɒnt/",
+"cn": "v. 想要",
+"band": 2
+},
+{
+"en": "war",
+"ph": "/wɔː(r)/",
+"cn": "n. 战争",
+"band": 3
+},
+{
+"en": "warm",
+"ph": "/wɔːm/",
+"cn": "adj. 暖和的",
+"band": 2
+},
+{
+"en": "warn",
+"ph": "/wɔːn/",
+"cn": "v. 警告",
+"band": 3
+},
+{
+"en": "wash",
+"ph": "/wɒʃ/",
+"cn": "v. 洗",
+"band": 2
+},
+{
+"en": "waste",
+"ph": "/weɪst/",
+"cn": "v. 浪费；n. 浪费",
+"band": 3
+},
+{
+"en": "watch",
+"ph": "/wɒtʃ/",
+"cn": "v. 观看；注视",
+"band": 2
+},
+{
+"en": "water",
+"ph": "/ˈwɔːtə(r)/",
+"cn": "n. 水",
+"band": 2
+},
+{
+"en": "watermelon",
+"ph": "/ˈwɔːtəmelən/",
+"cn": "n. 西瓜",
+"band": 3
+},
+{
+"en": "wave",
+"ph": "/weɪv/",
+"cn": "n. 波浪；v. 挥手",
+"band": 3
+},
+{
+"en": "way",
+"ph": "/weɪ/",
+"cn": "n. 方法；道路",
+"band": 2
+},
+{
+"en": "we",
+"ph": "/wiː/",
+"cn": "pron. 我们",
+"band": 2
+},
+{
+"en": "weak",
+"ph": "/wiːk/",
+"cn": "adj. 不牢固的",
+"band": 3
+},
+{
+"en": "wealth",
+"ph": "/welθ/",
+"cn": "n. 财富",
+"band": 3
+},
+{
+"en": "wear",
+"ph": "/weə(r)/",
+"cn": "v. 穿；戴",
+"band": 2
+},
+{
+"en": "weather",
+"ph": "/ˈweðə(r)/",
+"cn": "n. 天气",
+"band": 2
+},
+{
+"en": "website",
+"ph": "/ˈwebsaɪt/",
+"cn": "n. 网站",
+"band": 3
+},
+{
+"en": "week",
+"ph": "/wiːk/",
+"cn": "n. 星期",
+"band": 2
+},
+{
+"en": "weekday",
+"ph": "/ˈwiːkdeɪ/",
+"cn": "n. 工作日",
+"band": 3
+},
+{
+"en": "weekend",
+"ph": "/wiːˈkend/",
+"cn": "n. 周末",
+"band": 3
+},
+{
+"en": "weigh",
+"ph": "/weɪ/",
+"cn": "v. 称...重量",
+"band": 3
+},
+{
+"en": "weight",
+"ph": "/weɪt/",
+"cn": "n. 重量",
+"band": 3
+},
+{
+"en": "welcome",
+"ph": "/ˈwelkʌm/",
+"cn": "v. 欢迎",
+"band": 2
+},
+{
+"en": "well",
+"ph": "/wel/",
+"cn": "adv. 好；int. 嗯",
+"band": 2
+},
+{
+"en": "west",
+"ph": "/west/",
+"cn": "n. 西方",
+"band": 3
+},
+{
+"en": "wet",
+"ph": "/wet/",
+"cn": "adj. 湿的",
+"band": 3
+},
+{
+"en": "whale",
+"ph": "/weɪl/",
+"cn": "n. 鲸鱼",
+"band": 3
+},
+{
+"en": "what",
+"ph": "/wɒt/",
+"cn": "pron. 什么",
+"band": 2
+},
+{
+"en": "whatever",
+"ph": "/wɒˈtevə(r)/",
+"cn": "pron. 无论什么",
+"band": 3
+},
+{
+"en": "wheel",
+"ph": "/wiːl/",
+"cn": "n. 轮子",
+"band": 3
+},
+{
+"en": "when",
+"ph": "/wen/",
+"cn": "adv. 什么时候",
+"band": 2
+},
+{
+"en": "whenever",
+"ph": "/weˈnevə(r)/",
+"cn": "conj. 每当",
+"band": 3
+},
+{
+"en": "where",
+"ph": "/weə(r)/",
+"cn": "adv. 在哪里",
+"band": 2
+},
+{
+"en": "whether",
+"ph": "/ˈweðə(r)/",
+"cn": "conj. 是否",
+"band": 3
+},
+{
+"en": "which",
+"ph": "/wɪtʃ/",
+"cn": "pron. 哪一个",
+"band": 2
+},
+{
+"en": "while",
+"ph": "/waɪl/",
+"cn": "conj. 当……时；然而",
+"band": 3
+},
+{
+"en": "white",
+"ph": "/waɪt/",
+"cn": "adj. 白色的",
+"band": 2
+},
+{
+"en": "who",
+"ph": "/huː/",
+"cn": "pron. 谁",
+"band": 2
+},
+{
+"en": "whole",
+"ph": "/həʊl/",
+"cn": "adj. 整个的",
+"band": 3
+},
+{
+"en": "whom",
+"ph": "/huːm/",
+"cn": "pron. 谁",
+"band": 3
+},
+{
+"en": "whose",
+"ph": "/huːz/",
+"cn": "pron. 谁的",
+"band": 2
+},
+{
+"en": "why",
+"ph": "/waɪ/",
+"cn": "adv. 为什么",
+"band": 2
+},
+{
+"en": "wide",
+"ph": "/waɪd/",
+"cn": "adj. 宽的",
+"band": 3
+},
+{
+"en": "wife",
+"ph": "/waɪf/",
+"cn": "n. 妻子",
+"band": 3
+},
+{
+"en": "wild",
+"ph": "/waɪld/",
+"cn": "adj. 野生的",
+"band": 3
+},
+{
+"en": "will",
+"ph": "/wɪl/",
+"cn": "aux. 将要",
+"band": 2
+},
+{
+"en": "win",
+"ph": "/wɪn/",
+"cn": "v. 赢；获胜",
+"band": 2
+},
+{
+"en": "wind",
+"ph": "/wɪnd/",
+"cn": "n. 风",
+"band": 3
+},
+{
+"en": "window",
+"ph": "/ˈwɪndəʊ/",
+"cn": "n. 窗户",
+"band": 2
+},
+{
+"en": "windy",
+"ph": "/ˈwɪndi/",
+"cn": "adj. 多风的",
+"band": 2
+},
+{
+"en": "wing",
+"ph": "/wɪŋ/",
+"cn": "n. 翅膀",
+"band": 3
+},
+{
+"en": "winner",
+"ph": "/ˈwɪnə(r)/",
+"cn": "n. 胜利者",
+"band": 3
+},
+{
+"en": "winter",
+"ph": "/ˈwɪntə(r)/",
+"cn": "n. 冬季",
+"band": 2
+},
+{
+"en": "wise",
+"ph": "/waɪz/",
+"cn": "adj. 明智的",
+"band": 3
+},
+{
+"en": "wish",
+"ph": "/wɪʃ/",
+"cn": "v. 希望；祝愿",
+"band": 2
+},
+{
+"en": "with",
+"ph": "/wɪð/",
+"cn": "prep. 和……一起；用",
+"band": 2
+},
+{
+"en": "within",
+"ph": "/wɪˈðɪn/",
+"cn": "prep. 在……里面",
+"band": 3
+},
+{
+"en": "without",
+"ph": "/wɪˈðaʊt/",
+"cn": "prep. 没有",
+"band": 3
+},
+{
+"en": "wives",
+"ph": "/waɪvz/",
+"cn": "n. 妻子（wife 的复数）",
+"band": 3
+},
+{
+"en": "wolf",
+"ph": "/wʊlf/",
+"cn": "n. 狼",
+"band": 3
+},
+{
+"en": "wolves",
+"ph": "/wʊlvz/",
+"cn": "n. 狼（wolf 的复数）",
+"band": 3
+},
+{
+"en": "woman",
+"ph": "/ˈwʊmən/",
+"cn": "n. 女人",
+"band": 2
+},
+{
+"en": "women",
+"ph": "/ˈwɪmɪn/",
+"cn": "n. 女人们（woman 的复数）",
+"band": 3
+},
+{
+"en": "wonder",
+"ph": "/ˈwʌndə(r)/",
+"cn": "v. 想知道",
+"band": 3
+},
+{
+"en": "wonderful",
+"ph": "/ˈwʌndəfəl/",
+"cn": "adj. 令人惊奇的",
+"band": 2
+},
+{
+"en": "wood",
+"ph": "/wʊd/",
+"cn": "n. 木头；树林",
+"band": 3
+},
+{
+"en": "word",
+"ph": "/wɜːd/",
+"cn": "n. 单词；话",
+"band": 2
+},
+{
+"en": "work",
+"ph": "/wɜːk/",
+"cn": "n. 工作",
+"band": 2
+},
+{
+"en": "worker",
+"ph": "/ˈwɜːkə(r)/",
+"cn": "n. 工人",
+"band": 2
+},
+{
+"en": "world",
+"ph": "/wɜːld/",
+"cn": "n. 世界",
+"band": 2
+},
+{
+"en": "worry",
+"ph": "/ˈwʌri/",
+"cn": "v. 担心",
+"band": 2
+},
+{
+"en": "worse",
+"ph": "/wɜːs/",
+"cn": "n. 更坏的事",
+"band": 3
+},
+{
+"en": "worst",
+"ph": "/wɜːst/",
+"cn": "adj. 最坏的",
+"band": 3
+},
+{
+"en": "worth",
+"ph": "/wɜːθ/",
+"cn": "adj. 值得的",
+"band": 3
+},
+{
+"en": "would",
+"ph": "/wʊd/",
+"cn": "aux. 将",
+"band": 3
+},
+{
+"en": "wound",
+"ph": "/wuːnd/",
+"cn": "n. 伤口",
+"band": 3
+},
+{
+"en": "write",
+"ph": "/raɪt/",
+"cn": "v. 写",
+"band": 2
+},
+{
+"en": "wrong",
+"ph": "/rɒŋ/",
+"cn": "adj. 错误的",
+"band": 2
+},
+{
+"en": "x-ray",
+"ph": "/ˈeks reɪ/",
+"cn": "n. X射线；X光",
+"band": 3
+},
+{
+"en": "yard",
+"ph": "/jɑːd/",
+"cn": "n. 院子",
+"band": 3
+},
+{
+"en": "year",
+"ph": "/jɪə(r)/",
+"cn": "n. 年",
+"band": 2
+},
+{
+"en": "yellow",
+"ph": "/ˈjeləʊ/",
+"cn": "adj. 黄色的",
+"band": 2
+},
+{
+"en": "yes",
+"ph": "/jes/",
+"cn": "adv. 是",
+"band": 2
+},
+{
+"en": "yesterday",
+"ph": "/ˈjestədeɪ/",
+"cn": "adv. 昨天；n. 昨天",
+"band": 2
+},
+{
+"en": "yet",
+"ph": "/jet/",
+"cn": "adv. 还；尚未",
+"band": 3
+},
+{
+"en": "yogurt",
+"ph": "/ˈjɒɡət/",
+"cn": "n. 酸奶",
+"band": 3
+},
+{
+"en": "you",
+"ph": "/juː/",
+"cn": "pron. 你",
+"band": 2
+},
+{
+"en": "young",
+"ph": "/jʌŋ/",
+"cn": "adj. 年轻的",
+"band": 2
+},
+{
+"en": "your",
+"ph": "/jɔː(r)/",
+"cn": "pron. 你的",
+"band": 2
+},
+{
+"en": "yours",
+"ph": "/jɔːz/",
+"cn": "pron. 你的(东西)",
+"band": 3
+},
+{
+"en": "yourself",
+"ph": "/jɔːˈself/",
+"cn": "pron. 你自己",
+"band": 3
+},
+{
+"en": "yourselves",
+"ph": "/jɔːˈselvz/",
+"cn": "pron. 你们自己",
+"band": 3
+},
+{
+"en": "youth",
+"ph": "/juːθ/",
+"cn": "n. 青年；青春",
+"band": 3
+},
+{
+"en": "zero",
+"ph": "/ˈzɪərəʊ/",
+"cn": "n. 零",
+"band": 3
+},
+{
+"en": "zoo",
+"ph": "/zuː/",
+"cn": "n. 动物园",
+"band": 2
+}
+]

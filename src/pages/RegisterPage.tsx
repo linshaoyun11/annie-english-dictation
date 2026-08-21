@@ -1,0 +1,156 @@
+import { useMemo, useState } from "react";
+import { AVATARS, takenAvatarIds, type User } from "../lib/users";
+
+interface RegisterPageProps {
+  users: User[];
+  onRegister: (avatarId: string, password: string) => { ok: boolean; error?: string };
+  onBack: () => void;
+}
+
+export default function RegisterPage({ users, onRegister, onBack }: RegisterPageProps) {
+  const taken = useMemo(() => takenAvatarIds(users), [users]);
+  const available = AVATARS.filter((a) => !taken.has(a.id)).length;
+
+  const [selected, setSelected] = useState<string | null>(null);
+  const [pwd, setPwd] = useState("");
+  const [pwd2, setPwd2] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const pwdClean = pwd.replace(/\D/g, "").slice(0, 4);
+  const pwd2Clean = pwd2.replace(/\D/g, "").slice(0, 4);
+
+  const canSubmit =
+    !!selected && /^\d{4}$/.test(pwdClean) && pwdClean === pwd2Clean;
+
+  const handleSubmit = () => {
+    if (!selected) {
+      setError("请先选一个喜欢的头像");
+      return;
+    }
+    const result = onRegister(selected, pwdClean);
+    if (!result.ok) {
+      setError(result.error ?? "注册失败");
+    }
+  };
+
+  return (
+    <div className="flex h-full flex-col px-6 pb-8 pt-8">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text2 active:bg-primary-lighter"
+          aria-label="返回"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <h1 className="text-lg font-semibold text-text">新用户注册</h1>
+      </div>
+      <p className="mt-1 ml-12 text-xs text-text3">
+        选一个头像，再设置 4 位数字密码
+        {available < AVATARS.length && `（还剩 ${available} 个可选）`}
+      </p>
+
+      {/* 头像选择 */}
+      <div className="mt-5 flex-1 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-x-1.5 gap-y-3 px-1 py-1">
+          {AVATARS.map((a) => {
+            const isTaken = taken.has(a.id);
+            const isSelected = selected === a.id;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                disabled={isTaken}
+                onClick={() => {
+                  setSelected(a.id);
+                  setError(null);
+                }}
+                className={`relative flex flex-col items-center rounded-2xl p-1.5 transition-all ${
+                  isTaken
+                    ? "cursor-not-allowed opacity-35 grayscale"
+                    : "active:scale-[0.93]"
+                } ${
+                  isSelected
+                    ? "bg-primary-light ring-2 ring-primary"
+                    : "bg-transparent"
+                }`}
+              >
+                <div
+                  className="flex h-[50px] w-[50px] items-center justify-center rounded-full text-2xl shadow-sm border border-black/5"
+                  style={{ backgroundColor: a.color }}
+                >
+                  {a.emoji}
+                </div>
+                <span className="mt-1 text-[11px] font-medium text-text2">{a.name}</span>
+                {isTaken && (
+                  <span className="absolute right-1 top-1 text-xs">🔒</span>
+                )}
+                {isSelected && !isTaken && (
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] text-white shadow-sm">
+                    ✓
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 密码设置 */}
+      <div className="mt-5 space-y-3">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-text3">密码（4 位数字）</label>
+          <input
+            value={pwdClean}
+            onChange={(e) => {
+              setPwd(e.target.value);
+              setError(null);
+            }}
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="••••"
+            className="w-full rounded-2xl border border-border bg-surface px-4 py-3 text-center text-lg tracking-[0.8em] text-text placeholder:text-text3 focus:border-primary focus:ring-2 focus:ring-primary/10"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-text3">再输入一次</label>
+          <input
+            value={pwd2Clean}
+            onChange={(e) => {
+              setPwd2(e.target.value);
+              setError(null);
+            }}
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="••••"
+            className={`w-full rounded-2xl border bg-surface px-4 py-3 text-center text-lg tracking-[0.8em] text-text focus:ring-2 focus:ring-primary/10 ${
+              pwd2Clean.length === 4 && pwd2Clean !== pwdClean
+                ? "border-error"
+                : "border-border focus:border-primary"
+            }`}
+          />
+        </div>
+        {pwd2Clean.length === 4 && pwd2Clean !== pwdClean && (
+          <p className="text-xs text-error">两次输入的密码不一致</p>
+        )}
+        {error && <p className="text-xs text-error">{error}</p>}
+      </div>
+
+      <button
+        type="button"
+        disabled={!canSubmit}
+        onClick={handleSubmit}
+        className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-semibold transition-transform ${
+          canSubmit
+            ? "bg-primary text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] active:scale-[0.98]"
+            : "bg-primary-lighter text-text3"
+        }`}
+      >
+        注册并开始学习
+      </button>
+    </div>
+  );
+}

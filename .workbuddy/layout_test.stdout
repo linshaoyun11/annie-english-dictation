@@ -1,0 +1,79 @@
+[14:17:23] 
+===== moto-360x640 (360×640 @2.75x) =====
+[select] ✓ (scrollWidth=360) | 无越界
+[register] ✓ (scrollWidth=360) | 无越界
+[home] ✓ (scrollWidth=360) | 无越界
+[learn] ✓ (scrollWidth=360) | 无越界
+[learn-reveal] ✓ (scrollWidth=360) | 无越界
+[settings] ✓ (scrollWidth=360) | 无越界
+[difficult] ✓ (scrollWidth=360) | 无越界
+[leaderboard] ✓ (scrollWidth=360) | 无越界
+[14:17:33] 
+===== se-375x667 (375×667 @2x) =====
+[select] ✓ (scrollWidth=375) | 无越界
+[register] ✓ (scrollWidth=375) | 无越界
+[home] ✓ (scrollWidth=375) | 无越界
+[learn] ✓ (scrollWidth=375) | 无越界
+[learn-reveal] ✓ (scrollWidth=375) | 无越界
+[settings] ✓ (scrollWidth=375) | 无越界
+[difficult] ✓ (scrollWidth=375) | 无越界
+[leaderboard] ✓ (scrollWidth=375) | 无越界
+[14:17:44] 
+===== iphone14-390x844 (390×844 @3x) =====
+[select] ✓ (scrollWidth=390) | 无越界
+[register] ✓ (scrollWidth=390) | 无越界
+[home] ✓ (scrollWidth=390) | 无越界
+[learn] ✓ (scrollWidth=390) | 无越界
+[learn-reveal] ✓ (scrollWidth=390) | 无越界
+[settings] ✓ (scrollWidth=390) | 无越界
+[difficult] ✓ (scrollWidth=390) | 无越界
+[leaderboard] ✓ (scrollWidth=390) | 无越界
+[14:17:55] 
+===== xr-414x896 (414×896 @2x) =====
+[select] ✓ (scrollWidth=414) | 无越界
+[register] ✓ (scrollWidth=414) | 无越界
+[home] ✓ (scrollWidth=414) | 无越界
+[learn] ✓ (scrollWidth=414) | 无越界
+[learn-reveal] ✓ (scrollWidth=414) | 无越界
+[settings] ✓ (scrollWidth=414) | 无越界
+[difficult] ✓ (scrollWidth=414) | 无越界
+[leaderboard] ✓ (scrollWidth=414) | 无越界
+[14:18:06] 
+===== promax-428x926 (428×926 @3x) =====
+[select] ✓ (scrollWidth=428) | 无越界
+[register] ✓ (scrollWidth=428) | 无越界
+[home] ✓ (scrollWidth=428) | 无越界
+[learn] ✓ (scrollWidth=428) | 无越界
+[learn-reveal] ✓ (scrollWidth=428) | 无越界
+[settings] ✓ (scrollWidth=428) | 无越界
+[difficult] ✓ (scrollWidth=428) | 无越界
+[leaderboard] ✓ (scrollWidth=428) | 无越界
+[14:18:17] 
+===== ipad-768x1024 (768×1024 @2x) =====
+[select] ✓ (scrollWidth=768) | 无越界
+[register] ✓ (scrollWidth=768) | 无越界
+[home] ✓ (scrollWidth=768) | 无越界
+[learn] ✓ (scrollWidth=768) | 无越界
+[learn-reveal] ✓ (scrollWidth=768) | 无越界
+[settings] ✓ (scrollWidth=768) | 无越界
+[difficult] ✓ (scrollWidth=768) | 无越界
+[leaderboard] ✓ (scrollWidth=768) | 无越界
+[14:18:27] 
+===== desktop-1280x800 (1280×800 @1x) =====
+[select] ✓ (scrollWidth=1280) | 无越界
+[register] ✓ (scrollWidth=1280) | 无越界
+[home] ✓ (scrollWidth=1280) | 无越界
+[learn] ✓ (scrollWidth=1280) | 无越界
+[learn-reveal] ✓ (scrollWidth=1280) | 无越界
+[settings] ✓ (scrollWidth=1280) | 无越界
+[difficult] ✓ (scrollWidth=1280) | 无越界
+[leaderboard] ✓ (scrollWidth=1280) | 无越界
+[14:18:43] 
+==================== 汇总 ====================
+[14:18:43] ⚠️ moto-360x640
+[14:18:43] ⚠️ se-375x667
+[14:18:43] ⚠️ iphone14-390x844
+[14:18:43] ⚠️ xr-414x896
+[14:18:43] ⚠️ promax-428x926
+[14:18:43] ⚠️ ipad-768x1024
+[14:18:43] ⚠️ desktop-1280x800
