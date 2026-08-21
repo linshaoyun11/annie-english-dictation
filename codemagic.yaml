@@ -4,7 +4,7 @@
 #   1. 项目已推送到 GitHub/GitLab/Bitbucket 仓库（含 public/audio 音频资源）
 #   2. 在 App Store Connect → 用户和访问 → 集成 中创建了 API 密钥
 #   3. 在 Codemagic → Teams/Personal settings → Integrations → App Store Connect API keys
-#      中添加了该密钥，名称必须填「App Store Connect」（与下方 integrations 引用一致）
+#      中添加了该密钥，名称必须与下方 integrations.app_store_connect 完全一致
 #   4. Codemagic 已关联本仓库，并识别到本文件
 workflows:
   ios-release:
@@ -14,7 +14,7 @@ workflows:
     # 引用 Codemagic 网页端创建的 App Store Connect API 集成
     # 集成名称必须与网页端添加时填写的名称完全一致
     integrations:
-      app_store_connect: App Store Connect
+      app_store_connect: annie-english-dictation
     environment:
       node: 22
       vars:
