@@ -82,6 +82,15 @@ workflows:
 
       - name: 获取/创建签名文件
         script: |
+          if [ -z "$CERTIFICATE_PRIVATE_KEY" ]; then
+            echo "=== 诊断信息 ==="
+            echo "未读取到 CERTIFICATE_PRIVATE_KEY 环境变量！"
+            echo "请到 Codemagic 网页端确认："
+            echo "1. 变量名必须为 CERTIFICATE_PRIVATE_KEY（全大写、下划线）"
+            echo "2. 变量的 Group 必须为 code-signing"
+            echo "3. 值为完整 PEM 私钥（含 BEGIN/END 行）"
+            exit 1
+          fi
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create
