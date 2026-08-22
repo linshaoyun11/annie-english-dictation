@@ -14,6 +14,7 @@ iOS App Store 图标要求：1024x1024、不透明（满幅方图，系统自动
 """
 
 from PIL import Image, ImageDraw
+import math
 import os
 
 D = 4096          # 4x 超采样，缩小后得到平滑抗锯齿边缘
@@ -51,14 +52,27 @@ def build_master():
     circle(26, 24, 18, (255, 255, 255, int(0.10 * 255)))
     circle(76, 80, 22, (255, 255, 255, int(0.08 * 255)))
 
-    # 3) 耳机头梁：M28 56 v-6 a20 20 0 0 1 40 0 v6（白色描边 5，圆头）
-    band_w = int(round(5 * S))
-    od.arc([(48 - 20) * S, (50 - 20) * S, (48 + 20) * S, (50 + 20) * S],
-           start=180, end=360, fill=WHITE, width=band_w)
-    for x0 in (28, 68):
-        od.line([x0 * S, 50 * S, x0 * S, 56 * S], fill=WHITE, width=band_w)
-    for cx, cy in [(28, 56), (68, 56), (28, 50), (68, 50)]:
-        circle(cx, cy, 2.5, WHITE)  # 圆头端点
+    # 3) 耳机头梁：M28 56 v-6 a20 20 0 0 1 40 0 v6（白色描边 5）
+    # 直接用填充多边形描绘 stroke 的外轮廓，避免 PIL 圆弧端点与线段接头
+    # 产生额外凸起，确保与 Logo.tsx 的 SVG 渲染 1:1。
+    def stroke_arc(cx, cy, r, start_deg, end_deg, n=80):
+        pts = []
+        for i in range(n + 1):
+            a = math.radians(start_deg + (end_deg - start_deg) * i / n)
+            pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+        return pts
+
+    band_outer_r = 20 + 2.5
+    band_inner_r = 20 - 2.5
+    headphone_outline = (
+        [(25.5, 56), (25.5, 50)]
+        + stroke_arc(48, 50, band_outer_r, 180, 360)
+        + [(70.5, 50), (70.5, 56), (65.5, 56), (65.5, 50)]
+        + stroke_arc(48, 50, band_inner_r, 360, 180)
+        + [(30.5, 50), (30.5, 56)]
+    )
+    scaled_headphone = [(x * S, y * S) for x, y in headphone_outline]
+    od.polygon(scaled_headphone, fill=WHITE)
 
     # 4) 左右耳罩（白色圆角矩形 r=6）
     od.rounded_rectangle([20 * S, 52 * S, 32 * S, 72 * S], radius=6 * S, fill=WHITE)
