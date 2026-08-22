@@ -317,10 +317,14 @@ export function useSpeechLoop(gapMs = 3000) {
       if (document.visibilityState !== "visible") return;
       if (!loopRef.current || myGen.current !== activeGen) return;
       if (modeRef.current === "audio") {
-        const el = audioRef.current;
-        if (el && el.paused && !timerRef.current) {
-          fnsRef.current.playCurrent(myGen.current);
-        } else if (!el && !timerRef.current && playlistRef.current.length) {
+        // 后台挂起后旧元素可能进入"僵尸"状态：play() 正常返回但完全无声，
+        // 或 ended 永不触发。回前台一律丢弃旧元素、新建元素从头重播，最可靠。
+        stopAll();
+        clearTimer();
+        clearWatchdog();
+        const item = playlistRef.current[seqIdxRef.current];
+        if (item && item.el) item.el = undefined; // 丢弃僵尸元素，强制重建
+        if (playlistRef.current.length) {
           fnsRef.current.playCurrent(myGen.current);
         }
       } else if (modeRef.current === "speech") {
