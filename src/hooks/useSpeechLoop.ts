@@ -212,14 +212,30 @@ export function useSpeechLoop(gapMs = 3000) {
         return;
       }
 
-      // 1. 立刻用浏览器语音发声（零延迟，作为过渡）
-      speakWebSpeech();
+      // 1. 先解析真人音频再播放（本地音频随包分发，毫秒级返回）。
+      //    注意：不要用浏览器语音做"零延迟过渡"——iOS 上 speechSynthesis
+      //    与 <audio> 走不同音量通道（跟随铃声音量 vs 媒体音量），
+      //    两者来回切换听感上就是"忽大忽小"（电脑上无此差异故察觉不到）。
+      let settled = false;
+      const fallbackTimer = window.setTimeout(() => {
+        // 网络解析太慢（网页版弱网）→ 超时才用浏览器语音过渡，拿到音频后仍会无缝切换
+        if (!settled && gen === activeGen && loopRef.current) {
+          speakWebSpeech();
+        }
+      }, 1200);
 
-      // 2. 后台解析真人音频，拿到后无缝切换
+      // 2. 解析真人音频，就绪后播放；彻底无音频（离线且词条缺失）才退回浏览器语音
       resolveAudio(text, accent).then((result) => {
         // gen !== activeGen → 期间有新的 start() 调用（可能来自不同组件实例），丢弃
-        if (gen !== activeGen || !result || !loopRef.current) return;
-        attachCached(result, gen);
+        settled = true;
+        if (gen !== activeGen) return;
+        window.clearTimeout(fallbackTimer);
+        if (!loopRef.current) return;
+        if (result) {
+          attachCached(result, gen);
+        } else {
+          speakWebSpeech();
+        }
       });
     },
     [attachCached, speakWebSpeech, stopAll, clearTimer]
