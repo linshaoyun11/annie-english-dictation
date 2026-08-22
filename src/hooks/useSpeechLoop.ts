@@ -211,7 +211,13 @@ export function useSpeechLoop(gapMs = 3000) {
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
-      el.currentTime = 0;
+      // 复用过的元素先 load() 彻底重置，绝不用 currentTime=0 做 seek：
+      // Edge TTS 生成的 mp3 无 Xing/Info 头，WebKit 里 duration=Infinity，
+      // 对这种文件 seek(0) 会跳到接近结尾——循环重播只剩"短促尾音"的元凶。
+      // load() 回到初始状态、不经过 seek，对任何来源的音频都安全。
+      if (el.readyState > 0 || el.currentTime > 0 || el.ended) {
+        el.load();
+      }
       el.play()
         .then(() => {
           failCountRef.current = 0;
