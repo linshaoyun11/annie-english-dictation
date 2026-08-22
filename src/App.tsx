@@ -10,6 +10,7 @@ import DifficultWordsPage from "./pages/DifficultWordsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { getAllEntries, getCurriculum } from "./data/curriculum";
 import { prefetchAudio } from "./lib/audio";
+import { flushStorage } from "./lib/storage";
 import { primeSpeech } from "./hooks/useSpeechLoop";
 import {
   type Progress,
@@ -108,6 +109,20 @@ export default function App() {
     };
   }, []);
 
+  // App 切后台或页面隐藏时，确保最后一次进度写入已落到原生 Preferences。
+  // 单靠 localStorage 在 iOS 后台被杀时可能丢末尾写入；flush 能显著降低
+  // entryIndex / 完成状态在下次启动时回退的概率。
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        flushStorage().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
+
   const commitUsers = useCallback((next: User[]) => {
     setUsers(next);
     saveUsers(next);
@@ -187,6 +202,40 @@ export default function App() {
   const startLearning = useCallback(
     (unitIndex?: number) => {
       if (!progress || !currentUser) return;
+
+      // 给定单元顺序，返回第一个未完成的题目下标；全部完成返回 order.length
+      const firstUnfinished = (order: string[]) => {
+        let i = 0;
+        while (
+          i < order.length &&
+          progress.completedEntryIds.includes(order[i])
+        ) {
+          i += 1;
+        }
+        return i;
+      };
+
+      // 从指定单元开始向后查找，返回第一个有未学题目的单元及其顺序、下标。
+      // 如果所有单元都学完，返回起始单元及其顺序、下标 0（从头复习）。
+      const findNextUnfinishedUnit = (
+        startUnitIndex: number
+      ): { target: number; order: string[]; entryIndex: number } => {
+        for (let ui = startUnitIndex; ui < cur.length; ui += 1) {
+          const order =
+            ui === progress.unitIndex ? progress.unitOrder : makeUnitOrder(ui, version);
+          const ei = firstUnfinished(order);
+          if (ei < order.length) {
+            return { target: ui, order, entryIndex: ei };
+          }
+        }
+        // 全部完成：回到起始单元从头复习
+        const order =
+          startUnitIndex === progress.unitIndex
+            ? progress.unitOrder
+            : makeUnitOrder(startUnitIndex, version);
+        return { target: startUnitIndex, order, entryIndex: 0 };
+      };
+
       let target: number;
       let entryIndex: number;
       let order: string[];
@@ -202,27 +251,27 @@ export default function App() {
             saved.unitOrder?.length
               ? saved.unitOrder
               : makeUnitOrder(saved.unitIndex, version);
-          let ei =
-            saved.entryIndex >= 0 && saved.entryIndex < order.length
-              ? saved.entryIndex
-              : 0;
-          // 跳过已完成的题目（答对后未切题就退出 / 单元已学完的场景）
-          while (ei < order.length && progress.completedEntryIds.includes(order[ei])) {
-            ei += 1;
+          entryIndex = firstUnfinished(order);
+          // 该保存位置已全部完成 → 从该单元往后找下一个未学单元
+          if (entryIndex >= order.length) {
+            const next = findNextUnfinishedUnit(target);
+            target = next.target;
+            order = next.order;
+            entryIndex = next.entryIndex;
           }
-          // 本单元全部完成 → 从头复习
-          entryIndex = ei >= order.length ? 0 : ei;
         } else {
           // 该年级没有学习记录，从第一单元开始
-          target = unitIndex;
-          order = makeUnitOrder(target, version);
-          entryIndex = 0;
+          const next = findNextUnfinishedUnit(unitIndex);
+          target = next.target;
+          order = next.order;
+          entryIndex = next.entryIndex;
         }
       } else {
-        // 「继续学习」：从全局指针（上次学习位置）继续
-        target = progress.unitIndex;
-        order = progress.unitOrder;
-        entryIndex = progress.entryIndex;
+        // 「继续学习」：从全局指针继续；若当前单元已学完则自动往后找
+        const next = findNextUnfinishedUnit(progress.unitIndex);
+        target = next.target;
+        order = next.order;
+        entryIndex = next.entryIndex;
       }
 
       // 进入学习前预取第一题的真人音频，页面切过去时零等待

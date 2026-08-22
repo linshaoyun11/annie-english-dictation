@@ -409,8 +409,7 @@ export default function LearnPage({
       if (
         saved &&
         saved.unitIndex === prev.unitIndex &&
-        saved.entryIndex === prev.entryIndex &&
-        saved.unitOrder === prev.unitOrder
+        saved.entryIndex === prev.entryIndex
       ) {
         return prev;
       }

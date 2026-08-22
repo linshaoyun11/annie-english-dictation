@@ -54,11 +54,23 @@ export function storageGet(key: string): string | null {
   return localStorage.getItem(key);
 }
 
+let pendingNativeWrite: Promise<void> | null = null;
+
 export function storageSet(key: string, value: string): void {
   localStorage.setItem(key, value);
-  initPrefs()
-    .then(() => prefs?.set({ key, value }))
-    .catch(() => {});
+  pendingNativeWrite = initPrefs()
+    .then(async () => {
+      await prefs?.set({ key, value });
+    })
+    .catch(() => {})
+    .finally(() => {
+      pendingNativeWrite = null;
+    });
+}
+
+/** 等待正在进行的原生写入完成（切后台/退出学习页等关键时机调用） */
+export async function flushStorage(): Promise<void> {
+  await pendingNativeWrite;
 }
 
 export function storageRemove(key: string): void {
