@@ -40,6 +40,12 @@ export interface Progress {
   celebratedUnits?: string[];
   /** 各年级独立保存的学习位置（key: 年级号），点年级卡片时恢复 */
   gradeProgress?: Record<string, GradeProgress>;
+  /**
+   * 教材线标记：同版本号下区分教材结构变更前后/不同子线的数据。
+   * "wy-g1"：外研社一年级起点去重线（v8 结构）。缺失表示旧混合线数据，
+   * 加载时自动迁移。
+   */
+  lineTag?: string;
 }
 
 export function shuffle<T>(arr: T[]): T[] {
@@ -97,6 +103,33 @@ export function loadProgress(
     const raw = storageGet(storageKey(userId, version));
     if (raw) {
       const p = JSON.parse(raw) as Progress;
+      // 外研社旧「混合线」进度 → 一年级起点去重线迁移：
+      // 词库结构变更（3 年级起跨线去重 + 移除清空单元）导致 unitIndex 错位，
+      // 但词条 id 完全不变——保留全部学习记录（已学/错词/错误次数），
+      // 仅重置位置指针；startLearning 会自动跳到第一个未完成单元。
+      if (
+        version === "waiyanshe" &&
+        p.lineTag !== "wy-g1" &&
+        p.version === "waiyanshe" &&
+        Array.isArray(p.completedEntryIds)
+      ) {
+        const migrated: Progress = {
+          ...p,
+          lineTag: "wy-g1",
+          unitIndex: 0,
+          entryIndex: 0,
+          unitOrder: makeUnitOrder(0, version),
+          gradeProgress: {},
+        };
+        if (!Array.isArray(migrated.difficultEntryIds))
+          migrated.difficultEntryIds = [];
+        if (!migrated.errorCounts || typeof migrated.errorCounts !== "object")
+          migrated.errorCounts = {};
+        if (!Array.isArray(migrated.mistakeEntryIds))
+          migrated.mistakeEntryIds = [];
+        saveProgress(userId, migrated);
+        return migrated;
+      }
       if (
         typeof p.unitIndex === "number" &&
         p.unitIndex >= 0 &&
@@ -166,6 +199,7 @@ export function freshProgress(version: CurriculumVersion): Progress {
   return {
     curriculumVersion: CURRICULUM_VERSION,
     version,
+    lineTag: version === "waiyanshe" ? "wy-g1" : undefined,
     unitIndex: 0,
     entryIndex: 0,
     unitOrder: makeUnitOrder(0, version),

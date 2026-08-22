@@ -19,11 +19,16 @@ export type EntryType = "word" | "phrase" | "sentence";
  */
 export const CURRICULUM_VERSION = 7;
 
-export type CurriculumVersion = "renjiao" | "waiyanshe" | "oxford";
+export type CurriculumVersion =
+  | "renjiao"
+  | "waiyanshe"
+  | "waiyanshe3"
+  | "oxford";
 
 export const CURRICULUM_LABELS: Record<CurriculumVersion, string> = {
   renjiao: "人教版",
-  waiyanshe: "外研社",
+  waiyanshe: "外研社·一年级起点",
+  waiyanshe3: "外研社·三年级起点",
   oxford: "沪教牛津",
 };
 
@@ -671,10 +676,44 @@ export const CURRICULUM: UnitInfo[] = [
 // 必须在 CURRICULUM 数组（含 GRADES_4_TO_9 展开）求值后调用，保证 mk 全局序在既有词条之后
 applyKebiaoTo(CURRICULUM, makeRenjiaoEntry, [3, 4, 5, 6], [7, 8, 9]);
 
+/**
+ * 外研社两条教材线派生。
+ * 外研版《新标准英语》实际发行两种教材：一年级起点（1-6 年级）与
+ * 三年级起点（3-6 年级），两条线都从零起点内容（问候/数字/文具等）
+ * 开始，词表大量交叉。词库 WAIYANSHE_CURRICULUM 中 1-2 年级取自
+ * 一年级起点教材、3-6 年级取自三年级起点教材、7-9 年级为初中新标准。
+ *
+ * - waiyanshe（一年级起点）：完整 1-9 年级。对 3 年级及以上单元过滤掉
+ *   1-2 年级已学过的词（按英文小写比较），避免同一孩子连学重复；
+ *   过滤后清空的单元（三上 U2-U4 与一年级完全重复）整体移除，
+ *   剩 1-3 词的薄单元保留（快速通过即可）。
+ * - waiyanshe3（三年级起点）：仅 3-9 年级，按三年级起点教材原样，
+ *   不做跨线去重（该线没有 1-2 年级内容，不存在跨线重复）。
+ */
+const wyEarlyWords = new Set(
+  WAIYANSHE_CURRICULUM.filter((u) => u.grade <= 2)
+    .flatMap((u) => u.entries)
+    .map((e) => e.english.toLowerCase())
+);
+const WAIYANSHE_G1_START: UnitInfo[] = WAIYANSHE_CURRICULUM.map((u) =>
+  u.grade <= 2
+    ? u
+    : {
+        ...u,
+        entries: u.entries.filter(
+          (e) => !wyEarlyWords.has(e.english.toLowerCase())
+        ),
+      }
+).filter((u) => u.entries.length > 0);
+const WAIYANSHE_G3_START: UnitInfo[] = WAIYANSHE_CURRICULUM.filter(
+  (u) => u.grade >= 3
+);
+
 /** 全部教材版本索引（人教为默认） */
 export const CURRICULA: Record<CurriculumVersion, UnitInfo[]> = {
   renjiao: CURRICULUM,
-  waiyanshe: WAIYANSHE_CURRICULUM,
+  waiyanshe: WAIYANSHE_G1_START,
+  waiyanshe3: WAIYANSHE_G3_START,
   oxford: OXFORD_CURRICULUM,
 };
 

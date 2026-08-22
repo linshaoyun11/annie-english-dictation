@@ -17,11 +17,17 @@ interface SettingsPageProps {
 /** 教材版本简介（年级结构说明） */
 const CURRICULUM_DESC: Record<CurriculumVersion, string> = {
   renjiao: "人教版 · 1-6 年级起点 + 初中新目标",
-  waiyanshe: "外研社 · 一年级/三年级起点 + 初中新标准",
+  waiyanshe: "外研社 · 一年级起点（1-9 年级，三年级起自动跳过已学词）",
+  waiyanshe3: "外研社 · 三年级起点（3-9 年级，按教材原样）",
   oxford: "沪教牛津 · 1-6 年级起始 + 初中牛津上海版",
 };
 
-const VERSIONS: CurriculumVersion[] = ["renjiao", "waiyanshe", "oxford"];
+const VERSIONS: CurriculumVersion[] = [
+  "renjiao",
+  "waiyanshe",
+  "waiyanshe3",
+  "oxford",
+];
 
 const ACCENTS: { id: Accent; label: string; desc: string }[] = [
   { id: "us", label: "美式发音", desc: "美音 (American English)" },
