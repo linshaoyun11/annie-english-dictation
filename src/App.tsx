@@ -262,6 +262,68 @@ export default function App() {
     setDifficultOrder([]);
   }, [learnMode]);
 
+  // iOS 左缘右滑返回手势。系统级的边缘返回属于 UINavigationController，
+  // Capacitor 应用只有一个 ViewController（无导航栈），系统手势天然无效，
+  // 因此在 Web 层模拟：从屏幕左缘（28px 内）起手、右滑超过 55px 且垂直
+  // 位移小，视为"返回"——学习页回首页，其余子页面回各自上级。
+  useEffect(() => {
+    const goBack = () => {
+      switch (view) {
+        case "learn":
+          exitLearn();
+          break;
+        case "difficult":
+        case "settings":
+          setView("home");
+          break;
+        case "leaderboard":
+          setView(currentUser ? "home" : "select");
+          break;
+        case "register":
+          setView("select");
+          break;
+        default:
+          break;
+      }
+    };
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    const EDGE = 28; // 左缘判定宽度
+    const THRESHOLD = 55; // 右滑触发距离
+    const MAX_DY = 45; // 允许的最大垂直位移
+    const onStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t && t.clientX <= EDGE) {
+        tracking = true;
+        startX = t.clientX;
+        startY = t.clientY;
+      } else {
+        tracking = false;
+      }
+    };
+    const onEnd = (e: TouchEvent) => {
+      if (!tracking) return;
+      tracking = false;
+      const t = e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (dx > THRESHOLD && Math.abs(dy) < MAX_DY) goBack();
+    };
+    const onCancel = () => {
+      tracking = false;
+    };
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchend", onEnd, { passive: true });
+    window.addEventListener("touchcancel", onCancel, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener("touchcancel", onCancel);
+    };
+  }, [view, currentUser, exitLearn]);
+
   /** 清空当前用户在该教材下的学习进度，积分与已学数量一并清零 */
   const handleReset = useCallback(() => {
     if (!currentUser) return;
