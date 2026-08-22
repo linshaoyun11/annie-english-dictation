@@ -2,6 +2,7 @@ import { useState } from "react";
 import { avatarById, type User } from "../lib/users";
 import PasswordModal from "../components/PasswordModal";
 import Logo from "../components/Logo";
+import { AvatarImg } from "../components/AvatarImg";
 
 interface UserSelectPageProps {
   users: User[];
@@ -57,9 +58,9 @@ export default function UserSelectPage({
         {users.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <div className="flex gap-2 text-4xl opacity-60">
-              <span>🐶</span>
-              <span>🐱</span>
-              <span>🐼</span>
+              <AvatarImg id="dog" alt="小狗" />
+              <AvatarImg id="cat" alt="猫咪" />
+              <AvatarImg id="panda" alt="熊猫" />
             </div>
             <p className="mt-4 text-sm text-text2">
               还没有小伙伴
@@ -82,7 +83,7 @@ export default function UserSelectPage({
                     className="flex h-[72px] w-[72px] items-center justify-center rounded-full text-[38px] shadow-md ring-2 ring-white transition-transform group-active:scale-95"
                     style={{ backgroundColor: avatar.color }}
                   >
-                    {avatar.emoji}
+                    <AvatarImg id={avatar.id} alt={avatar.name} />
                   </div>
                   <span className="mt-2 text-sm font-semibold text-text">{avatar.name}</span>
                   <span className="mt-0.5 text-[11px] text-text3">

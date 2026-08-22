@@ -28,6 +28,12 @@ const config: CapacitorConfig = {
 
   // 插件默认配置
   plugins: {
+    // 键盘插件：隐藏 iOS 键盘上方"上下箭头"工具栏（代码里 setAccessoryBarVisible(false)）。
+    // resize=none：保持现有 visualViewport(--kb-h) 避让方案不变，避免双重压缩
+    Keyboard: {
+      resize: "none",
+      resizeOnFullScreen: true,
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: "#534AB7",

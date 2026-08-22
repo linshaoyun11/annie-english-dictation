@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import HomePage from "./pages/HomePage";
 import LearnPage from "./pages/LearnPage";
 import UserSelectPage from "./pages/UserSelectPage";
@@ -54,6 +55,44 @@ export default function App() {
   // 启动即预热浏览器语音引擎，消除首次发音的冷启动延迟
   useEffect(() => {
     primeSpeech();
+  }, []);
+
+  // 全局键盘避让：手机弹出软键盘时把 --kb-h 写到根元素，
+  // 各页面（学习页/密码弹窗等）用它压缩高度，内容始终在键盘上方可见。
+  // iOS Safari/WKWebView 键盘弹出时窗口高度不变、键盘直接盖住页面，
+  // 必须用 visualViewport 计算；桌面端无键盘，kb 恒为 0，不影响布局。
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const apply = () => {
+      const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      document.documentElement.style.setProperty(
+        "--kb-h",
+        kb > 60 ? `${Math.round(kb)}px` : "0px"
+      );
+    };
+    vv.addEventListener("resize", apply);
+    vv.addEventListener("scroll", apply);
+    apply();
+    return () => {
+      vv.removeEventListener("resize", apply);
+      vv.removeEventListener("scroll", apply);
+      document.documentElement.style.setProperty("--kb-h", "0px");
+    };
+  }, []);
+
+  // 原生 App：隐藏 iOS 键盘上方的"上下箭头"工具栏（Keyboard Accessory Bar）。
+  // 该栏是 WKWebView 自带的表单导航条，唯一的密码/拼写输入框用不上它，
+  // 反而占约 44px 高度遮挡输入区。Web 端无此栏，不做任何事。
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    import("@capacitor/keyboard")
+      .then(({ Keyboard }) =>
+        Keyboard.setAccessoryBarVisible({ isVisible: false })
+      )
+      .catch(() => {
+        /* 插件不可用时静默忽略 */
+      });
   }, []);
 
   const commitUsers = useCallback((next: User[]) => {

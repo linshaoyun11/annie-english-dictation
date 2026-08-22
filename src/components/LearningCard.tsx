@@ -265,7 +265,11 @@ export default function LearningCard({
           </div>
         ) : (
           <div className="flex w-full flex-col items-center">
-            <div className="relative flex flex-col items-center">
+            <div
+              className="relative flex flex-col items-center"
+              /* 阻止点击抢走拼写输入层焦点（键盘会收起） */
+              onMouseDown={(e) => e.preventDefault()}
+            >
               <SoundWave active={!completed && !revealed} onClick={replay} />
               <button
                 type="button"
@@ -289,41 +293,49 @@ export default function LearningCard({
                 <span className="text-sm text-text2">{entry.chinese}</span>
               </div>
             )}
-
-            <div className="mt-7 w-full">
-              <SpellingInput
-                target={entry.english}
-                resetKey={entry.id}
-                onComplete={handleComplete}
-                onFirstMistake={() => onMistake?.(entry.id)}
-                revealSignal={revealSignal}
-                onStrike5={() => revealAnswer("strike5")}
-              />
-            </div>
-
-            <button
-              type="button"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => revealAnswer("dontKnow")}
-              className="mt-7 flex items-center gap-1.5 rounded-full border border-[#F0D9B0] bg-[#FFF8EC] px-4 py-2 text-xs font-medium text-[#A06A1F] shadow-sm transition-all hover:bg-[#FDF1DB] active:scale-[0.97] active:bg-[#FAEEDA]"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              我不会
-            </button>
           </div>
+        )}
+
+        {/*
+          拼写输入层：常挂载（答对/揭示后也不卸载）。
+          SpellingInput 内部在完成态只渲染一个隐形的固定层输入框并保持焦点，
+          键盘全程不收起 —— 避免"输入正确页"界面上下跳动。
+          完成态外层高度归零，不占用正确/揭示卡片的布局空间。
+        */}
+        <div className={completed || revealed ? "h-0 w-full" : "mt-7 w-full"}>
+          <SpellingInput
+            target={entry.english}
+            resetKey={entry.id}
+            onComplete={handleComplete}
+            onFirstMistake={() => onMistake?.(entry.id)}
+            revealSignal={revealSignal}
+            onStrike5={() => revealAnswer("strike5")}
+          />
+        </div>
+
+        {!completed && !revealed && (
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => revealAnswer("dontKnow")}
+            className="mt-7 flex items-center gap-1.5 rounded-full border border-[#F0D9B0] bg-[#FFF8EC] px-4 py-2 text-xs font-medium text-[#A06A1F] shadow-sm transition-all hover:bg-[#FDF1DB] active:scale-[0.97] active:bg-[#FAEEDA]"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            我不会
+          </button>
         )}
       </div>
     </div>

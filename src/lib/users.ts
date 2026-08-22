@@ -1,6 +1,7 @@
 // 多用户系统：头像库 + 用户注册/登录 + 积分（单机版，localStorage 存储）
 
 import type { CurriculumVersion } from "../data/curriculum";
+import { storageGet, storageSet } from "./storage";
 
 export type Accent = "us" | "uk";
 
@@ -63,7 +64,7 @@ export function avatarById(id: string): AvatarDef {
 
 export function loadUsers(): User[] {
   try {
-    const raw = localStorage.getItem(USERS_KEY);
+    const raw = storageGet(USERS_KEY);
     if (raw) {
       const list = JSON.parse(raw);
       if (Array.isArray(list)) {
@@ -81,7 +82,7 @@ export function loadUsers(): User[] {
 }
 
 export function saveUsers(users: User[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  storageSet(USERS_KEY, JSON.stringify(users));
 }
 
 /** 更新指定用户的教材/口音配置（返回新数组，调用方负责持久化） */

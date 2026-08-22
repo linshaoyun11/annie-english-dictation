@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { AVATARS, takenAvatarIds, type User } from "../lib/users";
+import { AvatarImg } from "../components/AvatarImg";
 
 interface RegisterPageProps {
   users: User[];
@@ -82,7 +83,7 @@ export default function RegisterPage({ users, onRegister, onBack }: RegisterPage
                   className="flex h-[50px] w-[50px] items-center justify-center rounded-full text-2xl shadow-sm border border-black/5"
                   style={{ backgroundColor: a.color }}
                 >
-                  {a.emoji}
+                  <AvatarImg id={a.id} alt={a.name} />
                 </div>
                 <span className="mt-1 text-[11px] font-medium text-text2">{a.name}</span>
                 {isTaken && (

@@ -4,6 +4,7 @@ import {
   getCurriculum,
   type CurriculumVersion,
 } from "../data/curriculum";
+import { storageGet, storageRemove, storageSet } from "./storage";
 
 // 进度按「用户 + 教材版本」隔离存储：eng-learning-progress-v3:{version}:{userId}
 // v2（旧版，仅按用户）数据会在人教版本下自动迁移，其他版本为新进度
@@ -61,7 +62,7 @@ export function makeUnitOrder(
 /** 旧版（v2）人教进度 → 迁移到新格式，避免升级后老用户进度丢失 */
 function migrateLegacy(userId: string): Progress | null {
   try {
-    const raw = localStorage.getItem(`${LEGACY_PREFIX}:${userId}`);
+    const raw = storageGet(`${LEGACY_PREFIX}:${userId}`);
     if (!raw) return null;
     const p = JSON.parse(raw);
     if (
@@ -93,7 +94,7 @@ export function loadProgress(
   version: CurriculumVersion
 ): Progress {
   try {
-    const raw = localStorage.getItem(storageKey(userId, version));
+    const raw = storageGet(storageKey(userId, version));
     if (raw) {
       const p = JSON.parse(raw) as Progress;
       if (
@@ -181,13 +182,13 @@ export function freshProgress(version: CurriculumVersion): Progress {
 
 export function saveProgress(userId: string, p: Progress) {
   p.lastLearnedAt = Date.now();
-  localStorage.setItem(storageKey(userId, p.version), JSON.stringify(p));
+  storageSet(storageKey(userId, p.version), JSON.stringify(p));
 }
 
 export function resetProgress(userId: string, version: CurriculumVersion) {
-  localStorage.removeItem(storageKey(userId, version));
+  storageRemove(storageKey(userId, version));
   // 旧版 v2 数据一并清除，避免重复迁移
-  localStorage.removeItem(`${LEGACY_PREFIX}:${userId}`);
+  storageRemove(`${LEGACY_PREFIX}:${userId}`);
 }
 
 export function totalEntryCount(version: CurriculumVersion): number {

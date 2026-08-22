@@ -218,7 +218,10 @@ export function ensureElement(result: AudioResult): HTMLAudioElement {
 }
 
 /** 预加载音频到缓存并提前下载（不播放，仅预热） */
-export function prefetchAudio(text: string, accent: Accent = "us"): void {
+export function prefetchAudio(
+  text: string,
+  accent: Accent = "us"
+): void {
   const cacheKey = `${accent}:${text.trim().toLowerCase()}`;
   const cached = audioCache.get(cacheKey);
   if (cached && cached.el) return;

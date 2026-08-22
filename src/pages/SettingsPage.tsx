@@ -6,6 +6,7 @@ import {
   type CurriculumVersion,
 } from "../data/curriculum";
 import { avatarById, type Accent, type User, type UserConfig } from "../lib/users";
+import { AvatarImg } from "../components/AvatarImg";
 
 interface SettingsPageProps {
   user: User;
@@ -95,7 +96,7 @@ export default function SettingsPage({
             className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-base"
             style={{ backgroundColor: avatar.color }}
           >
-            {avatar.emoji}
+            <AvatarImg id={avatar.id} alt={avatar.name} />
           </div>
         </div>
       </div>

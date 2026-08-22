@@ -1,4 +1,5 @@
 import { avatarById, type User } from "../lib/users";
+import { AvatarImg } from "../components/AvatarImg";
 
 interface LeaderboardPageProps {
   users: User[];
@@ -58,7 +59,7 @@ export default function LeaderboardPage({ users, currentUserId, onBack }: Leader
                     className="flex h-11 w-11 items-center justify-center rounded-full text-2xl ring-2 ring-white"
                     style={{ backgroundColor: avatar.color }}
                   >
-                    {avatar.emoji}
+                    <AvatarImg id={avatar.id} alt={avatar.name} />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-text">

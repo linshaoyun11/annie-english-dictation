@@ -138,30 +138,9 @@ export default function LearnPage({
     window.setTimeout(() => setToast(null), 1600);
   };
 
-  // 键盘避让：手机弹出软键盘时压缩学习页高度到可视区域，内容整体上移到键盘上方。
-  // iOS Safari 键盘弹出时窗口高度不变、键盘直接盖住页面，必须用 visualViewport 计算。
-  // 桌面端无键盘，kb 恒为 0，不影响布局。
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const apply = () => {
-      const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      document.documentElement.style.setProperty(
-        "--kb-h",
-        kb > 60 ? `${Math.round(kb)}px` : "0px"
-      );
-    };
-    vv.addEventListener("resize", apply);
-    vv.addEventListener("scroll", apply);
-    apply();
-    return () => {
-      vv.removeEventListener("resize", apply);
-      vv.removeEventListener("scroll", apply);
-      document.documentElement.style.setProperty("--kb-h", "0px");
-    };
-  }, []);
+  // 键盘避让已全局化（App.tsx 统一设置 --kb-h），此处不再重复处理。
 
-  // 预加载后续几题的音频：切题时真人录音已在缓存，零等待直放
+  // 预加载后续几题的音频：切题时真人录音已在缓存，零等待直放。
   useEffect(() => {
     // 重点记忆模式：预取难词列表后续 3 题
     if (difficultMode) {

@@ -7,6 +7,7 @@ import {
 import { type Progress, unitStats } from "../lib/progress";
 import { primeSpeech } from "../hooks/useSpeechLoop";
 import { avatarById, type User } from "../lib/users";
+import { AvatarImg } from "../components/AvatarImg";
 
 interface HomePageProps {
   user: User;
@@ -51,7 +52,7 @@ export default function HomePage({
             className="flex h-11 w-11 items-center justify-center rounded-full text-xl shadow-sm ring-2 ring-white"
             style={{ backgroundColor: avatar.color }}
           >
-            {avatar.emoji}
+            <AvatarImg id={avatar.id} alt={avatar.name} />
           </div>
           <div>
             <p className="text-sm font-semibold text-text">{avatar.name}</p>
