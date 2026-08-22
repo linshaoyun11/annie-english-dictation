@@ -388,24 +388,14 @@ export default function LearnPage({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // 单元完成祝贺页打开时：空格键=继续学习；屏蔽 Enter（跳题）与 Escape（返回首页），防止切题播放音频
-      if (celebration) {
-        if (e.key === " " || e.code === "Space") {
-          // 焦点在按钮上时让空格走原生按钮激活（如"继续学习"），避免重复触发
-          const tag = (e.target as HTMLElement | null)?.tagName;
-          if (tag !== "BUTTON" && tag !== "INPUT" && tag !== "TEXTAREA") {
-            e.preventDefault();
-            continueFromCelebration();
-          }
-        }
-        return;
-      }
+      // 祝贺页打开时只屏蔽 Enter/Escape，避免误触切题或返回首页播放音频
+      if (celebration) return;
       if (e.key === "Enter" && !difficultDone) goNext();
       if (e.key === "Escape") onExit();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, onExit, difficultDone, celebration, continueFromCelebration]);
+  }, [goNext, onExit, difficultDone, celebration]);
 
   // 同步当前学习位置到所属年级（gradeProgress），供首页年级卡片恢复进度。
   // 正常学习 / 祝贺页继续 / 上滑切题等所有推进路径最终都会改 unitIndex/entryIndex，
@@ -556,8 +546,7 @@ export default function LearnPage({
 
   return (
     <div
-      className="relative overflow-hidden bg-bg transition-[height] duration-200 ease-out"
-      style={{ height: "calc(100% - var(--kb-h, 0px))" }}
+      className="relative h-full overflow-hidden bg-bg transition-[padding] duration-200 ease-out"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -588,7 +577,7 @@ export default function LearnPage({
           stopAudio={speech.stop}
           startAudio={(t) => {
             primeSpeech();
-            speech.start(t, 0.9, accent);
+            speech.start(t, 1.0, accent);
           }}
         />
       </div>
@@ -659,9 +648,6 @@ export default function LearnPage({
             >
               继续学习
             </button>
-            <p className="mt-2 text-center text-xs text-text3">
-              按空格键也可继续
-            </p>
             <button
               type="button"
               onClick={onExit}

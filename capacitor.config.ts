@@ -11,8 +11,10 @@ const config: CapacitorConfig = {
   ios: {
     // 使用标准 https 协议，避免自定义 scheme 的兼容问题
     scheme: "AnnieDictation",
-    // 允许内容延伸到安全区底部，配合 CSS safe-area-inset-bottom 使用
-    contentInset: "always",
+    // 让 WebView 铺满刘海屏/灵动岛全屏，黑边由 CSS safe-area-inset 处理
+    contentInset: "never",
+    // WebView 背景色与 App 主题一致，状态栏/底部手势条区域不露黑
+    backgroundColor: "#F8F7FF",
     // 编译目标最低版本（Capacitor 8 默认 iOS 14）
     minVersion: "14.0",
   },

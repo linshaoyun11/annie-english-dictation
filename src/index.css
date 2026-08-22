@@ -37,6 +37,12 @@ body {
   color: var(--color-text);
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+  /* iOS 全屏：内容延伸到刘海/手势条区域，用安全区内边距保护可交互内容 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  box-sizing: border-box;
 }
 
 input {

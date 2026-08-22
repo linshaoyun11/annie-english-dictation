@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import { Keyboard } from "@capacitor/keyboard";
 import HomePage from "./pages/HomePage";
 import LearnPage from "./pages/LearnPage";
 import UserSelectPage from "./pages/UserSelectPage";
@@ -57,11 +58,37 @@ export default function App() {
     primeSpeech();
   }, []);
 
-  // 全局键盘避让：手机弹出软键盘时把 --kb-h 写到根元素，
-  // 各页面（学习页/密码弹窗等）用它压缩高度，内容始终在键盘上方可见。
-  // iOS Safari/WKWebView 键盘弹出时窗口高度不变、键盘直接盖住页面，
-  // 必须用 visualViewport 计算；桌面端无键盘，kb 恒为 0，不影响布局。
+  // 全局键盘避让：iOS 原生 App 用 Capacitor Keyboard 事件直接取键盘高度；
+  // 桌面浏览器用 visualViewport 兜底。把 --kb-h 写到根元素，
+  // 各页面用它调整底部内边距，保证"我不会"等底部按钮不被键盘挡住。
   useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      let showListener: { remove: () => void } | undefined;
+      let hideListener: { remove: () => void } | undefined;
+      const setup = async () => {
+        await Keyboard.setAccessoryBarVisible({ isVisible: false });
+        showListener = await Keyboard.addListener(
+          "keyboardWillShow",
+          ({ keyboardHeight }) => {
+            document.documentElement.style.setProperty(
+              "--kb-h",
+              `${keyboardHeight}px`
+            );
+          }
+        );
+        hideListener = await Keyboard.addListener("keyboardWillHide", () => {
+          document.documentElement.style.setProperty("--kb-h", "0px");
+        });
+      };
+      setup().catch(() => {});
+      return () => {
+        showListener?.remove();
+        hideListener?.remove();
+        document.documentElement.style.setProperty("--kb-h", "0px");
+      };
+    }
+
+    // Web 端兜底：visualViewport 计算
     const vv = window.visualViewport;
     if (!vv) return;
     const apply = () => {
@@ -79,20 +106,6 @@ export default function App() {
       vv.removeEventListener("scroll", apply);
       document.documentElement.style.setProperty("--kb-h", "0px");
     };
-  }, []);
-
-  // 原生 App：隐藏 iOS 键盘上方的"上下箭头"工具栏（Keyboard Accessory Bar）。
-  // 该栏是 WKWebView 自带的表单导航条，唯一的密码/拼写输入框用不上它，
-  // 反而占约 44px 高度遮挡输入区。Web 端无此栏，不做任何事。
-  useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-    import("@capacitor/keyboard")
-      .then(({ Keyboard }) =>
-        Keyboard.setAccessoryBarVisible({ isVisible: false })
-      )
-      .catch(() => {
-        /* 插件不可用时静默忽略 */
-      });
   }, []);
 
   const commitUsers = useCallback((next: User[]) => {

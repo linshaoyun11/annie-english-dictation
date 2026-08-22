@@ -209,6 +209,8 @@ export function useSpeechLoop(gapMs = 3000) {
         );
       };
       el.playbackRate = rateRef.current;
+      el.volume = 1;
+      el.muted = false;
       el.currentTime = 0;
       el.play()
         .then(() => {

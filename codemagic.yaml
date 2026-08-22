@@ -25,7 +25,7 @@ workflows:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_VERSION: 1.0.0
-        APP_BUILD: 4
+        APP_BUILD: 5
         BUNDLE_ID: com.annie.dictation
     scripts:
       - name: 安装依赖
@@ -71,7 +71,7 @@ workflows:
           }
           EOF
 
-      - name: 设置版本号与竖屏方向
+      - name: 设置版本号、竖屏方向与状态栏
         script: |
           PLIST=ios/App/App/Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" "$PLIST"
@@ -80,9 +80,53 @@ workflows:
           # 免去每次 TestFlight 提审前在网页手动回答合规问题
           /usr/libexec/PlistBuddy -c "Delete :ITSAppUsesNonExemptEncryption" "$PLIST" || true
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST"
+          # 状态栏：App 底色浅，需要深色文字；让 Info.plist 全局控制
+          /usr/libexec/PlistBuddy -c "Delete :UIViewControllerBasedStatusBarAppearance" "$PLIST" || true
+          /usr/libexec/PlistBuddy -c "Add :UIViewControllerBasedStatusBarAppearance bool false" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Delete :UIStatusBarStyle" "$PLIST" || true
+          /usr/libexec/PlistBuddy -c "Add :UIStatusBarStyle string UIStatusBarStyleDarkContent" "$PLIST"
           /usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations" "$PLIST" || true
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PLIST"
+
+      # Capacitor 默认生成的 Main.storyboard 把 WebView 约束到安全区，
+      # 导致刘海/灵动岛机型出现上下黑边。这里把 WebView 上下左右都改为约束到父视图，
+      # 配合 viewport-fit=cover 实现真正的全屏。
+      - name: 修复 iOS 全屏黑边（Storyboard 约束）
+        script: |
+          python3 - <<'PYEOF'
+          import re, pathlib
+          sb = pathlib.Path('ios/App/App/Base.lproj/Main.storyboard')
+          if not sb.exists():
+              print('Main.storyboard not found, skip')
+              raise SystemExit(0)
+          text = sb.read_text(encoding='utf-8')
+          # 取出根 view id、safeAreaLayoutGuide id、wkWebView id
+          view_id = re.search(r'<view key="view"[^>]*?\bid="([^"]+)"', text)
+          safe_id = re.search(r'<viewLayoutGuide key="safeArea"[^>]*?\bid="([^"]+)"', text)
+          wv_id = re.search(r'<wkWebView[^>]*?\bid="([^"]+)"', text)
+          if not (view_id and safe_id and wv_id):
+              print('Could not find required ids, skip')
+              print('view_id', bool(view_id), 'safe_id', bool(safe_id), 'wv_id', bool(wv_id))
+              raise SystemExit(0)
+          view_id, safe_id, wv_id = view_id.group(1), safe_id.group(1), wv_id.group(1)
+          print(f'view={view_id} safe={safe_id} webview={wv_id}')
+          # 只替换 firstItem=webview 且 secondItem=safeArea 的约束
+          def repl(m):
+              pre = m.group(1)
+              attr = m.group(2)
+              post = m.group(3)
+              return f'{pre}"{view_id}" secondAttribute="{attr}"{post}'
+          pattern = re.compile(
+              r'(constraint firstItem="' + wv_id + r'" firstAttribute="(\w+)" secondItem=")' + safe_id + r'" secondAttribute="\2"([^>]*)'
+          )
+          new_text, n = pattern.subn(repl, text)
+          if n:
+              sb.write_text(new_text, encoding='utf-8')
+              print(f'Patched {n} constraints')
+          else:
+              print('No webview-to-safearea constraints found')
+          PYEOF
 
       # 显式自动签名：找不到描述文件时会自动创建（--create）
       - name: 初始化签名钥匙串

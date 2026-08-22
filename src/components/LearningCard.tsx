@@ -151,7 +151,7 @@ export default function LearningCard({
   );
 
   return (
-    <div className="flex h-full flex-col px-5 pt-5 pb-6">
+    <div className="flex h-full flex-col px-5 pt-5 pb-[calc(var(--kb-h,0px)+theme(space.6))]">
       {/* 顶部信息 + 关闭按钮（同一行） */}
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -185,8 +185,8 @@ export default function LearningCard({
         </div>
       </div>
 
-      {/* 主要内容区 */}
-      <div className="mt-6 flex flex-1 flex-col items-center justify-center">
+      {/* 主要内容区：键盘弹起时允许滚动，避免底部按钮被键盘盖住 */}
+      <div className="mt-6 flex flex-1 flex-col items-center justify-center overflow-y-auto">
         {completed ? (
           <div className="w-full max-w-[320px] animate-[slideUp_.35s_ease]">
             <div className="rounded-3xl bg-success-light p-6 text-center shadow-card">

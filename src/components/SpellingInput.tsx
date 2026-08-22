@@ -132,7 +132,8 @@ export default function SpellingInput({
       setTyped([...allLetters]);
       setDone(true);
       setRevealed(true);
-      // 注意：不 blur —— 保持焦点与键盘，避免"正确/揭示页"键盘收起导致界面跳动
+      // 揭示答案后收起键盘，避免"我不会"页/正确页还弹出键盘遮挡内容
+      inputRef.current?.blur();
     }
   }, [revealSignal, allLetters, totalLetters]);
 
@@ -146,8 +147,8 @@ export default function SpellingInput({
     completedRef.current = true;
     setDone(true);
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
-    // 注意：不 blur —— 答对后保持键盘弹出，"正确页"布局稳定不跳动，
-    // 下一题复用同一焦点，切题全程键盘不收起。
+    // 答对后收起键盘，避免正确页继续占用屏幕空间
+    inputRef.current?.blur();
     onComplete();
   }, [typed, totalLetters, allLetters, done, onComplete]);
 
