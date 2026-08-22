@@ -42,8 +42,8 @@ export interface Progress {
   gradeProgress?: Record<string, GradeProgress>;
   /**
    * 教材线标记：同版本号下区分教材结构变更前后/不同子线的数据。
-   * "wy-g1"：外研社一年级起点去重线（v8 结构）。缺失表示旧混合线数据，
-   * 加载时自动迁移。
+   * "rj-g1"：人教版一年级起点去重线（3 年级起过滤 1-2 年级已学词）。
+   * "wy-g1"：外研社一年级起点去重线。缺失表示旧混合线数据，加载时自动迁移。
    */
   lineTag?: string;
 }
@@ -103,19 +103,24 @@ export function loadProgress(
     const raw = storageGet(storageKey(userId, version));
     if (raw) {
       const p = JSON.parse(raw) as Progress;
-      // 外研社旧「混合线」进度 → 一年级起点去重线迁移：
+      // 混合线进度 → 一年级起点去重线迁移（人教版/外研社同模式）：
       // 词库结构变更（3 年级起跨线去重 + 移除清空单元）导致 unitIndex 错位，
       // 但词条 id 完全不变——保留全部学习记录（已学/错词/错误次数），
       // 仅重置位置指针；startLearning 会自动跳到第一个未完成单元。
+      const G1_LINE_TAGS: Partial<Record<CurriculumVersion, string>> = {
+        renjiao: "rj-g1",
+        waiyanshe: "wy-g1",
+      };
+      const expectTag = G1_LINE_TAGS[version];
       if (
-        version === "waiyanshe" &&
-        p.lineTag !== "wy-g1" &&
-        p.version === "waiyanshe" &&
+        expectTag &&
+        p.lineTag !== expectTag &&
+        p.version === version &&
         Array.isArray(p.completedEntryIds)
       ) {
         const migrated: Progress = {
           ...p,
-          lineTag: "wy-g1",
+          lineTag: expectTag,
           unitIndex: 0,
           entryIndex: 0,
           unitOrder: makeUnitOrder(0, version),
@@ -199,7 +204,12 @@ export function freshProgress(version: CurriculumVersion): Progress {
   return {
     curriculumVersion: CURRICULUM_VERSION,
     version,
-    lineTag: version === "waiyanshe" ? "wy-g1" : undefined,
+    lineTag:
+      version === "renjiao"
+        ? "rj-g1"
+        : version === "waiyanshe"
+          ? "wy-g1"
+          : undefined,
     unitIndex: 0,
     entryIndex: 0,
     unitOrder: makeUnitOrder(0, version),

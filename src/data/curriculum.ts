@@ -21,12 +21,14 @@ export const CURRICULUM_VERSION = 7;
 
 export type CurriculumVersion =
   | "renjiao"
+  | "renjiao3"
   | "waiyanshe"
   | "waiyanshe3"
   | "oxford";
 
 export const CURRICULUM_LABELS: Record<CurriculumVersion, string> = {
-  renjiao: "人教版",
+  renjiao: "人教版·一年级起点",
+  renjiao3: "人教版·三年级起点",
   waiyanshe: "外研社·一年级起点",
   waiyanshe3: "外研社·三年级起点",
   oxford: "沪教牛津",
@@ -709,9 +711,41 @@ const WAIYANSHE_G3_START: UnitInfo[] = WAIYANSHE_CURRICULUM.filter(
   (u) => u.grade >= 3
 );
 
+/**
+ * 人教版两条教材线派生。
+ * 人教社小学英语实际发行两种教材：《新起点》（一年级起点，1-6 年级）
+ * 与 PEP（三年级起点，3-6 年级），两条线都从零起点内容开始，词表交叉。
+ * 词库 CURRICULUM 中 1-2 年级取自新起点教材、3-6 年级取自 PEP 教材、
+ * 7-9 年级为初中 Go for it（PEP 线延续）。
+ *
+ * - renjiao（一年级起点）：完整 1-9 年级。对 3 年级及以上单元过滤掉
+ *   1-2 年级已学过的词（按英文小写比较），避免同一孩子连学重复；
+ *   过滤后清空的单元（三上 U6 数字，与一年级 U4 完全重复）整体移除，
+ *   剩 1-2 词的薄单元保留（快速通过即可）。
+ * - renjiao3（三年级起点）：仅 3-9 年级，按 PEP + Go for it 原样，
+ *   不做跨线去重（该线没有 1-2 年级内容，不存在跨线重复）。
+ */
+const rjEarlyWords = new Set(
+  CURRICULUM.filter((u) => u.grade <= 2)
+    .flatMap((u) => u.entries)
+    .map((e) => e.english.toLowerCase())
+);
+const RENJIAO_G1_START: UnitInfo[] = CURRICULUM.map((u) =>
+  u.grade <= 2
+    ? u
+    : {
+        ...u,
+        entries: u.entries.filter(
+          (e) => !rjEarlyWords.has(e.english.toLowerCase())
+        ),
+      }
+).filter((u) => u.entries.length > 0);
+const RENJIAO_G3_START: UnitInfo[] = CURRICULUM.filter((u) => u.grade >= 3);
+
 /** 全部教材版本索引（人教为默认） */
 export const CURRICULA: Record<CurriculumVersion, UnitInfo[]> = {
-  renjiao: CURRICULUM,
+  renjiao: RENJIAO_G1_START,
+  renjiao3: RENJIAO_G3_START,
   waiyanshe: WAIYANSHE_G1_START,
   waiyanshe3: WAIYANSHE_G3_START,
   oxford: OXFORD_CURRICULUM,
