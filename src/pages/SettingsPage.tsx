@@ -7,14 +7,13 @@ import {
 } from "../data/curriculum";
 import { avatarById, type Accent, type User, type UserConfig } from "../lib/users";
 import { AvatarImg } from "../components/AvatarImg";
-import ChangePasswordModal from "../components/ChangePasswordModal";
 
 interface SettingsPageProps {
   user: User;
   onBack: () => void;
   onSave: (config: UserConfig) => void;
-  /** 修改当前用户密码（旧密码已在弹窗内校验） */
-  onChangePassword: (newPassword: string) => void;
+  /** 点击头像进入用户资料页 */
+  onOpenProfile: () => void;
 }
 
 /** 教材版本简介（年级结构说明） */
@@ -43,7 +42,7 @@ export default function SettingsPage({
   user,
   onBack,
   onSave,
-  onChangePassword,
+  onOpenProfile,
 }: SettingsPageProps) {
   const avatar = avatarById(user.avatarId);
   const [curriculum, setCurriculum] = useState<CurriculumVersion>(
@@ -54,8 +53,6 @@ export default function SettingsPage({
     user.config.autoNext ?? false
   );
   const [saved, setSaved] = useState(false);
-  const [showChangePwd, setShowChangePwd] = useState(false);
-  const [pwdChanged, setPwdChanged] = useState(false);
 
   // 各版本统计（单元数 / 条目数）
   const stats = useMemo(() => {
@@ -106,17 +103,12 @@ export default function SettingsPage({
               ✓ 已保存
             </span>
           )}
-          {pwdChanged && (
-            <span className="animate-[fadeIn_.2s_ease] rounded-full bg-success-light px-3 py-1 text-xs font-semibold text-success">
-              ✓ 密码已修改
-            </span>
-          )}
-          {/* 点击头像修改密码 */}
+          {/* 点击头像进入用户资料页 */}
           <button
             type="button"
-            onClick={() => setShowChangePwd(true)}
-            title="修改密码"
-            aria-label="修改密码"
+            onClick={onOpenProfile}
+            title="用户资料"
+            aria-label="用户资料"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-base transition-transform active:scale-90"
             style={{ backgroundColor: avatar.color }}
           >
@@ -124,20 +116,6 @@ export default function SettingsPage({
           </button>
         </div>
       </div>
-
-      {/* 修改密码弹窗 */}
-      {showChangePwd && (
-        <ChangePasswordModal
-          user={user}
-          onChangePassword={(pwd) => {
-            onChangePassword(pwd);
-            setShowChangePwd(false);
-            setPwdChanged(true);
-            window.setTimeout(() => setPwdChanged(false), 1800);
-          }}
-          onClose={() => setShowChangePwd(false)}
-        />
-      )}
 
       {/* 教材版本 */}
       <h2 className="mt-7 mb-1 text-sm font-semibold text-text">教材版本</h2>

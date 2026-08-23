@@ -8,6 +8,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import DifficultWordsPage from "./pages/DifficultWordsPage";
 import SettingsPage from "./pages/SettingsPage";
+import ProfilePage from "./pages/ProfilePage";
 import { getAllEntries, getCurriculum } from "./data/curriculum";
 import { prefetchAudio } from "./lib/audio";
 import { flushStorage } from "./lib/storage";
@@ -37,7 +38,8 @@ type View =
   | "learn"
   | "leaderboard"
   | "difficult"
-  | "settings";
+  | "settings"
+  | "profile";
 type LearnMode = "normal" | "difficult";
 
 export default function App() {
@@ -316,7 +318,7 @@ export default function App() {
     setDifficultOrder([]);
   }, [learnMode]);
 
-  /** 修改当前用户密码（旧密码已在弹窗内校验通过） */
+  /** 修改当前用户密码（旧密码已在资料页内校验通过） */
   const handleChangePassword = useCallback(
     (newPassword: string) => {
       if (!currentUser) return;
@@ -342,6 +344,9 @@ export default function App() {
         case "difficult":
         case "settings":
           setView("home");
+          break;
+        case "profile":
+          setView("settings");
           break;
         case "leaderboard":
           setView(currentUser ? "home" : "select");
@@ -459,6 +464,14 @@ export default function App() {
           user={currentUser}
           onBack={() => setView("home")}
           onSave={handleSaveConfig}
+          onOpenProfile={() => setView("profile")}
+        />
+      )}
+
+      {view === "profile" && currentUser && (
+        <ProfilePage
+          user={currentUser}
+          onBack={() => setView("settings")}
           onChangePassword={handleChangePassword}
         />
       )}
