@@ -1,6 +1,7 @@
 /* ── 单元完成祝贺音效 ──
  *
- * 首选 HTMLAudioElement 播放本地 wav（public/audio/celebration.wav）：
+ * 首选 HTMLAudioElement 播放本地 wav（public/audio/celebration.wav，
+ * 由下方 synthJingle 的合成旋律离线渲染而来，音色节奏与原实时合成一致）：
  * - 与词条朗读走同一条音频管线（AVAudioSession playback），音量通道一致；
  * - Web Audio 的 AudioContext 在 iOS 上长时间运行后可能进入 suspended
  *   且无法自动恢复（表现：学久了祝贺音效无声，切后台回来才响），
@@ -67,7 +68,7 @@ function synthJingle() {
 }
 
 /**
- * 播放简短庆祝音效（本地 wav，约 1.2 秒的红白机风格过关号角）。
+ * 播放简短庆祝音效（本地 wav，约 1.5 秒的三角波琶音 C5-E5-G5-C6 + 结尾和弦）。
  * 失败时静默降级到 Web Audio 合成（无音频环境不影响功能）。
  */
 export function playCelebrationJingle() {
