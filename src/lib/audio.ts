@@ -1,51 +1,74 @@
 /**
- * 音频获取与缓存（多教材 + 口音版）
+ * 音频获取与缓存（多教材 + 口音版）—— 完全离线版
  *
  * 口音：美式（us）默认 / 英式（uk）
- *  - 美式：本地预生成音频（随包分发，有道美音）→ 有道 type=2 → 百度 TTS → 浏览器语音(en-US)
- *  - 英式：本地英音（{id}-uk.mp3，随包分发）→ 有道 type=1（英音，补充清单缺失）
- *          → 本地美音（离线应急）→ 有道 type=2 → 百度 TTS → 浏览器语音(en-GB)
+ *  - 美式：本地预生成音频 manifest.json → {id}.mp3（随包分发）
+ *  - 英式：本地英音 manifest-uk.json → {id}-uk.mp3（随包分发）
+ *  - 本地未命中（理论上已全覆盖）→ 返回 null，由调用方退回浏览器
+ *    speechSynthesis 朗读。App 不发起任何网络请求，无需网络权限。
  *
  * 缓存策略：
- *  - 元素级缓存：key = "{accent}:{text}"，同一发音整场会话只下载一次，
- *    循环重读/切题复用内存中的元素，零网络请求。
- *
- * 三套教材（人教/外研社/沪教牛津）词条音频全部随包分发（public/audio）：
- *  - manifest.json      文本 → id（美音，{id}.mp3）
- *  - manifest-uk.json   文本 → id（英音，{id}-uk.mp3，有道英音生成，词条不全时缺失项回退本地美音）
- * 完全离线可用，无运行时 API 依赖。
+ *  - 元素级缓存：key = "{accent}:{text}"，同一发音整场会话只加载一次，
+ *    循环重读/切题复用内存中的元素，零重复请求。
+ *  - 上限 MAX_CACHE_ENTRIES：超过后淘汰最旧条目，并主动释放其
+ *    HTMLAudioElement 的原生解码资源（pause + 清 src + load()）。
+ *    iOS WKWebView 中被丢弃但未释放的 <audio> 会持续占用原生内存，
+ *    是"学习单元多了 App 变卡"的主要来源之一。
  */
 
 import type { Accent } from "./users";
 
 export interface AudioResult {
   url: string;
-  source: "local" | "youdao" | "baidu";
+  source: "local";
   /** 已加载的元素（缓存命中后直接复用，避免重复下载） */
   el?: HTMLAudioElement;
 }
 
 /** 元素级缓存：key="{accent}:{小写文本}"，value=音频结果（含已加载元素） */
 const audioCache = new Map<string, AudioResult>();
-const MAX_CACHE_ENTRIES = 400;
+// 预取深度只有 3 题 + 当前 1 题，48 个元素已绰绰有余；
+// 过大的缓存只会在淘汰前累积原生音频内存，得不偿失。
+const MAX_CACHE_ENTRIES = 48;
+
+/**
+ * 释放音频元素的原生资源。
+ * iOS WebKit 里仅解除 JS 引用并不会回收底层解码器/缓冲，
+ * 必须清空 src 并 load() 才能让系统回收。
+ */
+export function releaseElement(el: HTMLAudioElement | undefined | null) {
+  if (!el) return;
+  try {
+    el.pause();
+    el.onended = null;
+    el.onerror = null;
+    el.removeAttribute("src");
+    el.load();
+  } catch {
+    /* ignore */
+  }
+}
 
 function cachePut(key: string, val: AudioResult) {
-  // 简单的 FIFO 淘汰，防止元素无限累积占内存
+  // FIFO 淘汰：最旧条目出队时同步释放其元素的原生资源
   if (audioCache.size >= MAX_CACHE_ENTRIES) {
-    const oldest = audioCache.keys().next().value;
-    if (oldest !== undefined) audioCache.delete(oldest);
+    const oldest = audioCache.entries().next().value;
+    if (oldest) {
+      audioCache.delete(oldest[0]);
+      releaseElement(oldest[1].el);
+    }
   }
   audioCache.set(key, val);
 }
 
-/* ── 本地预生成音频（方案 C：随包分发，有道美音，零 API 依赖） ── */
+/* ── 本地预生成音频（随包分发，零 API 依赖） ── */
 
 let manifestPromise: Promise<Map<string, string> | null> | null = null;
 let ukManifestPromise: Promise<Map<string, string> | null> | null = null;
 
 /**
  * 加载本地音频清单（归一化文本 → 词条 id）。
- * 失败返回 null 并缓存结果，不影响网络兜底链路。
+ * 失败返回 null（manifest 为随包静态文件，正常不会失败）。
  * variant: "us" 加载 manifest.json（美音），"uk" 加载 manifest-uk.json（英音）。
  */
 function ensureLocalManifest(
@@ -85,48 +108,8 @@ async function resolveLocalAudio(
 }
 
 /**
- * 有道词典真人发音 URL。
- * 只保留 a-z 与空格（don't → dont、good-bye → goodbye，发音一致；
- * 保留空格使短语 good morning 仍按词发音，不会拼成 goodmorning）。
- * type=2 美音 / type=1 英音。
- */
-function youdaoUrl(text: string, type: 1 | 2): string | null {
-  const clean = text.toLowerCase().replace(/[^a-z ]/g, "").trim();
-  if (!clean) return null;
-  return `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(
-    clean
-  )}&type=${type}`;
-}
-
-/** 百度翻译 TTS（en 美音，短语/句子兜底，国内直连） */
-function baiduUrl(text: string): string {
-  return `https://fanyi.baidu.com/gettts?lan=en&text=${encodeURIComponent(
-    text
-  )}&spd=3&source=web`;
-}
-
-/* ── 各口音的候选链（依次尝试，第一个非空即为首选） ── */
-
-function buildChain(
-  text: string,
-  accent: Accent
-): Array<AudioResult | null> {
-  if (accent === "uk") {
-    const uk = youdaoUrl(text, 1);
-    const us = youdaoUrl(text, 2);
-    return [
-      uk ? { url: uk, source: "youdao" } : null,
-      us ? { url: us, source: "youdao" } : null,
-      { url: baiduUrl(text), source: "baidu" },
-    ];
-  }
-  // 美式：本地预生成与有道美音已由 resolveAudio 处理，兜底只需百度
-  return [{ url: baiduUrl(text), source: "baidu" }];
-}
-
-/**
- * 解析音频：返回当前口音下的首选候选（不保证可用，失败由调用方
- * 通过 fallbackAudio 沿链路继续尝试）。结果写入缓存。
+ * 解析音频：只查本地清单，未命中返回 null
+ * （由调用方退回浏览器 speechSynthesis 朗读）。
  */
 export async function resolveAudio(
   text: string,
@@ -138,65 +121,17 @@ export async function resolveAudio(
 
   let result: AudioResult | null = null;
 
-  if (accent === "us") {
-    // 美式优先本地预生成音频（随包分发，有道口音，发布后无 API 依赖）
-    const local = await resolveLocalAudio(text, "us");
-    if (local) result = local;
-  } else {
+  if (accent === "uk") {
     // 英式优先本地英音（随包分发 {id}-uk.mp3，离线可用）
-    const localUk = await resolveLocalAudio(text, "uk");
-    if (localUk) result = localUk;
-    // 本地英音缺失（有道英音词条不全）→ 联网补有道英音 type=1
-    if (!result) {
-      const uk = youdaoUrl(text, 1);
-      if (uk) result = { url: uk, source: "youdao" };
-    }
-    // 英音不可得 → 本地美音应急（离线可用）
-    if (!result) {
-      const localUs = await resolveLocalAudio(text, "us");
-      if (localUs) result = localUs;
-    }
-    // 本地也没有 → 有道美音 type=2
-    if (!result) {
-      const us = youdaoUrl(text, 2);
-      if (us) result = { url: us, source: "youdao" };
-    }
-  }
-
-  if (!result) {
-    // 有道无词条/无英音 → 百度 TTS 兜底
-    result = { url: baiduUrl(text), source: "baidu" };
+    result = await resolveLocalAudio(text, "uk");
+    // 本地英音缺失 → 本地美音应急
+    if (!result) result = await resolveLocalAudio(text, "us");
+  } else {
+    result = await resolveLocalAudio(text, "us");
   }
 
   if (result) cachePut(cacheKey, result);
   return result;
-}
-
-/** 当前候选失败后的下一候选（跳过所有失败同源，避免死循环） */
-export async function fallbackAudio(
-  text: string,
-  accent: Accent,
-  fromSource: AudioResult["source"]
-): Promise<AudioResult | null> {
-  for (const cand of buildChain(text, accent)) {
-    if (!cand) continue;
-    if (cand.source === fromSource) continue; // 跳过失败源及其同源候选
-    const cacheKey = `${accent}:${text.trim().toLowerCase()}`;
-    // 若候选已解析过且来源不同，直接复用
-    const cached = audioCache.get(cacheKey);
-    if (cached && cached.source === cand.source) return cached;
-    cachePut(cacheKey, cand);
-    return cand;
-  }
-  // 链路耗尽：英式最后可用本地美音应急（离线可用）
-  if (accent === "uk") {
-    const local = await resolveLocalAudio(text, "us");
-    if (local) {
-      cachePut(`${accent}:${text.trim().toLowerCase()}`, local);
-      return local;
-    }
-  }
-  return null;
 }
 
 /** 同步查询音频缓存（已预取的条目切题时可零等待直放） */

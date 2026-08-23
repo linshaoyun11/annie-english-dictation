@@ -30,7 +30,7 @@ export default function RegisterPage({ users, onRegister, onBack }: RegisterPage
     }
     const result = onRegister(selected, pwdClean);
     if (!result.ok) {
-      setError(result.error ?? "注册失败");
+      setError(result.error ?? "创建失败");
     }
   };
 
@@ -47,7 +47,7 @@ export default function RegisterPage({ users, onRegister, onBack }: RegisterPage
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
-        <h1 className="text-lg font-semibold text-text">新用户注册</h1>
+        <h1 className="text-lg font-semibold text-text">创建新角色</h1>
       </div>
       <p className="mt-1 ml-12 text-xs text-text3">
         选一个头像，再设置 4 位数字密码
@@ -150,7 +150,7 @@ export default function RegisterPage({ users, onRegister, onBack }: RegisterPage
             : "bg-primary-lighter text-text3"
         }`}
       >
-        注册并开始学习
+        创建并开始学习
       </button>
     </div>
   );

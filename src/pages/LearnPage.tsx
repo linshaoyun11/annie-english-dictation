@@ -205,6 +205,70 @@ export default function LearnPage({
     [setProgress, unit, allEntriesMap, addPoints, user.id, difficultMode]
   );
 
+  /**
+   * 当前词条离开后的推进位置（普通模式）：
+   * - 单元内 → entryIndex+1
+   * - 单元结束跨到新年级 → 优先恢复该年级在 gradeProgress 里保存的
+   *   学习位置（从上次学到的地方继续，而非新年级第一单元第一词），
+   *   保存位置已学完则在该年级内向后找第一个未学单元；
+   * - 单元结束（同年级）→ 下一单元第一词
+   * - 全部学完 → "finished"
+   */
+  const nextPositionAfter = useCallback(
+    (p: Progress):
+      | "finished"
+      | { unitIndex: number; entryIndex: number; unitOrder: string[] } => {
+      const nextIndex = p.entryIndex + 1;
+      if (nextIndex < p.unitOrder.length) {
+        return { unitIndex: p.unitIndex, entryIndex: nextIndex, unitOrder: p.unitOrder };
+      }
+      const nextUnitIndex = p.unitIndex + 1;
+      if (nextUnitIndex >= cur.length) return "finished";
+
+      const curGrade = cur[p.unitIndex]?.grade;
+      const nextGrade = cur[nextUnitIndex].grade;
+      if (nextGrade !== curGrade) {
+        const saved = p.gradeProgress?.[String(nextGrade)];
+        if (saved && cur[saved.unitIndex]?.grade === nextGrade) {
+          const order =
+            saved.unitOrder?.length
+              ? saved.unitOrder
+              : makeUnitOrder(saved.unitIndex, version);
+          // 跳过保存位置里已完成的词条
+          let ei = 0;
+          while (ei < order.length && p.completedEntryIds.includes(order[ei])) {
+            ei += 1;
+          }
+          if (ei < order.length) {
+            return { unitIndex: saved.unitIndex, entryIndex: ei, unitOrder: order };
+          }
+          // 保存的单元已学完 → 在该年级内向后找第一个未学单元
+          for (
+            let ui = saved.unitIndex;
+            ui < cur.length && cur[ui].grade === nextGrade;
+            ui += 1
+          ) {
+            const ord = makeUnitOrder(ui, version);
+            let e = 0;
+            while (e < ord.length && p.completedEntryIds.includes(ord[e])) {
+              e += 1;
+            }
+            if (e < ord.length) {
+              return { unitIndex: ui, entryIndex: e, unitOrder: ord };
+            }
+          }
+          // 该年级全部学完 → 按默认推进（下一单元第一词）
+        }
+      }
+      return {
+        unitIndex: nextUnitIndex,
+        entryIndex: 0,
+        unitOrder: makeUnitOrder(nextUnitIndex, version),
+      };
+    },
+    [cur, version]
+  );
+
   const goNext = useCallback(() => {
     if (busyRef.current) return;
     busyRef.current = true;
@@ -266,24 +330,13 @@ export default function LearnPage({
       }
     }
 
-    const nextIndex = p.entryIndex + 1;
-    if (nextIndex < p.unitOrder.length) {
-      setProgress((prev) => ({ ...prev, entryIndex: nextIndex }));
-    } else {
-      const nextUnitIndex = p.unitIndex + 1;
-      if (nextUnitIndex < cur.length) {
-        setProgress((prev) => ({
-          ...prev,
-          unitIndex: nextUnitIndex,
-          entryIndex: 0,
-          unitOrder: makeUnitOrder(nextUnitIndex, version),
-        }));
-      } else {
-        setFinishedAll(true);
-        release();
-        return;
-      }
+    const next = nextPositionAfter(p);
+    if (next === "finished") {
+      setFinishedAll(true);
+      release();
+      return;
     }
+    setProgress((prev) => ({ ...prev, ...next }));
     setAnimKey((k) => k + 1);
     release();
   }, [
@@ -295,6 +348,7 @@ export default function LearnPage({
     version,
     setCelebration,
     speech,
+    nextPositionAfter,
   ]);
 
   /** 记录"曾经拼错或不会"的词条（去重），供年级完成页统计 */
@@ -328,7 +382,7 @@ export default function LearnPage({
             }
       );
       addMistake(id); // "我不会"也计入拼错/不会统计
-      showToast("📝 已加入重点记忆");
+      showToast("📝 已加入重点记忆列表");
     },
     [setProgress, addMistake, unit, allEntriesMap, difficultMode]
   );
@@ -364,38 +418,27 @@ export default function LearnPage({
     busyRef.current = true;
     setCelebration(null);
     setProgress((prev) => {
-      const nextIndex = prev.entryIndex + 1;
-      if (nextIndex < prev.unitOrder.length) {
-        return { ...prev, entryIndex: nextIndex };
-      }
-      const nextUnitIndex = prev.unitIndex + 1;
-      if (nextUnitIndex < cur.length) {
-        return {
-          ...prev,
-          unitIndex: nextUnitIndex,
-          entryIndex: 0,
-          unitOrder: makeUnitOrder(nextUnitIndex, version),
-        };
-      }
-      return prev;
+      const next = nextPositionAfter(prev);
+      if (next === "finished") return prev;
+      return { ...prev, ...next };
     });
     lastProcessedUnitRef.current = null;
     setAnimKey((k) => k + 1);
     window.setTimeout(() => {
       busyRef.current = false;
     }, 80);
-  }, [cur.length, version, setProgress]);
+  }, [cur.length, version, setProgress, nextPositionAfter]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // 祝贺页打开时只屏蔽 Enter/Escape，避免误触切题或返回首页播放音频
+      // 祝贺页打开时不响应（避免误触切题或返回首页播放音频）
       if (celebration) return;
-      if (e.key === "Enter" && !difficultDone) goNext();
+      // 注意：不响应 Enter（拼写输入时按回车不应跳题）
       if (e.key === "Escape") onExit();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, onExit, difficultDone, celebration]);
+  }, [onExit, celebration]);
 
   // 同步当前学习位置到所属年级（gradeProgress），供首页年级卡片恢复进度。
   // 正常学习 / 祝贺页继续 / 上滑切题等所有推进路径最终都会改 unitIndex/entryIndex，

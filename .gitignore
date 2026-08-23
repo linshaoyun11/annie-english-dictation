@@ -36,3 +36,10 @@ capacitor.config.local.ts
 
 # iOS signing private key (stored in Codemagic env vars, never in repo)
 .workbuddy/ios-cert-private-key
+
+# Local-only working data (never commit)
+.workbuddy/tmp/
+.workbuddy/sfx-samples/
+.workbuddy/tts-samples/
+.workbuddy/avatar-test.png
+.workbuddy/ios-cert-private-key.pub

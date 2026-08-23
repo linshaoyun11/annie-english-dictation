@@ -154,10 +154,23 @@ export default function DifficultWordsPage({
                       className="flex h-8 w-14 items-center justify-center rounded-full border border-border bg-white text-text2 transition-colors active:bg-primary-lighter"
                     >
                       {playingId === entry.id ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#534AB7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="6" y="4" width="4" height="16" rx="1" />
-                          <rect x="14" y="4" width="4" height="16" rx="1" />
-                        </svg>
+                        /* 播放中：声波律动动画（waveBar，与学习页波浪一致） */
+                        <span className="flex h-4 w-4 items-end justify-center gap-[2px]">
+                          {[0, 1, 2, 3].map((i) => (
+                            <span
+                              key={i}
+                              className="w-[3px] rounded-full"
+                              style={{
+                                height: "100%",
+                                backgroundColor: "#534AB7",
+                                transformOrigin: "bottom",
+                                animation: `waveBar .9s ease-in-out ${
+                                  i * 0.12
+                                }s infinite alternate`,
+                              }}
+                            />
+                          ))}
+                        </span>
                       ) : (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M11 5L6 9H2v6h4l5 4V5z" />

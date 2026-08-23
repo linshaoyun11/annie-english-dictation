@@ -8,6 +8,7 @@ import { type Progress, unitStats } from "../lib/progress";
 import { primeSpeech } from "../hooks/useSpeechLoop";
 import { avatarById, type User } from "../lib/users";
 import { AvatarImg } from "../components/AvatarImg";
+import PasswordModal from "../components/PasswordModal";
 
 interface HomePageProps {
   user: User;
@@ -42,6 +43,8 @@ export default function HomePage({
 
   const grades = Array.from(new Set(cur.map((u) => u.grade)));
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  // 清空进度的密码验证（确认清空后再输密码，密码正确才真正执行）
+  const [resetAuth, setResetAuth] = useState(false);
 
   return (
     <div className="h-full overflow-y-auto px-5 pb-10">
@@ -235,7 +238,7 @@ export default function HomePage({
                 type="button"
                 onClick={() => {
                   setShowResetConfirm(false);
-                  onReset();
+                  setResetAuth(true); // 密码验证通过后才执行清空
                 }}
                 className="flex-1 rounded-xl bg-error py-2.5 text-sm font-semibold text-white transition-transform active:scale-[0.97]"
               >
@@ -244,6 +247,18 @@ export default function HomePage({
             </div>
           </div>
         </div>
+      )}
+
+      {/* 清空进度二次验证：输入用户密码后才真正执行 */}
+      {resetAuth && (
+        <PasswordModal
+          user={user}
+          onSuccess={() => {
+            setResetAuth(false);
+            onReset();
+          }}
+          onClose={() => setResetAuth(false)}
+        />
       )}
     </div>
   );

@@ -65,7 +65,7 @@ export default function UserSelectPage({
             <p className="mt-4 text-sm text-text2">
               还没有小伙伴
               <br />
-              点击下方按钮注册第一个用户吧
+              点击下方按钮创建第一个角色吧
             </p>
           </div>
         ) : (
@@ -105,7 +105,7 @@ export default function UserSelectPage({
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 5v14M5 12h14" />
         </svg>
-        新用户注册
+        创建新角色
       </button>
 
       {pendingUser && (

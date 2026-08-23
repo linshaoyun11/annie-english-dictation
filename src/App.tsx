@@ -293,23 +293,41 @@ export default function App() {
   /** 开始重点记忆学习：随机打乱难词列表，逐词学习一遍 */
   const startDifficultLearning = useCallback(() => {
     if (!progress || !currentUser) return;
-    const ids = shuffle(progress.difficultEntryIds);
+    const allMap = new Map(getAllEntries(version).map((e) => [e.id, e]));
+    // 过滤掉词库变更后已不存在的词条 id，防止学习时取不到词条白屏
+    const ids = shuffle(
+      progress.difficultEntryIds.filter((id) => allMap.has(id))
+    );
     if (ids.length === 0) return;
     setDifficultOrder(ids);
     setLearnMode("difficult");
     setView("learn");
     // 预取第一题的真人音频
-    const allMap = new Map(getAllEntries(version).map((e) => [e.id, e]));
     const first = allMap.get(ids[0]);
     if (first) prefetchAudio(first.english, accent);
   }, [progress, currentUser, version, accent]);
 
   /** 退出学习页：难词模式回重点记忆页，普通模式回首页 */
   const exitLearn = useCallback(() => {
+    // 退出学习页前确保进度已写入原生存储
+    flushStorage().catch(() => {});
     setView(learnMode === "difficult" ? "difficult" : "home");
     setLearnMode("normal");
     setDifficultOrder([]);
   }, [learnMode]);
+
+  /** 修改当前用户密码（旧密码已在弹窗内校验通过） */
+  const handleChangePassword = useCallback(
+    (newPassword: string) => {
+      if (!currentUser) return;
+      const nextUsers = users.map((u) =>
+        u.id === currentUser.id ? { ...u, password: newPassword } : u
+      );
+      commitUsers(nextUsers);
+      setCurrentUser(nextUsers.find((u) => u.id === currentUser.id) ?? currentUser);
+    },
+    [users, currentUser, commitUsers]
+  );
 
   // iOS 左缘右滑返回手势。系统级的边缘返回属于 UINavigationController，
   // Capacitor 应用只有一个 ViewController（无导航栈），系统手势天然无效，
@@ -441,6 +459,7 @@ export default function App() {
           user={currentUser}
           onBack={() => setView("home")}
           onSave={handleSaveConfig}
+          onChangePassword={handleChangePassword}
         />
       )}
 

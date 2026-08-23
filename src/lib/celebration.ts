@@ -1,6 +1,17 @@
-/* ── 单元完成祝贺音效：Web Audio API 合成，纯本地、无资源文件 ── */
+/* ── 单元完成祝贺音效 ──
+ *
+ * 首选 HTMLAudioElement 播放本地 wav（public/audio/celebration.wav）：
+ * - 与词条朗读走同一条音频管线（AVAudioSession playback），音量通道一致；
+ * - Web Audio 的 AudioContext 在 iOS 上长时间运行后可能进入 suspended
+ *   且无法自动恢复（表现：学久了祝贺音效无声，切后台回来才响），
+ *   HTMLAudioElement 不受此影响。
+ * Web Audio 合成仅作为文件缺失/播放失败时的兜底。
+ */
 
+let jingleEl: HTMLAudioElement | null = null;
 let jingleCtx: AudioContext | null = null;
+
+/* ── 兜底：Web Audio 合成（三角波琶音 + 和弦） ── */
 
 function getCtx(): AudioContext | null {
   try {
@@ -42,11 +53,7 @@ function tone(
   osc.stop(t0 + dur + 0.05);
 }
 
-/**
- * 播放简短庆祝音效：C5-E5-G5-C6 上行琶音 + 结尾 C 大调和弦，约 1.5 秒。
- * 失败时静默降级（无音频环境不影响功能）。
- */
-export function playCelebrationJingle() {
+function synthJingle() {
   const c = getCtx();
   if (!c) return;
   const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 E5 G5 C6
@@ -57,4 +64,27 @@ export function playCelebrationJingle() {
     tone(c, f, chordStart, 0.85, 0.1)
   );
   tone(c, 261.63, 0, chordStart + 0.85, 0.08, "sine");
+}
+
+/**
+ * 播放简短庆祝音效（本地 wav，约 1.2 秒的红白机风格过关号角）。
+ * 失败时静默降级到 Web Audio 合成（无音频环境不影响功能）。
+ */
+export function playCelebrationJingle() {
+  try {
+    if (!jingleEl) {
+      jingleEl = new Audio(
+        `${import.meta.env.BASE_URL}audio/celebration.wav`
+      );
+      jingleEl.preload = "auto";
+    }
+    // 复用同一元素：load() 重置到初始状态（ended 元素不 load 无法重播）
+    jingleEl.load();
+    const p = jingleEl.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(() => synthJingle());
+    }
+  } catch {
+    synthJingle();
+  }
 }

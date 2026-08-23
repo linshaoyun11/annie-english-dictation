@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import {
   ensureElement,
-  fallbackAudio,
+  releaseElement,
   resolveAudio,
   type AudioResult,
 } from "../lib/audio";
@@ -195,27 +195,24 @@ export function useSpeechLoop(gapMs = 3000) {
       };
       el.onerror = () => {
         if (!valid(gen)) return;
-        // 当前源加载失败 → 沿候选链换源；链路耗尽 → 跳到下一个单词
-        fallbackAudio(textRef.current, accentRef.current, item.source).then(
-          (r) => {
-            if (!valid(gen)) return;
-            if (r) {
-              playlistRef.current[seqIdxRef.current] = r;
-              playCurrent(gen);
-            } else {
-              advance(gen);
-            }
-          }
-        );
+        // 本地音频加载失败（文件损坏等）→ 跳到下一个条目；
+        // 全部条目都失败 → 浏览器语音兜底
+        failCountRef.current += 1;
+        if (failCountRef.current > playlistRef.current.length + 1) {
+          speakWebSpeech();
+        } else {
+          advance(gen);
+        }
       };
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
-      // 复用过的元素先 load() 彻底重置，绝不用 currentTime=0 做 seek：
-      // Edge TTS 生成的 mp3 无 Xing/Info 头，WebKit 里 duration=Infinity，
-      // 对这种文件 seek(0) 会跳到接近结尾——循环重播只剩"短促尾音"的元凶。
-      // load() 回到初始状态、不经过 seek，对任何来源的音频都安全。
-      if (el.readyState > 0 || el.currentTime > 0 || el.ended) {
+      // 复用过的元素只在确实播放过（有进度/已结束）时才 load() 彻底重置：
+      // 1) 不做 currentTime=0 的 seek——Edge TTS 生成的 mp3 无 Xing/Info 头，
+      //    WebKit 里 duration=Infinity，seek(0) 会跳到接近结尾（"短促尾音"元凶）；
+      // 2) 预取刚加载完（readyState>0 但未播过）的元素不 load()，
+      //    保留已缓冲的数据——load() 会丢弃缓冲导致首遍播放音量偏小。
+      if (el.currentTime > 0 || el.ended) {
         el.load();
       }
       el.play()
@@ -227,6 +224,7 @@ export function useSpeechLoop(gapMs = 3000) {
           if (!valid(gen)) return;
           // iOS 上复用的旧元素 ended 后可能进入死态 → 换新元素重试一次
           if (!isRetry) {
+            releaseElement(item.el); // 旧元素原生资源必须显式释放
             const fresh = new Audio();
             fresh.preload = "auto";
             fresh.src = item.url;
@@ -315,12 +313,22 @@ export function useSpeechLoop(gapMs = 3000) {
   fnsRef.current = { playCurrent, speakWebSpeech };
 
   /**
-   * 回前台恢复：iOS 切后台会暂停音频并冻结定时器，
-   * 回前台后没人重启循环（表现：放后台回来就不循环了），这里主动恢复。
+   * 前后台切换处理：
+   * - 切后台（hidden）：立即停止音频循环（AVAudioSession 为 playback 类别时
+   *   iOS 不会自动暂停，必须显式停），并取消朗读与全部定时器。
+   *   保留 loopRef=true，回前台后由 visible 分支恢复。
+   * - 回前台（visible）：iOS 切后台会暂停音频并冻结定时器，
+   *   回前台后没人重启循环（表现：放后台回来就不循环了），这里主动恢复。
    */
   useEffect(() => {
     const onVis = () => {
-      if (document.visibilityState !== "visible") return;
+      if (document.visibilityState === "hidden") {
+        // 切后台：停止一切播放（不置 loopRef=false，回前台仍可恢复）
+        stopAll();
+        clearTimer();
+        clearWatchdog();
+        return;
+      }
       if (!loopRef.current || myGen.current !== activeGen) return;
       if (modeRef.current === "audio") {
         // 后台挂起后旧元素可能进入"僵尸"状态：play() 正常返回但完全无声，

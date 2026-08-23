@@ -65,9 +65,59 @@ export function makeUnitOrder(
   return shuffle(unit.entries.map((e) => e.id));
 }
 
+/**
+ * 清理进度中的失效词条引用（词库去重/结构变更后残留的 id）。
+ * 不清理会导致：重点记忆角标计数 3 个、列表里只有 2 个；
+ * 难词学习碰到失效 id 时 LearnPage 取不到词条 → 白屏。
+ * 同时清理当前单元 unitOrder 里的失效 id 并钳制 entryIndex。
+ */
+function sanitizeProgress(p: Progress, version: CurriculumVersion): Progress {
+  const validIds = new Set(getAllEntries(version).map((e) => e.id));
+
+  const completed = p.completedEntryIds.filter((id) => validIds.has(id));
+  const difficult = p.difficultEntryIds.filter((id) => validIds.has(id));
+  const mistake = (p.mistakeEntryIds ?? []).filter((id) => validIds.has(id));
+  const errorCounts: Record<string, number> = {};
+  for (const [k, v] of Object.entries(p.errorCounts ?? {})) {
+    if (validIds.has(k)) errorCounts[k] = v;
+  }
+
+  // 当前单元顺序：去掉已不存在的词条 id，越界的位置钳回范围内
+  const cur = getCurriculum(version);
+  const unit = cur[p.unitIndex];
+  let unitOrder = p.unitOrder ?? [];
+  let entryIndex = p.entryIndex;
+  if (unit) {
+    const unitIds = new Set(unit.entries.map((e) => e.id));
+    const filtered = unitOrder.filter((id) => unitIds.has(id));
+    if (filtered.length > 0) {
+      unitOrder = filtered;
+      if (entryIndex >= unitOrder.length) {
+        entryIndex = Math.max(0, unitOrder.length - 1);
+      }
+    } else {
+      unitOrder = makeUnitOrder(p.unitIndex, version);
+      entryIndex = 0;
+    }
+  } else {
+    unitOrder = makeUnitOrder(0, version);
+    entryIndex = 0;
+    p.unitIndex = 0;
+  }
+
+  return {
+    ...p,
+    completedEntryIds: completed,
+    difficultEntryIds: difficult,
+    mistakeEntryIds: mistake,
+    errorCounts,
+    unitOrder,
+    entryIndex,
+  };
+}
+
 /** 旧版（v2）人教进度 → 迁移到新格式，避免升级后老用户进度丢失 */
-function migrateLegacy(userId: string): Progress | null {
-  try {
+function migrateLegacy(userId: string): Progress | null {  try {
     const raw = storageGet(`${LEGACY_PREFIX}:${userId}`);
     if (!raw) return null;
     const p = JSON.parse(raw);
@@ -133,7 +183,7 @@ export function loadProgress(
         if (!Array.isArray(migrated.mistakeEntryIds))
           migrated.mistakeEntryIds = [];
         saveProgress(userId, migrated);
-        return migrated;
+        return sanitizeProgress(migrated, version);
       }
       if (
         typeof p.unitIndex === "number" &&
@@ -186,7 +236,7 @@ export function loadProgress(
             };
           }
         }
-        return p;
+        return sanitizeProgress(p, version);
       }
     }
   } catch {

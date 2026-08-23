@@ -137,11 +137,11 @@ export const MOVIE_QUOTES: MovieQuote[] = [
   // 起风了
   { en: "The wind is rising! We must try to live.", cn: "风起之时，唯有努力生存。", movie: "起风了" },
   // 中文电影
-  { cn: "努力！奋斗！", movie: "喜剧之王" },
-  { cn: "做人如果没梦想，跟咸鱼有什么分别。", movie: "少林足球" },
-  { cn: "我命由我不由天。", movie: "哪吒之魔童降世" },
-  { cn: "希望，是这个时代像钻石一样珍贵的东西。", movie: "流浪地球" },
-  { cn: "梦想是什么？梦想就是一种让你感到坚持就是幸福的东西。", movie: "中国合伙人" },
+  { en: "Work hard! Fight on!", cn: "努力！奋斗！", movie: "喜剧之王" },
+  { en: "A man without dreams is no different from a salted fish.", cn: "做人如果没梦想，跟咸鱼有什么分别。", movie: "少林足球" },
+  { en: "My fate is decided by me, not by the heavens.", cn: "我命由我不由天。", movie: "哪吒之魔童降世" },
+  { en: "Hope is as precious as a diamond in this era.", cn: "希望，是这个时代像钻石一样珍贵的东西。", movie: "流浪地球" },
+  { en: "What is a dream? A dream is something that makes persistence feel like happiness.", cn: "梦想是什么？梦想就是一种让你感到坚持就是幸福的东西。", movie: "中国合伙人" },
 ];
 
 export function randomMovieQuote(): MovieQuote {

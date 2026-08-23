@@ -54,27 +54,62 @@ export function storageGet(key: string): string | null {
   return localStorage.getItem(key);
 }
 
-let pendingNativeWrite: Promise<void> | null = null;
+/**
+ * 原生写入合并（节流）：一次答题会连续触发多次进度更新
+ * （完成标记、错词、年级位置、单元开始时间……），每次都全量
+ * JSON.stringify + Preferences.set 的话，随着 completedEntryIds 线性
+ * 增长，原生桥的序列化/写盘开销会明显累积（"越用越卡"的来源之一）。
+ * 这里把原生写入合并为最多每 400ms 一批；localStorage 仍同步写，
+ * 读取逻辑不受影响。切后台/关键时机的 flushStorage() 会立即冲刷。
+ */
+const pendingNativeWrites = new Map<string, string>();
+let nativeFlushTimer: number | null = null;
+let nativeFlushing: Promise<void> | null = null;
+const NATIVE_WRITE_DELAY_MS = 400;
+
+function doFlushNativeWrites(): Promise<void> {
+  if (!nativeFlushing) {
+    nativeFlushing = (async () => {
+      // 循环冲刷：await 期间新到的写入也一并处理
+      while (pendingNativeWrites.size > 0) {
+        const batch = [...pendingNativeWrites.entries()];
+        for (const [k] of batch) pendingNativeWrites.delete(k);
+        await initPrefs();
+        if (!prefs) return;
+        for (const [key, value] of batch) {
+          await prefs.set({ key, value });
+        }
+      }
+    })().finally(() => {
+      nativeFlushing = null;
+    });
+  }
+  return nativeFlushing;
+}
 
 export function storageSet(key: string, value: string): void {
   localStorage.setItem(key, value);
-  pendingNativeWrite = initPrefs()
-    .then(async () => {
-      await prefs?.set({ key, value });
-    })
-    .catch(() => {})
-    .finally(() => {
-      pendingNativeWrite = null;
-    });
+  pendingNativeWrites.set(key, value);
+  if (nativeFlushTimer === null) {
+    nativeFlushTimer = window.setTimeout(() => {
+      nativeFlushTimer = null;
+      void doFlushNativeWrites();
+    }, NATIVE_WRITE_DELAY_MS);
+  }
 }
 
 /** 等待正在进行的原生写入完成（切后台/退出学习页等关键时机调用） */
 export async function flushStorage(): Promise<void> {
-  await pendingNativeWrite;
+  if (nativeFlushTimer !== null) {
+    window.clearTimeout(nativeFlushTimer);
+    nativeFlushTimer = null;
+  }
+  await doFlushNativeWrites();
 }
 
 export function storageRemove(key: string): void {
   localStorage.removeItem(key);
+  pendingNativeWrites.delete(key);
   initPrefs()
     .then(() => prefs?.remove({ key }))
     .catch(() => {});

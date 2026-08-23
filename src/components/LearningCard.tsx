@@ -117,7 +117,7 @@ export default function LearningCard({
     autoNextTimer.current = window.setTimeout(() => {
       autoNextTimer.current = null;
       onNext();
-    }, 2000);
+    }, 1800);
   };
 
   const revealAnswer = (reason: "dontKnow" | "strike5") => {
@@ -144,7 +144,10 @@ export default function LearningCard({
       className="relative mt-5 w-full overflow-hidden rounded-2xl bg-primary py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
     >
       {completed && autoNext && (
-        <span className="absolute top-0 left-0 h-[3px] bg-white/40 animate-[autoNextBar_2s_linear_forwards]" />
+        <span
+          className="absolute top-0 left-0 h-[3px] bg-white/40"
+          style={{ animation: "autoNextBar 1.8s linear forwards" }}
+        />
       )}
       <span className="relative z-10">{completed ? "下一题" : "记住了，进入下一题"}</span>
     </button>
@@ -226,7 +229,7 @@ export default function LearningCard({
             {nextBtn}
             <p className="mt-3 text-center text-xs text-text3">
               {autoNext
-                ? "2 秒后自动进入下一题，点击按钮跳过"
+                ? "1.8 秒后自动进入下一题，点击按钮跳过"
                 : "按空格键或点击按钮进入下一题"}
             </p>
           </div>
@@ -249,7 +252,7 @@ export default function LearningCard({
                 </svg>
               </div>
               <p className="mt-4 text-sm font-semibold text-[#854F0B]">
-                {revealReason === "strike5" ? "拼错 5 次，已加入重点记忆" : "已加入重点记忆"}
+                {revealReason === "strike5" ? "拼错 5 次，已加入重点记忆列表" : "已加入重点记忆列表"}
               </p>
               <p className="mt-2 text-[26px] font-bold leading-tight text-text">
                 {entry.english}

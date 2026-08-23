@@ -289,7 +289,7 @@ export default function SpellingInput({
                     ? ch
                     : correct
                     ? ch
-                    : (typedChar ?? "").toUpperCase()
+                    : (typedChar ?? "").toLowerCase()
                   : "";
 
                 return (

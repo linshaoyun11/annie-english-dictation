@@ -692,21 +692,47 @@ applyKebiaoTo(CURRICULUM, makeRenjiaoEntry, [3, 4, 5, 6], [7, 8, 9]);
  * - waiyanshe3（三年级起点）：仅 3-9 年级，按三年级起点教材原样，
  *   不做跨线去重（该线没有 1-2 年级内容，不存在跨线重复）。
  */
+/**
+ * 一年级起点线的带内去重：maxGrade（默认 2）及以下的单元里，
+ * 后面单元中与前面单元重复的词条（按英文小写比较）一律移除，
+ * 保留序列中首次出现的位置。词条 id 保持不变（去重发生在构建层，
+ * 不动数据文件），被移除词条的历史进度引用由 loadProgress 统一清理。
+ * 例如外研社 spring/summer/autumn/winter 在一年级 U9 首次出现，
+ * 二年级 U5 的重复项会被移除。
+ */
+function dedupeEarlyGrades(units: UnitInfo[], maxGrade = 2): UnitInfo[] {
+  const seen = new Set<string>();
+  return units
+    .map((u) => {
+      if (u.grade > maxGrade) return u;
+      const kept = u.entries.filter((e) => {
+        const k = e.english.toLowerCase();
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+      return kept.length === u.entries.length ? u : { ...u, entries: kept };
+    })
+    .filter((u) => u.entries.length > 0);
+}
+
 const wyEarlyWords = new Set(
   WAIYANSHE_CURRICULUM.filter((u) => u.grade <= 2)
     .flatMap((u) => u.entries)
     .map((e) => e.english.toLowerCase())
 );
-const WAIYANSHE_G1_START: UnitInfo[] = WAIYANSHE_CURRICULUM.map((u) =>
-  u.grade <= 2
-    ? u
-    : {
-        ...u,
-        entries: u.entries.filter(
-          (e) => !wyEarlyWords.has(e.english.toLowerCase())
-        ),
-      }
-).filter((u) => u.entries.length > 0);
+const WAIYANSHE_G1_START: UnitInfo[] = dedupeEarlyGrades(
+  WAIYANSHE_CURRICULUM.map((u) =>
+    u.grade <= 2
+      ? u
+      : {
+          ...u,
+          entries: u.entries.filter(
+            (e) => !wyEarlyWords.has(e.english.toLowerCase())
+          ),
+        }
+  )
+);
 const WAIYANSHE_G3_START: UnitInfo[] = WAIYANSHE_CURRICULUM.filter(
   (u) => u.grade >= 3
 );
@@ -730,16 +756,18 @@ const rjEarlyWords = new Set(
     .flatMap((u) => u.entries)
     .map((e) => e.english.toLowerCase())
 );
-const RENJIAO_G1_START: UnitInfo[] = CURRICULUM.map((u) =>
-  u.grade <= 2
-    ? u
-    : {
-        ...u,
-        entries: u.entries.filter(
-          (e) => !rjEarlyWords.has(e.english.toLowerCase())
-        ),
-      }
-).filter((u) => u.entries.length > 0);
+const RENJIAO_G1_START: UnitInfo[] = dedupeEarlyGrades(
+  CURRICULUM.map((u) =>
+    u.grade <= 2
+      ? u
+      : {
+          ...u,
+          entries: u.entries.filter(
+            (e) => !rjEarlyWords.has(e.english.toLowerCase())
+          ),
+        }
+  )
+);
 const RENJIAO_G3_START: UnitInfo[] = CURRICULUM.filter((u) => u.grade >= 3);
 
 /** 全部教材版本索引（人教为默认） */
