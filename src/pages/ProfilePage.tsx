@@ -12,11 +12,11 @@ interface ProfilePageProps {
 type PwdStep = "old" | "new" | "confirm";
 
 /**
- * 用户资料页：展示当前用户信息，后续可扩展修改头像/用户名。
- * 目前提供修改密码（页面内嵌三步流程，非弹窗）：
+ * 用户资料页：展示当前用户信息，提供修改密码（页面内嵌三步流程，非弹窗）：
  * 1. 输入旧密码（4 位数字，自动提交校验）
  * 2. 输入新密码
  * 3. 再次输入新密码确认 → 提交
+ * 后续如需修改头像/用户名等，在设置列表中扩展。
  */
 export default function ProfilePage({
   user,
@@ -186,30 +186,6 @@ export default function ProfilePage({
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
-
-          {/* 后续扩展项（暂不可用） */}
-          <div className="flex items-center justify-between rounded-2xl border border-border bg-surface/60 px-4 py-3.5 opacity-60">
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-bg text-base">
-                😀
-              </span>
-              <span className="text-sm font-semibold text-text">修改头像</span>
-            </div>
-            <span className="rounded-full bg-bg px-2 py-0.5 text-[10px] font-semibold text-text3">
-              即将上线
-            </span>
-          </div>
-          <div className="flex items-center justify-between rounded-2xl border border-border bg-surface/60 px-4 py-3.5 opacity-60">
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-bg text-base">
-                ✏️
-              </span>
-              <span className="text-sm font-semibold text-text">修改用户名</span>
-            </div>
-            <span className="rounded-full bg-bg px-2 py-0.5 text-[10px] font-semibold text-text3">
-              即将上线
-            </span>
-          </div>
         </div>
       ) : (
         <div
