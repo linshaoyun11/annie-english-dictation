@@ -15,7 +15,8 @@ interface DifficultWordsPageProps {
   accent: Accent;
   onBack: () => void;
   onRemove: (entryId: string) => void;
-  onStartLearning: () => void;
+  /** 开始学习：携带当前筛选（"all" 或年级号），只学筛选后的词条 */
+  onStartLearning: (filterGrade: number | "all") => void;
 }
 
 /** 年级筛选短标签（chip 用，比 gradeLabel 更紧凑） */
@@ -223,16 +224,21 @@ export default function DifficultWordsPage({
 
           <button
             type="button"
-            onClick={onStartLearning}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+            disabled={visibleEntries.length === 0}
+            onClick={() => onStartLearning(filterGrade)}
+            className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white transition-transform ${
+              visibleEntries.length === 0
+                ? "cursor-not-allowed bg-primary/40 shadow-none"
+                : "bg-primary shadow-[0_6px_20px_rgba(83,74,183,0.35)] active:scale-[0.98]"
+            }`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 5L6 9H2v6h4l5 4V5z" />
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" />
             </svg>
-            开始学习重点记忆
+            {filterGrade === "all" ? "开始学习重点记忆" : `学习${gradeShortLabel(filterGrade)}重点记忆`}
             <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-[11px]">
-              {difficultEntries.length} 词
+              {visibleEntries.length} 词
             </span>
           </button>
 
