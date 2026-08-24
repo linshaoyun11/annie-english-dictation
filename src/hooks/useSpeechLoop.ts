@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import {
-  ensureElement,
   releaseElement,
   resolveAudio,
   type AudioResult,
@@ -204,14 +203,6 @@ export function useSpeechLoop(gapMs = 3000) {
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
-      // 复用过的元素只在确实播放过（有进度/已结束）时才 load() 彻底重置：
-      // 1) 不做 currentTime=0 的 seek——Edge TTS 生成的 mp3 无 Xing/Info 头，
-      //    WebKit 里 duration=Infinity，seek(0) 会跳到接近结尾（"短促尾音"元凶）；
-      // 2) 预取刚加载完（readyState>0 但未播过）的元素不 load()，
-      //    保留已缓冲的数据——load() 会丢弃缓冲导致首遍播放音量偏小。
-      if (el.currentTime > 0 || el.ended) {
-        el.load();
-      }
       el.play()
         .then(() => {
           failCountRef.current = 0;
@@ -239,7 +230,30 @@ export function useSpeechLoop(gapMs = 3000) {
         });
     };
 
-    attempt(ensureElement(item), false);
+    /* 音量统一（iOS 首遍偏小问题）：
+     * iOS WKWebView 里"从未播过的元素（预取缓冲直放）"与
+     * "复用/重置过的元素"走的是不同音频管线，音量不一致（后者偏大）。
+     * 因此每一遍播放都用全新元素 + 等数据缓冲就绪后再播，
+     * 让第一遍和后续每一遍走完全相同的路径 → 音量保持一致。
+     * 旧元素必须显式释放原生解码资源（iOS 内存回收要求）。 */
+    releaseElement(item.el);
+    const fresh = new Audio();
+    fresh.preload = "auto";
+    fresh.src = item.url;
+    item.el = fresh;
+    let fired = false;
+    const go = () => {
+      if (fired || !valid(gen)) return;
+      fired = true;
+      attempt(fresh, false);
+    };
+    if (fresh.readyState >= 3) {
+      go();
+      return;
+    }
+    fresh.addEventListener("canplaythrough", go, { once: true });
+    // 兜底：数据迟迟就绪不了（本地包内文件正常不会发生）时超时直放
+    safeTimeout(go, 1500);
   }
 
   /** 开始循环朗读（本地/网络音频优先，失败退回浏览器语音） */
