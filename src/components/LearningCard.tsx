@@ -18,6 +18,8 @@ interface LearningCardProps {
   onMistake?: (entryId: string) => void;
   /** 冻结模式：单元完成祝贺页弹出时置 true，阻止自动跳题与自动朗读 */
   frozen?: boolean;
+  /** 隐藏积分徽章（重点记忆重复学习不再加分时不显示"+N 积分"） */
+  hidePoints?: boolean;
   /** 答对后是否自动进入下一题（默认 false） */
   autoNext?: boolean;
   replay: () => void;
@@ -36,6 +38,7 @@ export default function LearningCard({
   onExit,
   onMistake,
   frozen = false,
+  hidePoints = false,
   autoNext = false,
   replay,
   stopAudio,
@@ -222,9 +225,11 @@ export default function LearningCard({
               <p className="mt-2 text-sm leading-relaxed text-text2">
                 {entry.chinese}
               </p>
-              <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-bold text-success shadow-sm">
-                <span>+{pointsForEntry(entry.type)} 积分</span>
-              </div>
+              {hidePoints ? null : (
+                <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-bold text-success shadow-sm">
+                  <span>+{pointsForEntry(entry.type)} 积分</span>
+                </div>
+              )}
             </div>
             {nextBtn}
             <p className="mt-3 text-center text-xs text-text3">

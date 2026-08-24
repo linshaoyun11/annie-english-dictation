@@ -4,7 +4,7 @@ import {
   gradeLabel,
   type CurriculumVersion,
 } from "../data/curriculum";
-import { type Progress, unitStats } from "../lib/progress";
+import { type Progress, gradeStats, processedOf } from "../lib/progress";
 import { primeSpeech } from "../hooks/useSpeechLoop";
 import { avatarById, type User } from "../lib/users";
 import { AvatarImg } from "../components/AvatarImg";
@@ -14,7 +14,7 @@ interface HomePageProps {
   user: User;
   progress: Progress;
   version: CurriculumVersion;
-  onStart: (unitIndex?: number) => void;
+  onStart: (grade?: number) => void;
   onReset: () => void;
   onLogout: () => void;
   onLeaderboard: () => void;
@@ -33,12 +33,19 @@ export default function HomePage({
   onDifficultWords,
   onSettings,
 }: HomePageProps) {
-  const stats = unitStats(progress);
+  // 各年级进度独立：当前进度卡与"继续学习"都基于最近学习的年级
+  const stats = gradeStats(progress, progress.activeGrade);
   const cur = getCurriculum(version);
-  const currentUnit = cur[progress.unitIndex];
+  const activeGs = progress.grades[String(progress.activeGrade)];
+  const currentUnit = cur[activeGs?.unitIndex ?? 0];
   const avatar = avatarById(user.avatarId);
+  const currentProcessed = currentUnit
+    ? activeGs
+      ? processedOf(activeGs)
+      : new Set<string>()
+    : new Set<string>();
   const doneInCurrent = currentUnit.entries.filter((e) =>
-    progress.completedEntryIds.includes(e.id)
+    currentProcessed.has(e.id)
   ).length;
 
   const grades = Array.from(new Set(cur.map((u) => u.grade)));
@@ -98,9 +105,10 @@ export default function HomePage({
             <p className="text-xs font-medium text-text3">当前学习</p>
             <p className="mt-1 text-lg font-semibold text-text">
               {gradeLabel(currentUnit.grade)} · {currentUnit.title}
+              {stats.rounds > 0 && <RoundsBadge rounds={stats.rounds} />}
             </p>
             <p className="mt-0.5 text-xs text-text2">
-              本单元 {doneInCurrent}/{currentUnit.entries.length} · 总进度{" "}
+              本单元 {doneInCurrent}/{currentUnit.entries.length} · 本年级{" "}
               {stats.done}/{stats.total}
             </p>
           </div>
@@ -140,32 +148,20 @@ export default function HomePage({
         </button>
       </div>
 
-      {/* 年级选择 */}
+      {/* 年级选择（各年级进度独立，完成一轮清零、星章数字 +1） */}
       <h2 className="mt-7 mb-3 text-sm font-semibold text-text">按年级开始</h2>
       <div className="grid grid-cols-2 gap-3">
         {grades.map((g) => {
           const unitsOfGrade = cur.filter((u) => u.grade === g);
-          const doneCount = unitsOfGrade.reduce(
-            (s, u) =>
-              s +
-              u.entries.filter((e) =>
-                progress.completedEntryIds.includes(e.id)
-              ).length,
-            0
-          );
-          const totalCount = unitsOfGrade.reduce(
-            (s, u) => s + u.entries.length,
-            0
-          );
-          const percent = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
-          const isCurrent = currentUnit.grade === g;
+          const gStats = gradeStats(progress, g);
+          const isCurrent = progress.activeGrade === g;
           return (
             <button
               key={g}
               type="button"
               onClick={() => {
                 primeSpeech();
-                onStart(cur.indexOf(unitsOfGrade[0]));
+                onStart(g);
               }}
               className={`group flex flex-col rounded-2xl border bg-surface p-4 text-left shadow-sm transition-all active:scale-[0.98] ${
                 isCurrent
@@ -173,8 +169,9 @@ export default function HomePage({
                   : "border-border hover:border-primary/30"
               }`}
             >
-              <span className="text-sm font-semibold text-text">
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-text">
                 {gradeLabel(g)}
+                {gStats.rounds > 0 && <RoundsBadge rounds={gStats.rounds} />}
               </span>
               <span className="mt-0.5 text-[11px] text-text2">
                 {unitsOfGrade.length} 个单元
@@ -182,11 +179,11 @@ export default function HomePage({
               <div className="mt-3 h-1.5 w-full rounded-full bg-primary-lighter">
                 <div
                   className="h-1.5 rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${Math.max(percent, 2)}%` }}
+                  style={{ width: `${Math.max(gStats.percent, 2)}%` }}
                 />
               </div>
               <span className="mt-2 text-[11px] text-text3">
-                {doneCount}/{totalCount} 已完成
+                {gStats.done}/{gStats.total} 已完成
               </span>
             </button>
           );
@@ -261,6 +258,27 @@ export default function HomePage({
         />
       )}
     </div>
+  );
+}
+
+/** 年级完成轮次徽章：紫色 8 角星，中间数字 = 已完整学完该年级的次数 */
+function RoundsBadge({ rounds }: { rounds: number }) {
+  return (
+    <span
+      className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center align-middle"
+      title={`已完整学完 ${rounds} 轮`}
+      aria-label={`已完整学完 ${rounds} 轮`}
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" className="absolute inset-0">
+        <path
+          d="M12 0l2.7 5.5 5.8-2-2 5.8L24 12l-5.5 2.7 2 5.8-5.8-2L12 24l-2.7-5.5-5.8 2 2-5.8L0 12l5.5-2.7-2-5.8 5.8 2z"
+          fill="#534AB7"
+        />
+      </svg>
+      <span className="relative z-10 text-[11px] font-bold leading-none text-white">
+        {rounds > 99 ? "99+" : rounds}
+      </span>
+    </span>
   );
 }
 

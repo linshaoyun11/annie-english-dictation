@@ -15,31 +15,39 @@ function storageKey(userId: string, version: CurriculumVersion) {
   return `${STORAGE_PREFIX}:${version}:${userId}`;
 }
 
-/** 单个年级独立保存的学习位置（供首页年级卡片恢复进度） */
-export interface GradeProgress {
-  unitIndex: number; // 该年级内的全局单元下标
+/**
+ * 单个年级的独立学习状态（各年级进度互不影响）：
+ * - completedEntryIds：本轮拼对过的词条（积分与"一轮完成"依据）
+ * - skippedEntryIds：本轮点过"我不会"的词条（推进进度但不计分）
+ * - rounds：已完整学完该年级所有词条的轮数（进度条清零后 +1）
+ */
+export interface GradeState {
+  unitIndex: number; // 全局单元下标（属于该年级）
   entryIndex: number;
-  unitOrder: string[]; // 当时单元的题目顺序
+  unitOrder: string[]; // 当前单元的随机题目顺序（entry id 列表）
+  completedEntryIds: string[];
+  skippedEntryIds: string[];
+  rounds: number;
 }
 
 export interface Progress {
   curriculumVersion: number; // 词库版本，不匹配时进度重置
   version: CurriculumVersion; // 教材版本
-  unitIndex: number;
-  entryIndex: number;
-  unitOrder: string[]; // 当前单元的随机题目顺序（entry id 列表）
-  completedEntryIds: string[];
-  difficultEntryIds: string[]; // "我不会"的条目
+  /** 最近一次学习的年级（首页"继续学习"按钮入口；重点记忆学习不改此值） */
+  activeGrade: number;
+  /** 各年级独立学习状态（key: 年级号） */
+  grades: Record<string, GradeState>;
+  difficultEntryIds: string[]; // "我不会"的重点记忆列表（跨轮持续存在）
+  /** 重点记忆学习已加过积分的词条（积分只加一次，之后重复学习不加分） */
+  difficultAwardedIds?: string[];
   errorCounts: Record<string, number>;
   lastLearnedAt: number;
   /** 各单元首次开始学习的时间戳（key: `${grade}-${unit}`） */
   unitStartedAt?: Record<string, number>;
-  /** 曾经拼错或点过"我不会"的词条 id（去重） */
+  /** 曾经拼错过或点过"我不会"的词条 id（去重），供年级完成页统计 */
   mistakeEntryIds?: string[];
   /** 已弹出过完成祝贺页的单元（key: `${grade}-${unit}`） */
   celebratedUnits?: string[];
-  /** 各年级独立保存的学习位置（key: 年级号），点年级卡片时恢复 */
-  gradeProgress?: Record<string, GradeProgress>;
   /**
    * 教材线标记：同版本号下区分教材结构变更前后/不同子线的数据。
    * "rj-g1"：人教版一年级起点去重线（3 年级起过滤 1-2 年级已学词）。
@@ -62,33 +70,140 @@ export function makeUnitOrder(
   version: CurriculumVersion
 ): string[] {
   const unit = getCurriculum(version)[unitIndex];
-  return shuffle(unit.entries.map((e) => e.id));
+  return unit ? shuffle(unit.entries.map((e) => e.id)) : [];
+}
+
+/** 某年级在课程数组中的第一个单元下标 */
+export function gradeStartIndex(version: CurriculumVersion, grade: number): number {
+  return getCurriculum(version).findIndex((u) => u.grade === grade);
+}
+
+/** 新年级初始状态：从该年级第一单元第一词开始 */
+export function freshGradeState(
+  version: CurriculumVersion,
+  grade: number
+): GradeState {
+  const start = gradeStartIndex(version, grade);
+  return {
+    unitIndex: Math.max(start, 0),
+    entryIndex: 0,
+    unitOrder: makeUnitOrder(Math.max(start, 0), version),
+    completedEntryIds: [],
+    skippedEntryIds: [],
+    rounds: 0,
+  };
+}
+
+/** 某年级"本轮已处理"的词条集合（拼对 ∪ 点过我不会），进度条与轮次完成判定依据 */
+export function processedOf(gs: GradeState): Set<string> {
+  return new Set([...gs.completedEntryIds, ...gs.skippedEntryIds]);
+}
+
+/** 某年级本轮的学习统计（进度条数据；done = 拼对 + 我不会） */
+export function gradeStats(p: Progress, grade: number) {
+  const cur = getCurriculum(p.version);
+  const units = cur.filter((u) => u.grade === grade);
+  const gs = p.grades[String(grade)];
+  const processed = gs ? processedOf(gs) : new Set<string>();
+  const total = units.reduce((s, u) => s + u.entries.length, 0);
+  const done = units.reduce(
+    (s, u) => s + u.entries.filter((e) => processed.has(e.id)).length,
+    0
+  );
+  return {
+    total,
+    done,
+    percent: total ? Math.round((done / total) * 100) : 0,
+    rounds: gs?.rounds ?? 0,
+  };
+}
+
+/**
+ * 在指定年级内找到继续学习的位置（跳过本轮已处理词条）：
+ * - 从该年级保存的位置向后找第一个未处理词条；
+ * - 保存单元之后找不到 → 回到年级开头再找（处理中途跳学的边角）；
+ * - 全年级本轮已处理完 → 回到该年级第一单元第一词（新一轮预习）。
+ */
+export function findResumePosition(
+  p: Progress,
+  grade: number,
+  version: CurriculumVersion
+): { unitIndex: number; entryIndex: number; unitOrder: string[] } {
+  const cur = getCurriculum(version);
+  const gradeStart = gradeStartIndex(version, grade);
+  if (gradeStart < 0) return { unitIndex: 0, entryIndex: 0, unitOrder: [] };
+  const gs = p.grades[String(grade)] ?? freshGradeState(version, grade);
+  const processed = processedOf(gs);
+
+  const firstOpenIn = (
+    order: string[],
+    from: number
+  ): number => {
+    let i = from;
+    while (i < order.length && processed.has(order[i])) i += 1;
+    return i;
+  };
+
+  // 1) 从保存的位置向后（含当前单元当前位置）
+  for (
+    let ui = gs.unitIndex;
+    ui < cur.length && cur[ui].grade === grade;
+    ui += 1
+  ) {
+    const order =
+      ui === gs.unitIndex && gs.unitOrder.length
+        ? gs.unitOrder
+        : makeUnitOrder(ui, version);
+    const from = ui === gs.unitIndex ? gs.entryIndex : 0;
+    const ei = firstOpenIn(order, from);
+    if (ei < order.length) return { unitIndex: ui, entryIndex: ei, unitOrder: order };
+  }
+  // 2) 年级开头到保存位置之前
+  for (let ui = gradeStart; ui < gs.unitIndex; ui += 1) {
+    const order = makeUnitOrder(ui, version);
+    const ei = firstOpenIn(order, 0);
+    if (ei < order.length) return { unitIndex: ui, entryIndex: ei, unitOrder: order };
+  }
+  // 3) 本轮全部处理完 → 回到年级起点（调用方一般会先完成轮次清零，这里是保险）
+  return {
+    unitIndex: gradeStart,
+    entryIndex: 0,
+    unitOrder: makeUnitOrder(gradeStart, version),
+  };
 }
 
 /**
  * 清理进度中的失效词条引用（词库去重/结构变更后残留的 id）。
- * 不清理会导致：重点记忆角标计数 3 个、列表里只有 2 个；
- * 难词学习碰到失效 id 时 LearnPage 取不到词条 → 白屏。
- * 同时清理当前单元 unitOrder 里的失效 id 并钳制 entryIndex。
+ * 同时校验各年级 unitIndex 归属、unitOrder 有效性并钳制 entryIndex。
  */
 function sanitizeProgress(p: Progress, version: CurriculumVersion): Progress {
   const validIds = new Set(getAllEntries(version).map((e) => e.id));
+  const cur = getCurriculum(version);
+  const allGrades = new Set(cur.map((u) => u.grade));
 
-  const completed = p.completedEntryIds.filter((id) => validIds.has(id));
   const difficult = p.difficultEntryIds.filter((id) => validIds.has(id));
+  const difficultAwarded = (p.difficultAwardedIds ?? []).filter((id) =>
+    validIds.has(id)
+  );
   const mistake = (p.mistakeEntryIds ?? []).filter((id) => validIds.has(id));
   const errorCounts: Record<string, number> = {};
   for (const [k, v] of Object.entries(p.errorCounts ?? {})) {
     if (validIds.has(k)) errorCounts[k] = v;
   }
 
-  // 当前单元顺序：去掉已不存在的词条 id，越界的位置钳回范围内
-  const cur = getCurriculum(version);
-  const unit = cur[p.unitIndex];
-  let unitOrder = p.unitOrder ?? [];
-  let entryIndex = p.entryIndex;
-  if (unit) {
-    const unitIds = new Set(unit.entries.map((e) => e.id));
+  const grades: Record<string, GradeState> = {};
+  for (const [g, raw] of Object.entries(p.grades ?? {})) {
+    const grade = Number(g);
+    if (!allGrades.has(grade) || !raw) continue;
+    const gradeStart = gradeStartIndex(version, grade);
+    const completed = raw.completedEntryIds.filter((id) => validIds.has(id));
+    const skipped = raw.skippedEntryIds.filter((id) => validIds.has(id));
+    // unitIndex 必须属于该年级，否则重置到年级起点
+    let unitIndex =
+      cur[raw.unitIndex]?.grade === grade ? raw.unitIndex : gradeStart;
+    let entryIndex = raw.entryIndex;
+    let unitOrder = raw.unitOrder ?? [];
+    const unitIds = new Set(cur[unitIndex]?.entries.map((e) => e.id) ?? []);
     const filtered = unitOrder.filter((id) => unitIds.has(id));
     if (filtered.length > 0) {
       unitOrder = filtered;
@@ -96,31 +211,124 @@ function sanitizeProgress(p: Progress, version: CurriculumVersion): Progress {
         entryIndex = Math.max(0, unitOrder.length - 1);
       }
     } else {
-      unitOrder = makeUnitOrder(p.unitIndex, version);
+      unitOrder = makeUnitOrder(unitIndex, version);
       entryIndex = 0;
     }
-  } else {
-    unitOrder = makeUnitOrder(0, version);
-    entryIndex = 0;
-    p.unitIndex = 0;
+    grades[g] = {
+      unitIndex,
+      entryIndex,
+      unitOrder,
+      completedEntryIds: completed,
+      skippedEntryIds: skipped,
+      rounds: typeof raw.rounds === "number" ? raw.rounds : 0,
+    };
+  }
+
+  // activeGrade 必须是有效年级；对应年级状态缺失时补建
+  let activeGrade = p.activeGrade;
+  if (!allGrades.has(activeGrade)) {
+    activeGrade = cur[0]?.grade ?? 1;
+  }
+  if (!grades[String(activeGrade)]) {
+    grades[String(activeGrade)] = freshGradeState(version, activeGrade);
   }
 
   return {
     ...p,
-    completedEntryIds: completed,
+    activeGrade,
+    grades,
     difficultEntryIds: difficult,
+    difficultAwardedIds: difficultAwarded,
     mistakeEntryIds: mistake,
     errorCounts,
-    unitOrder,
-    entryIndex,
+  };
+}
+
+/* ── 旧版（单全局进度）数据 → 年级独立模型迁移 ── */
+
+interface OldProgress {
+  curriculumVersion: number;
+  version: CurriculumVersion;
+  unitIndex: number;
+  entryIndex: number;
+  unitOrder: string[];
+  completedEntryIds: string[];
+  difficultEntryIds: string[];
+  errorCounts: Record<string, number>;
+  lastLearnedAt: number;
+  unitStartedAt?: Record<string, number>;
+  mistakeEntryIds?: string[];
+  celebratedUnits?: string[];
+  gradeProgress?: Record<
+    string,
+    { unitIndex: number; entryIndex: number; unitOrder: string[] }
+  >;
+  lineTag?: string;
+}
+
+/**
+ * 旧单全局进度 → 年级独立进度：
+ * - 旧全局 completedEntryIds 按词条所属年级分桶，作为各年级本轮完成记录
+ * - 旧 difficultEntryIds（点过"我不会"）按年级分桶为 skipped
+ * - 各年级位置取旧 gradeProgress 快照，无快照则该年级第一单元
+ * - rounds 从 0 开始（历史轮次无法追溯）
+ */
+function toGradeModel(old: OldProgress, version: CurriculumVersion): Progress {
+  const cur = getCurriculum(version);
+  const idGrade = new Map(getAllEntries(version).map((e) => [e.id, e.grade]));
+  const grades: Record<string, GradeState> = {};
+  for (const g of new Set(cur.map((u) => u.grade))) {
+    const start = gradeStartIndex(version, g);
+    const completed = (old.completedEntryIds ?? []).filter(
+      (id) => idGrade.get(id) === g
+    );
+    const difficult = (old.difficultEntryIds ?? []).filter(
+      (id) => idGrade.get(id) === g
+    );
+    const skipped = difficult.filter((id) => !completed.includes(id));
+    const saved = old.gradeProgress?.[String(g)];
+    let unitIndex = start;
+    let entryIndex = 0;
+    let unitOrder = makeUnitOrder(start, version);
+    if (saved && cur[saved.unitIndex]?.grade === g) {
+      unitIndex = saved.unitIndex;
+      unitOrder = saved.unitOrder?.length
+        ? saved.unitOrder
+        : makeUnitOrder(unitIndex, version);
+      entryIndex = saved.entryIndex;
+    }
+    grades[String(g)] = {
+      unitIndex,
+      entryIndex,
+      unitOrder,
+      completedEntryIds: completed,
+      skippedEntryIds: skipped,
+      rounds: 0,
+    };
+  }
+  const activeGrade = cur[old.unitIndex]?.grade ?? cur[0]?.grade ?? 1;
+  return {
+    curriculumVersion: old.curriculumVersion,
+    version,
+    activeGrade,
+    grades,
+    difficultEntryIds: old.difficultEntryIds ?? [],
+    difficultAwardedIds: [],
+    errorCounts: old.errorCounts ?? {},
+    lastLearnedAt: old.lastLearnedAt ?? Date.now(),
+    unitStartedAt: old.unitStartedAt ?? {},
+    mistakeEntryIds: old.mistakeEntryIds ?? [],
+    celebratedUnits: old.celebratedUnits ?? [],
+    lineTag: old.lineTag,
   };
 }
 
 /** 旧版（v2）人教进度 → 迁移到新格式，避免升级后老用户进度丢失 */
-function migrateLegacy(userId: string): Progress | null {  try {
+function migrateLegacy(userId: string): Progress | null {
+  try {
     const raw = storageGet(`${LEGACY_PREFIX}:${userId}`);
     if (!raw) return null;
-    const p = JSON.parse(raw);
+    const p = JSON.parse(raw) as OldProgress;
     if (
       typeof p.unitIndex === "number" &&
       p.unitIndex >= 0 &&
@@ -128,21 +336,61 @@ function migrateLegacy(userId: string): Progress | null {  try {
       p.curriculumVersion === CURRICULUM_VERSION &&
       Array.isArray(p.completedEntryIds)
     ) {
-      const migrated: Progress = {
-        ...p,
-        version: "renjiao",
-        difficultEntryIds: Array.isArray(p.difficultEntryIds)
-          ? p.difficultEntryIds
-          : [],
-        errorCounts: p.errorCounts ?? {},
-      };
+      const migrated = toGradeModel(
+        {
+          ...p,
+          version: "renjiao",
+          difficultEntryIds: Array.isArray(p.difficultEntryIds)
+            ? p.difficultEntryIds
+            : [],
+          errorCounts: p.errorCounts ?? {},
+        },
+        "renjiao"
+      );
       saveProgress(userId, migrated);
-      return migrated;
+      return sanitizeProgress(migrated, "renjiao");
     }
   } catch {
     /* ignore */
   }
   return null;
+}
+
+/** 旧数据的兼容补全（缺字段补默认值） */
+function normalizeOld(p: Partial<OldProgress>, version: CurriculumVersion): OldProgress {
+  const cur = getCurriculum(version);
+  return {
+    curriculumVersion: p.curriculumVersion ?? CURRICULUM_VERSION,
+    version,
+    unitIndex:
+      typeof p.unitIndex === "number" &&
+      p.unitIndex >= 0 &&
+      p.unitIndex < cur.length
+        ? p.unitIndex
+        : 0,
+    entryIndex: typeof p.entryIndex === "number" ? p.entryIndex : 0,
+    unitOrder: Array.isArray(p.unitOrder) ? p.unitOrder : makeUnitOrder(0, version),
+    completedEntryIds: Array.isArray(p.completedEntryIds)
+      ? p.completedEntryIds
+      : [],
+    difficultEntryIds: Array.isArray(p.difficultEntryIds)
+      ? p.difficultEntryIds
+      : [],
+    errorCounts:
+      p.errorCounts && typeof p.errorCounts === "object" ? p.errorCounts : {},
+    lastLearnedAt: typeof p.lastLearnedAt === "number" ? p.lastLearnedAt : Date.now(),
+    unitStartedAt:
+      p.unitStartedAt && typeof p.unitStartedAt === "object"
+        ? p.unitStartedAt
+        : {},
+    mistakeEntryIds: Array.isArray(p.mistakeEntryIds) ? p.mistakeEntryIds : [],
+    celebratedUnits: Array.isArray(p.celebratedUnits) ? p.celebratedUnits : [],
+    gradeProgress:
+      p.gradeProgress && typeof p.gradeProgress === "object"
+        ? p.gradeProgress
+        : {},
+    lineTag: p.lineTag,
+  } as OldProgress;
 }
 
 export function loadProgress(
@@ -152,91 +400,48 @@ export function loadProgress(
   try {
     const raw = storageGet(storageKey(userId, version));
     if (raw) {
-      const p = JSON.parse(raw) as Progress;
-      // 混合线进度 → 一年级起点去重线迁移（人教版/外研社同模式）：
-      // 词库结构变更（3 年级起跨线去重 + 移除清空单元）导致 unitIndex 错位，
-      // 但词条 id 完全不变——保留全部学习记录（已学/错词/错误次数），
-      // 仅重置位置指针；startLearning 会自动跳到第一个未完成单元。
-      const G1_LINE_TAGS: Partial<Record<CurriculumVersion, string>> = {
-        renjiao: "rj-g1",
-        waiyanshe: "wy-g1",
-      };
-      const expectTag = G1_LINE_TAGS[version];
-      if (
-        expectTag &&
-        p.lineTag !== expectTag &&
-        p.version === version &&
-        Array.isArray(p.completedEntryIds)
-      ) {
-        const migrated: Progress = {
-          ...p,
-          lineTag: expectTag,
-          unitIndex: 0,
-          entryIndex: 0,
-          unitOrder: makeUnitOrder(0, version),
-          gradeProgress: {},
-        };
-        if (!Array.isArray(migrated.difficultEntryIds))
-          migrated.difficultEntryIds = [];
-        if (!migrated.errorCounts || typeof migrated.errorCounts !== "object")
-          migrated.errorCounts = {};
-        if (!Array.isArray(migrated.mistakeEntryIds))
-          migrated.mistakeEntryIds = [];
-        saveProgress(userId, migrated);
-        return sanitizeProgress(migrated, version);
+      const p = JSON.parse(raw);
+
+      // ── 新模型（年级独立进度） ──
+      if (p && typeof p === "object" && p.grades && typeof p.activeGrade === "number") {
+        if (
+          p.version === version &&
+          p.curriculumVersion === CURRICULUM_VERSION
+        ) {
+          if (!Array.isArray(p.difficultEntryIds)) p.difficultEntryIds = [];
+          if (!p.errorCounts || typeof p.errorCounts !== "object")
+            p.errorCounts = {};
+          return sanitizeProgress(p as Progress, version);
+        }
+        return freshProgress(version);
       }
+
+      // ── 旧模型（单全局进度）迁移 ──
       if (
         typeof p.unitIndex === "number" &&
         p.unitIndex >= 0 &&
         p.unitIndex < getCurriculum(version).length &&
         p.version === version &&
-        // 词库版本不匹配时进度作废（条目 ID 已变），返回全新进度
         p.curriculumVersion === CURRICULUM_VERSION
       ) {
-        // 兼容旧数据：补全 difficultEntryIds / 单元统计字段
-        if (!Array.isArray(p.difficultEntryIds)) p.difficultEntryIds = [];
-        if (!p.errorCounts || typeof p.errorCounts !== "object")
-          p.errorCounts = {};
-        if (!Array.isArray(p.mistakeEntryIds)) p.mistakeEntryIds = [];
-        // 旧字段（年级粒度）迁移到新字段（单元粒度）：
-        // 已庆祝过的年级 → 该年级下所有单元视为已庆祝；年级开始时间 → 复制到该年级各单元
-        const legacyCelebrated = (p as unknown as { celebratedGrades?: number[] })
-          .celebratedGrades;
-        const legacyStarted = (p as unknown as {
-          gradeStartedAt?: Record<string, number>;
-        }).gradeStartedAt;
-        if (!Array.isArray(p.celebratedUnits)) {
-          p.celebratedUnits = [];
-          if (Array.isArray(legacyCelebrated)) {
-            const grades = new Set(legacyCelebrated);
-            for (const u of getCurriculum(version)) {
-              if (grades.has(u.grade)) p.celebratedUnits.push(`${u.grade}-${u.unit}`);
-            }
-          }
+        const G1_LINE_TAGS: Partial<Record<CurriculumVersion, string>> = {
+          renjiao: "rj-g1",
+          waiyanshe: "wy-g1",
+        };
+        const expectTag = G1_LINE_TAGS[version];
+        const old = normalizeOld(p, version);
+        // 混合线 → 一年级起点去重线：保留学习记录（已学/错词/错误次数），
+        // 仅重置各年级位置指针到年级起点（词库结构变更导致 unitIndex 错位）
+        if (expectTag && old.lineTag !== expectTag) {
+          old.lineTag = expectTag;
+          old.gradeProgress = {};
+          old.unitIndex = 0;
+          old.entryIndex = 0;
         }
-        if (!p.unitStartedAt || typeof p.unitStartedAt !== "object") {
-          p.unitStartedAt = {};
-          if (legacyStarted && typeof legacyStarted === "object") {
-            for (const u of getCurriculum(version)) {
-              const t = legacyStarted[String(u.grade)];
-              if (typeof t === "number") p.unitStartedAt[`${u.grade}-${u.unit}`] = t;
-            }
-          }
-        }
-        // 兼容旧数据：无年级独立进度时，把全局当前位置迁移为该年级的进度，
-        // 老用户点年级卡片也能接着上次的位置继续学
-        if (!p.gradeProgress || typeof p.gradeProgress !== "object") {
-          p.gradeProgress = {};
-          const gu = getCurriculum(version)[p.unitIndex];
-          if (gu && p.completedEntryIds.length > 0) {
-            p.gradeProgress[String(gu.grade)] = {
-              unitIndex: p.unitIndex,
-              entryIndex: p.entryIndex,
-              unitOrder: p.unitOrder ?? [],
-            };
-          }
-        }
-        return sanitizeProgress(p, version);
+        const migrated = toGradeModel(old, version);
+        migrated.lineTag = old.lineTag;
+        saveProgress(userId, migrated);
+        return sanitizeProgress(migrated, version);
       }
     }
   } catch {
@@ -251,6 +456,8 @@ export function loadProgress(
 }
 
 export function freshProgress(version: CurriculumVersion): Progress {
+  const cur = getCurriculum(version);
+  const firstGrade = cur[0]?.grade ?? 1;
   return {
     curriculumVersion: CURRICULUM_VERSION,
     version,
@@ -260,17 +467,15 @@ export function freshProgress(version: CurriculumVersion): Progress {
         : version === "waiyanshe"
           ? "wy-g1"
           : undefined,
-    unitIndex: 0,
-    entryIndex: 0,
-    unitOrder: makeUnitOrder(0, version),
-    completedEntryIds: [],
+    activeGrade: firstGrade,
+    grades: { [String(firstGrade)]: freshGradeState(version, firstGrade) },
     difficultEntryIds: [],
+    difficultAwardedIds: [],
     errorCounts: {},
     lastLearnedAt: Date.now(),
     unitStartedAt: {},
     mistakeEntryIds: [],
     celebratedUnits: [],
-    gradeProgress: {},
   };
 }
 
@@ -287,10 +492,4 @@ export function resetProgress(userId: string, version: CurriculumVersion) {
 
 export function totalEntryCount(version: CurriculumVersion): number {
   return getAllEntries(version).length;
-}
-
-export function unitStats(p: Progress) {
-  const total = totalEntryCount(p.version);
-  const done = p.completedEntryIds.length;
-  return { total, done, percent: Math.round((done / total) * 100) };
 }

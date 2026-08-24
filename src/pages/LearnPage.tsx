@@ -6,9 +6,14 @@ import {
   type CurriculumVersion,
 } from "../data/curriculum";
 import {
+  type GradeState,
   type Progress,
+  findResumePosition,
+  freshGradeState,
   freshProgress,
+  gradeStartIndex,
   makeUnitOrder,
+  processedOf,
   saveProgress,
 } from "../lib/progress";
 import { pointsForEntry, type User } from "../lib/users";
@@ -31,9 +36,18 @@ interface LearnPageProps {
   difficultOrder?: string[];
 }
 
-/** 普通模式下当前题的 entry id */
-function entryIdOf(progress: Progress): string {
-  return progress.unitOrder[progress.entryIndex] ?? "";
+/** 年级完成（一轮通关）祝贺页的统计快照（在轮次清零前计算） */
+interface GradeStatsSnapshot {
+  grade: number;
+  unitCount: number;
+  doneCount: number;
+  mistakeCount: number;
+  onceRight: number;
+  gradePoints: number;
+  startAt?: number;
+  durationMs: number;
+  /** 完成本轮后的轮次数（原 rounds + 1） */
+  rounds: number;
 }
 
 function formatDateTime(ts?: number): string {
@@ -94,7 +108,7 @@ export default function LearnPage({
   const awardedRef = useRef<Set<string>>(new Set());
   // 最近处理（答对 / 我不会）的词条所属单元（单元完成祝贺检测用，避免切题竞态）
   const lastProcessedUnitRef = useRef<string | null>(null);
-  // 最新进度引用：goNext 会被 LearningCard 答对后的 2s 自动跳题定时器以旧闭包调用，
+  // 最新进度引用：goNext 会被 LearningCard 答对后的自动跳题定时器以旧闭包调用，
   // 该闭包里的 progress 不包含刚答对的最后一题（setProgress 尚未提交），
   // 单元完成判定会永远读到旧数据导致祝贺页不弹，故用 ref 读取最新值。
   const progressRef = useRef(progress);
@@ -103,11 +117,12 @@ export default function LearnPage({
   }, [progress]);
   // 防止 goNext / 祝贺页继续 被快速重复触发导致进度回退或重复弹窗
   const busyRef = useRef(false);
-  // 单元/年级完成祝贺弹窗（unitKey: `${grade}-${unit}`；level 区分只祝词还是带统计）
+  // 单元/年级完成祝贺弹窗（unitKey: `${grade}-${unit}`；grade 快照在轮次清零前计算）
   const [celebration, setCelebration] = useState<{
     unitKey: string;
     level: "unit" | "grade";
     quote: MovieQuote;
+    grade?: GradeStatsSnapshot;
   } | null>(null);
 
   const cur = getCurriculum(version);
@@ -118,7 +133,11 @@ export default function LearnPage({
     [version]
   );
 
-  const unit = cur[progress.unitIndex];
+  // ── 年级独立进度：当前学习状态来自 activeGrade（重点记忆模式不使用） ──
+  const gs: GradeState =
+    progress.grades[String(progress.activeGrade)] ??
+    freshGradeState(version, progress.activeGrade);
+  const unit = cur[gs.unitIndex] ?? cur[0];
   // 重点记忆模式：从打乱的难词列表取当前条目，并解析其所在单元
   const difficultEntry = difficultMode
     ? allEntriesMap.get(difficultOrder[difficultIndex] ?? "")
@@ -131,14 +150,13 @@ export default function LearnPage({
 
   const entry = difficultMode
     ? difficultEntry
-    : (unit.entries.find((e) => e.id === entryIdOf(progress)) ?? unit.entries[0]);
+    : (unit.entries.find((e) => e.id === (gs.unitOrder[gs.entryIndex] ?? "")) ??
+      unit.entries[0]);
 
   const showToast = (msg: string) => {
     setToast(msg);
     window.setTimeout(() => setToast(null), 1600);
   };
-
-  // 键盘避让已全局化（App.tsx 统一设置 --kb-h），此处不再重复处理。
 
   // 预加载后续几题的音频：切题时真人录音已在缓存，零等待直放。
   useEffect(() => {
@@ -155,30 +173,32 @@ export default function LearnPage({
       return;
     }
     const texts: string[] = [];
-    const order = progress.unitOrder;
+    const order = gs.unitOrder;
     // 当前单元后续 3 题
-    for (let i = progress.entryIndex + 1; i <= progress.entryIndex + 3; i++) {
+    for (let i = gs.entryIndex + 1; i <= gs.entryIndex + 3; i++) {
       const id = order[i];
       if (!id) break;
       const e = unit.entries.find((x) => x.id === id);
       if (e) texts.push(e.english);
     }
-    // 当前单元最后一题时，预取下一单元第 1 题
-    if (progress.entryIndex + 1 >= order.length) {
-      const nextUnit = cur[progress.unitIndex + 1];
-      if (nextUnit?.entries[0]) texts.push(nextUnit.entries[0].english);
+    // 当前单元最后一题时，预取同年级下一单元第 1 题
+    if (gs.entryIndex + 1 >= order.length) {
+      const nextUnit = cur[gs.unitIndex + 1];
+      if (nextUnit && nextUnit.grade === unit.grade && nextUnit.entries[0]) {
+        texts.push(nextUnit.entries[0].english);
+      }
     }
     texts.forEach((t) => prefetchAudio(t, accent));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     difficultMode,
     difficultIndex,
     difficultOrder,
     allEntriesMap,
     accent,
-    cur,
-    progress.entryIndex,
-    progress.unitIndex,
-    progress.unitOrder,
+    gs.unitIndex,
+    gs.entryIndex,
+    gs.unitOrder,
     unit,
   ]);
 
@@ -189,84 +209,199 @@ export default function LearnPage({
         ? allEntriesMap.get(id)
         : unit.entries.find((e) => e.id === id);
       if (src) lastProcessedUnitRef.current = `${src.grade}-${src.unit}`;
-      // 双保险：同一题只加一次分（防止 onComplete 被多次调用）
-      if (!awardedRef.current.has(id)) {
+
+      if (difficultMode) {
+        // 重点记忆学习：积分只加一次（持久化 difficultAwardedIds 去重），
+        // 重复学习不再加分；不写年级进度（重点记忆不参与进度推进）
+        if (!awardedRef.current.has(id)) {
+          awardedRef.current.add(id);
+          const awarded = progressRef.current.difficultAwardedIds ?? [];
+          if (!awarded.includes(id)) {
+            const pts = src ? pointsForEntry(src.type) : 5;
+            addPoints(user.id, pts, 1);
+            setProgress((prev) => ({
+              ...prev,
+              difficultAwardedIds: [...(prev.difficultAwardedIds ?? []), id],
+            }));
+          }
+        }
+        return;
+      }
+
+      // 普通模式：积分规则不变 —— 每轮学习照常加分。
+      // awardedRef 防同一题并发重复加分；轮次清零后重学（completed 已清空）可再次加分。
+      const gsNow = progressRef.current.grades[
+        String(progressRef.current.activeGrade)
+      ];
+      const alreadyCompleted = gsNow?.completedEntryIds.includes(id) ?? false;
+      if (!alreadyCompleted || !awardedRef.current.has(id)) {
         awardedRef.current.add(id);
         const pts = src ? pointsForEntry(src.type) : 5;
         addPoints(user.id, pts, 1);
       }
-      // 函数式更新：基于最新 state 合并，防止被旧闭包覆盖
-      setProgress((prev) =>
-        prev.completedEntryIds.includes(id)
-          ? prev
-          : { ...prev, completedEntryIds: [...prev.completedEntryIds, id] }
-      );
+      // 记入当前年级本轮完成集合
+      setProgress((prev) => {
+        const gk = String(prev.activeGrade);
+        const g = prev.grades[gk];
+        if (!g || g.completedEntryIds.includes(id)) return prev;
+        return {
+          ...prev,
+          grades: {
+            ...prev.grades,
+            [gk]: { ...g, completedEntryIds: [...g.completedEntryIds, id] },
+          },
+        };
+      });
     },
     [setProgress, unit, allEntriesMap, addPoints, user.id, difficultMode]
   );
 
   /**
-   * 当前词条离开后的推进位置（普通模式）：
-   * - 单元内 → entryIndex+1
-   * - 单元结束跨到新年级 → 优先恢复该年级在 gradeProgress 里保存的
-   *   学习位置（从上次学到的地方继续，而非新年级第一单元第一词），
-   *   保存位置已学完则在该年级内向后找第一个未学单元；
-   * - 单元结束（同年级）→ 下一单元第一词
-   * - 全部学完 → "finished"
+   * 当前词条离开后的推进位置（普通模式，限制在当前年级内）：
+   * - 单元内 → 下一个未处理词条（跳过本轮已处理词条）
+   * - 单元结束 → 年级内向后找第一个含未处理词条的单元
+   * - 年级内全部处理完 → "grade-complete"（一轮完成：清零 + 轮数 +1）
    */
   const nextPositionAfter = useCallback(
     (p: Progress):
-      | "finished"
+      | "grade-complete"
       | { unitIndex: number; entryIndex: number; unitOrder: string[] } => {
-      const nextIndex = p.entryIndex + 1;
-      if (nextIndex < p.unitOrder.length) {
-        return { unitIndex: p.unitIndex, entryIndex: nextIndex, unitOrder: p.unitOrder };
-      }
-      const nextUnitIndex = p.unitIndex + 1;
-      if (nextUnitIndex >= cur.length) return "finished";
+      const g = p.grades[String(p.activeGrade)];
+      if (!g) return "grade-complete";
+      const grade = cur[g.unitIndex]?.grade ?? p.activeGrade;
+      const processed = processedOf(g);
 
-      const curGrade = cur[p.unitIndex]?.grade;
-      const nextGrade = cur[nextUnitIndex].grade;
-      if (nextGrade !== curGrade) {
-        const saved = p.gradeProgress?.[String(nextGrade)];
-        if (saved && cur[saved.unitIndex]?.grade === nextGrade) {
-          const order =
-            saved.unitOrder?.length
-              ? saved.unitOrder
-              : makeUnitOrder(saved.unitIndex, version);
-          // 跳过保存位置里已完成的词条
-          let ei = 0;
-          while (ei < order.length && p.completedEntryIds.includes(order[ei])) {
-            ei += 1;
-          }
-          if (ei < order.length) {
-            return { unitIndex: saved.unitIndex, entryIndex: ei, unitOrder: order };
-          }
-          // 保存的单元已学完 → 在该年级内向后找第一个未学单元
-          for (
-            let ui = saved.unitIndex;
-            ui < cur.length && cur[ui].grade === nextGrade;
-            ui += 1
-          ) {
-            const ord = makeUnitOrder(ui, version);
-            let e = 0;
-            while (e < ord.length && p.completedEntryIds.includes(ord[e])) {
-              e += 1;
-            }
-            if (e < ord.length) {
-              return { unitIndex: ui, entryIndex: e, unitOrder: ord };
-            }
-          }
-          // 该年级全部学完 → 按默认推进（下一单元第一词）
+      // 当前单元内下一个未处理词条
+      let ei = g.entryIndex + 1;
+      while (ei < g.unitOrder.length && processed.has(g.unitOrder[ei])) ei += 1;
+      if (ei < g.unitOrder.length) {
+        return { unitIndex: g.unitIndex, entryIndex: ei, unitOrder: g.unitOrder };
+      }
+
+      // 年级内向后找
+      for (
+        let ui = g.unitIndex + 1;
+        ui < cur.length && cur[ui].grade === grade;
+        ui += 1
+      ) {
+        const order = makeUnitOrder(ui, version);
+        let e = 0;
+        while (e < order.length && processed.has(order[e])) e += 1;
+        if (e < order.length) {
+          return { unitIndex: ui, entryIndex: e, unitOrder: order };
         }
       }
+      // 边角：保存位置之前还有未处理单元（中途跳学）→ 回到年级开头找
+      const gradeStart = gradeStartIndex(version, grade);
+      for (let ui = gradeStart; ui < g.unitIndex; ui += 1) {
+        const order = makeUnitOrder(ui, version);
+        let e = 0;
+        while (e < order.length && processed.has(order[e])) e += 1;
+        if (e < order.length) {
+          return { unitIndex: ui, entryIndex: e, unitOrder: order };
+        }
+      }
+      return "grade-complete";
+    },
+    [cur, version]
+  );
+
+  /** 年级完成统计快照（在轮次清零前基于当前数据计算） */
+  const computeGradeSnapshot = useCallback(
+    (p: Progress, grade: number): GradeStatsSnapshot => {
+      const g = p.grades[String(grade)];
+      const gradeUnits = cur.filter((u) => u.grade === grade);
+      const gradeEntries = gradeUnits.flatMap((u) => u.entries);
+      const gradeIds = new Set(gradeEntries.map((e) => e.id));
+      const doneCount = gradeEntries.length;
+      const unitCount = gradeUnits.length;
+      const mistakeCount = (p.mistakeEntryIds ?? []).filter((id) =>
+        gradeIds.has(id)
+      ).length;
+      const onceRight = Math.max(doneCount - mistakeCount, 0);
+      const gradePoints = (g?.completedEntryIds ?? []).reduce((s, id) => {
+        if (!gradeIds.has(id)) return s;
+        const e = allEntriesMap.get(id);
+        return s + (e ? pointsForEntry(e.type) : 5);
+      }, 0);
+      // 年级开始时间 = 该年级各单元开始时间的最早值
+      const starts = gradeUnits
+        .map((u) => p.unitStartedAt?.[`${u.grade}-${u.unit}`])
+        .filter((t): t is number => typeof t === "number");
+      const startAt = starts.length ? Math.min(...starts) : undefined;
       return {
-        unitIndex: nextUnitIndex,
+        grade,
+        unitCount,
+        doneCount,
+        mistakeCount,
+        onceRight,
+        gradePoints,
+        startAt,
+        durationMs: startAt ? Date.now() - startAt : 0,
+        rounds: (g?.rounds ?? 0) + 1,
+      };
+    },
+    [cur, allEntriesMap]
+  );
+
+  /**
+   * 年级一轮完成：轮数 +1、本轮进度清零、位置回到年级第一单元第一词；
+   * 同时清掉该年级的单元祝贺标记 / 开始时间 / 错词记录（新一轮重新统计）。
+   * 返回清零后的新 Progress（不修改原对象）。
+   */
+  const completeGradeRound = useCallback(
+    (p: Progress, grade: number): Progress => {
+      const gradeStart = gradeStartIndex(version, grade);
+      const g = p.grades[String(grade)];
+      const newGs: GradeState = {
+        unitIndex: gradeStart,
         entryIndex: 0,
-        unitOrder: makeUnitOrder(nextUnitIndex, version),
+        unitOrder: makeUnitOrder(gradeStart, version),
+        completedEntryIds: [],
+        skippedEntryIds: [],
+        rounds: (g?.rounds ?? 0) + 1,
+      };
+      const gradeIds = new Set(
+        cur
+          .filter((u) => u.grade === grade)
+          .flatMap((u) => u.entries.map((e) => e.id))
+      );
+      const prefix = `${grade}-`;
+      const unitStartedAt = Object.fromEntries(
+        Object.entries(p.unitStartedAt ?? {}).filter(
+          ([k]) => !k.startsWith(prefix)
+        )
+      );
+      return {
+        ...p,
+        grades: { ...p.grades, [String(grade)]: newGs },
+        celebratedUnits: (p.celebratedUnits ?? []).filter(
+          (k) => !k.startsWith(prefix)
+        ),
+        unitStartedAt,
+        mistakeEntryIds: (p.mistakeEntryIds ?? []).filter(
+          (id) => !gradeIds.has(id)
+        ),
       };
     },
     [cur, version]
+  );
+
+  /** 触发年级（一轮通关）祝贺：先算统计快照，再清零轮次，最后弹祝贺页 */
+  const triggerGradeCelebration = useCallback(
+    (p: Progress, grade: number, unitKey: string) => {
+      const snapshot = computeGradeSnapshot(p, grade);
+      speech.stop();
+      playCelebrationJingle();
+      setCelebration({
+        unitKey,
+        level: "grade",
+        quote: randomMovieQuote(),
+        grade: snapshot,
+      });
+      setProgress((prev) => completeGradeRound(prev, grade));
+    },
+    [computeGradeSnapshot, completeGradeRound, setProgress, speech]
   );
 
   const goNext = useCallback(() => {
@@ -293,37 +428,41 @@ export default function LearnPage({
 
     // 单元完成检测：最近处理的词条所属单元，若全部词条都已处理过（答对 或 点过"我不会"）
     // 则弹出祝贺页并停在这里，等用户点"继续学习"再真正切题。
-    // 放在 goNext 里触发，保证"我不会"揭示答案后用户先看完答案，离开时再弹。
     // 注意：必须读 progressRef（最新值），因为本函数可能被 1.8s 定时器以旧闭包调用。
     const p = progressRef.current;
+    const g = p.grades[String(p.activeGrade)];
+    const processed = g ? processedOf(g) : new Set<string>();
     const lastKey = lastProcessedUnitRef.current;
     if (lastKey && !(p.celebratedUnits ?? []).includes(lastKey)) {
       const lastUnit = cur.find((u) => `${u.grade}-${u.unit}` === lastKey);
       if (lastUnit) {
-        const isProcessed = (id: string) =>
-          p.completedEntryIds.includes(id) || p.difficultEntryIds.includes(id);
-        const allProcessed = lastUnit.entries.every((e) => isProcessed(e.id));
+        const allProcessed = lastUnit.entries.every((e) => processed.has(e.id));
         if (allProcessed) {
-          // 年级是否也全部学完（该年级所有单元的词条都处理过）→ 升级为年级祝贺（带统计）
+          // 年级是否也全部处理完（该年级所有单元的词条都处理过）
+          // → 一轮通关：轮数 +1、进度清零、年级祝贺（带统计）
           const gradeAllDone = cur
             .filter((u) => u.grade === lastUnit.grade)
-            .every((uu) => uu.entries.every((e) => isProcessed(e.id)));
-          // 持久化标记：该单元已庆祝，避免重复弹出
-          setProgress((prev) =>
-            prev.celebratedUnits?.includes(lastKey)
-              ? prev
-              : {
-                  ...prev,
-                  celebratedUnits: [...(prev.celebratedUnits ?? []), lastKey],
-                }
-          );
-          speech.stop(); // 停掉后台朗读，避免祝贺页背后响着下一题的音频
-          playCelebrationJingle(); // 播放简短庆祝音效
-          setCelebration({
-            unitKey: lastKey,
-            level: gradeAllDone ? "grade" : "unit",
-            quote: randomMovieQuote(),
-          });
+            .every((uu) => uu.entries.every((e) => processed.has(e.id)));
+          if (gradeAllDone) {
+            triggerGradeCelebration(p, lastUnit.grade, lastKey);
+          } else {
+            // 持久化标记：该单元已庆祝，避免重复弹出
+            setProgress((prev) =>
+              prev.celebratedUnits?.includes(lastKey)
+                ? prev
+                : {
+                    ...prev,
+                    celebratedUnits: [...(prev.celebratedUnits ?? []), lastKey],
+                  }
+            );
+            speech.stop(); // 停掉后台朗读，避免祝贺页背后响着下一题的音频
+            playCelebrationJingle(); // 播放简短庆祝音效
+            setCelebration({
+              unitKey: lastKey,
+              level: "unit",
+              quote: randomMovieQuote(),
+            });
+          }
           release();
           return;
         }
@@ -331,12 +470,24 @@ export default function LearnPage({
     }
 
     const next = nextPositionAfter(p);
-    if (next === "finished") {
-      setFinishedAll(true);
+    if (next === "grade-complete") {
+      // 单元已庆祝过但年级刚学完（如重新学习本单元后再通关）→ 年级祝贺
+      const grade = cur[g?.unitIndex ?? 0]?.grade ?? p.activeGrade;
+      const unitKey =
+        lastKey ?? `${grade}-${cur[g?.unitIndex ?? 0]?.unit ?? 1}`;
+      triggerGradeCelebration(p, grade, unitKey);
       release();
       return;
     }
-    setProgress((prev) => ({ ...prev, ...next }));
+    setProgress((prev) => {
+      const gk = String(prev.activeGrade);
+      const gsNow = prev.grades[gk];
+      if (!gsNow) return prev;
+      return {
+        ...prev,
+        grades: { ...prev.grades, [gk]: { ...gsNow, ...next } },
+      };
+    });
     setAnimKey((k) => k + 1);
     release();
   }, [
@@ -345,10 +496,10 @@ export default function LearnPage({
     difficultOrder.length,
     setProgress,
     cur,
-    version,
     setCelebration,
     speech,
     nextPositionAfter,
+    triggerGradeCelebration,
   ]);
 
   /** 记录"曾经拼错或不会"的词条（去重），供年级完成页统计 */
@@ -366,21 +517,33 @@ export default function LearnPage({
     [setProgress]
   );
 
+  /**
+   * "我不会"：不影响学习进度（进度继续往后走），只把词条加入重点记忆列表；
+   * 记入年级本轮 skipped 集合（推进进度但不计分）。
+   */
   const markDontKnow = useCallback(
     (id: string) => {
-      // 记录最近处理词条的单元，供"单元完成"祝贺检测使用（"我不会"也算处理过）
       const src = difficultMode
         ? allEntriesMap.get(id)
         : unit.entries.find((e) => e.id === id);
       if (src) lastProcessedUnitRef.current = `${src.grade}-${src.unit}`;
-      setProgress((prev) =>
-        prev.difficultEntryIds.includes(id)
-          ? prev
-          : {
-              ...prev,
-              difficultEntryIds: [...prev.difficultEntryIds, id],
-            }
-      );
+      setProgress((prev) => {
+        const difficult = prev.difficultEntryIds.includes(id)
+          ? prev.difficultEntryIds
+          : [...prev.difficultEntryIds, id];
+        let grades = prev.grades;
+        if (!difficultMode) {
+          const gk = String(prev.activeGrade);
+          const g = prev.grades[gk];
+          if (g && !g.skippedEntryIds.includes(id)) {
+            grades = {
+              ...prev.grades,
+              [gk]: { ...g, skippedEntryIds: [...g.skippedEntryIds, id] },
+            };
+          }
+        }
+        return { ...prev, difficultEntryIds: difficult, grades };
+      });
       addMistake(id); // "我不会"也计入拼错/不会统计
       showToast("📝 已加入重点记忆列表");
     },
@@ -400,10 +563,11 @@ export default function LearnPage({
       if (celebration) return;
       if (finishedAll || difficultDone) return;
       if (!entry) return;
-      if (
-        !progress.completedEntryIds.includes(entry.id) &&
-        !progress.difficultEntryIds.includes(entry.id)
-      ) {
+      const processedNow =
+        difficultMode ||
+        gs.completedEntryIds.includes(entry.id) ||
+        gs.skippedEntryIds.includes(entry.id);
+      if (!processedNow) {
         showToast("请先完成当前拼写");
         return;
       }
@@ -411,23 +575,120 @@ export default function LearnPage({
     }
   };
 
-  // 祝贺页"继续学习"：按钮点击与空格键共用。
-  // 显式推进进度，不依赖 progressRef/lastProcessedUnitRef，避免竞态导致回到刚完成单元的最后一词。
+  /**
+   * 祝贺页"继续学习"：
+   * - 单元级：在当前年级内推进到下一个未处理词条；
+   * - 年级级（一轮通关，进度已清零）：进入下一个年级（恢复其进度），
+   *   没有下一个年级 → 全部学完页面。
+   */
   const continueFromCelebration = useCallback(() => {
-    if (busyRef.current) return;
+    if (busyRef.current || !celebration) return;
     busyRef.current = true;
     setCelebration(null);
-    setProgress((prev) => {
-      const next = nextPositionAfter(prev);
-      if (next === "finished") return prev;
-      return { ...prev, ...next };
-    });
+
+    if (celebration.level === "grade") {
+      const grade = celebration.grade?.grade ?? progressRef.current.activeGrade;
+      const gradesList = Array.from(new Set(cur.map((u) => u.grade))).sort(
+        (a, b) => a - b
+      );
+      const nextGrade = gradesList.find((g) => g > grade);
+      if (nextGrade === undefined) {
+        setFinishedAll(true);
+      } else {
+        setProgress((prev) => {
+          const pos = findResumePosition(prev, nextGrade, version);
+          const gsNext =
+            prev.grades[String(nextGrade)] ??
+            freshGradeState(version, nextGrade);
+          return {
+            ...prev,
+            activeGrade: nextGrade,
+            grades: {
+              ...prev.grades,
+              [String(nextGrade)]: { ...gsNext, ...pos },
+            },
+          };
+        });
+        setAnimKey((k) => k + 1);
+      }
+    } else {
+      // 单元级：年级内推进（显式推进进度，不依赖 progressRef 避免竞态）
+      setProgress((prev) => {
+        const next = nextPositionAfter(prev);
+        if (next === "grade-complete") {
+          // 防御：单元庆祝时年级刚好也完成 → 直接完成轮次
+          const gk = String(prev.activeGrade);
+          const grade = cur[prev.grades[gk]?.unitIndex ?? 0]?.grade ?? prev.activeGrade;
+          return completeGradeRound(prev, grade);
+        }
+        const gk = String(prev.activeGrade);
+        const g = prev.grades[gk];
+        if (!g) return prev;
+        return { ...prev, grades: { ...prev.grades, [gk]: { ...g, ...next } } };
+      });
+      setAnimKey((k) => k + 1);
+    }
     lastProcessedUnitRef.current = null;
-    setAnimKey((k) => k + 1);
     window.setTimeout(() => {
       busyRef.current = false;
     }, 80);
-  }, [cur.length, version, setProgress, nextPositionAfter]);
+  }, [
+    celebration,
+    cur,
+    version,
+    setProgress,
+    nextPositionAfter,
+    completeGradeRound,
+  ]);
+
+  /**
+   * 祝贺页"重新学习本单元"：进度回滚到本单元第 1 个词条
+   * （该单元词条从本轮完成/跳过集合移除，重学完成可再次获得积分与祝贺；
+   * 已得积分不回收）。年级祝贺时触发的是新一轮中重学该单元。
+   */
+  const restartUnitFromCelebration = useCallback(() => {
+    if (busyRef.current || !celebration) return;
+    busyRef.current = true;
+    const unitKey = celebration.unitKey;
+    const unitInfo = cur.find((u) => `${u.grade}-${u.unit}` === unitKey);
+    setCelebration(null);
+    if (unitInfo) {
+      const grade = unitInfo.grade;
+      const unitIndex = cur.indexOf(unitInfo);
+      setProgress((prev) => {
+        const gk = String(grade);
+        const g = prev.grades[gk] ?? freshGradeState(version, grade);
+        const unitIds = new Set(unitInfo.entries.map((e) => e.id));
+        const orderIsTarget =
+          g.unitOrder.length > 0 && g.unitOrder.every((id) => unitIds.has(id));
+        const nextGs: GradeState = {
+          ...g,
+          unitIndex,
+          entryIndex: 0,
+          unitOrder: orderIsTarget
+            ? g.unitOrder
+            : makeUnitOrder(unitIndex, version),
+          completedEntryIds: g.completedEntryIds.filter(
+            (id) => !unitIds.has(id)
+          ),
+          skippedEntryIds: g.skippedEntryIds.filter((id) => !unitIds.has(id)),
+        };
+        return {
+          ...prev,
+          activeGrade: grade,
+          grades: { ...prev.grades, [gk]: nextGs },
+          celebratedUnits: (prev.celebratedUnits ?? []).filter(
+            (k) => k !== unitKey
+          ),
+        };
+      });
+      setAnimKey((k) => k + 1);
+    }
+    lastProcessedUnitRef.current = null;
+    window.setTimeout(() => {
+      busyRef.current = false;
+    }, 80);
+  }, [celebration, cur, version, setProgress]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -439,37 +700,6 @@ export default function LearnPage({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onExit, celebration]);
-
-  // 同步当前学习位置到所属年级（gradeProgress），供首页年级卡片恢复进度。
-  // 正常学习 / 祝贺页继续 / 上滑切题等所有推进路径最终都会改 unitIndex/entryIndex，
-  // 在这里统一落盘，无需在每个推进点手动保存。
-  useEffect(() => {
-    if (difficultMode) return;
-    const g = String(unit.grade);
-    setProgress((prev) => {
-      const gp = prev.gradeProgress ?? {};
-      const saved = gp[g];
-      if (
-        saved &&
-        saved.unitIndex === prev.unitIndex &&
-        saved.entryIndex === prev.entryIndex
-      ) {
-        return prev;
-      }
-      return {
-        ...prev,
-        gradeProgress: {
-          ...gp,
-          [g]: {
-            unitIndex: prev.unitIndex,
-            entryIndex: prev.entryIndex,
-            unitOrder: prev.unitOrder,
-          },
-        },
-      };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unit.grade, progress.unitIndex, progress.entryIndex, difficultMode]);
 
   // 记录各单元首次开始学习的时间（用于完成页展示"开始学习时间 / 完成用时"）
   useEffect(() => {
@@ -486,9 +716,6 @@ export default function LearnPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry?.grade, entry?.unit]);
 
-  // 单元完成检测已迁移到 goNext 内：答对/点"我不会"都会更新 lastProcessedUnitRef，
-  // 离开当前词条（切题）时检查所属单元是否全部处理过，是则弹祝贺页。
-
   const restart = () => {
     const p = freshProgress(version);
     setProgress(p);
@@ -497,58 +724,10 @@ export default function LearnPage({
     setAnimKey((k) => k + 1);
   };
 
-  // 祝贺页数据：单元级只提供标题信息；年级级提供完整学习统计
-  const celebrationStats = useMemo(() => {
-    if (!celebration) return null;
-    const unitInfo = cur.find(
-      (u) => `${u.grade}-${u.unit}` === celebration.unitKey
-    );
-    if (!unitInfo) return null;
-
-    // 单元级：只展示祝贺信息 + 台词，不带统计
-    if (celebration.level === "unit") {
-      return {
-        level: "unit" as const,
-        grade: unitInfo.grade,
-        unit: unitInfo.unit,
-        title: unitInfo.title,
-        quote: celebration.quote,
-      };
-    }
-
-    // 年级级：整个年级的学习统计
-    const gradeUnits = cur.filter((u) => u.grade === unitInfo.grade);
-    const gradeEntries = gradeUnits.flatMap((u) => u.entries);
-    const gradeIds = new Set(gradeEntries.map((e) => e.id));
-    const doneCount = gradeEntries.length;
-    const unitCount = gradeUnits.length;
-    const mistakeCount = (progress.mistakeEntryIds ?? []).filter((id) =>
-      gradeIds.has(id)
-    ).length;
-    const onceRight = Math.max(doneCount - mistakeCount, 0);
-    const gradePoints = progress.completedEntryIds.reduce((s, id) => {
-      if (!gradeIds.has(id)) return s;
-      const e = allEntriesMap.get(id);
-      return s + (e ? pointsForEntry(e.type) : 5);
-    }, 0);
-    // 年级开始时间 = 该年级各单元开始时间的最早值
-    const starts = gradeUnits
-      .map((u) => progress.unitStartedAt?.[`${u.grade}-${u.unit}`])
-      .filter((t): t is number => typeof t === "number");
-    const startAt = starts.length ? Math.min(...starts) : undefined;
-    return {
-      level: "grade" as const,
-      grade: unitInfo.grade,
-      unitCount,
-      quote: celebration.quote,
-      doneCount,
-      mistakeCount,
-      onceRight,
-      gradePoints,
-      startAt,
-      durationMs: startAt ? Date.now() - startAt : 0,
-    };
-  }, [celebration, cur, progress, allEntriesMap]);
+  // 重点记忆模式：当前词条已加过积分（重复学习不加分，答对卡不显示积分）
+  const difficultAlreadyAwarded =
+    difficultMode && !!entry?.id &&
+    (progress.difficultAwardedIds ?? []).includes(entry.id);
 
   if (!entry) return null;
 
@@ -602,12 +781,12 @@ export default function LearnPage({
               : `第 ${unit.unit} 单元 · ${unit.title}`
           }
           orderInUnit={
-            difficultMode ? difficultIndex + 1 : progress.entryIndex + 1
+            difficultMode ? difficultIndex + 1 : gs.entryIndex + 1
           }
           unitSize={
             difficultMode
               ? difficultOrder.length
-              : progress.unitOrder.length || unit.entries.length
+              : gs.unitOrder.length || unit.entries.length
           }
           onComplete={markComplete}
           onNext={goNext}
@@ -615,6 +794,7 @@ export default function LearnPage({
           onMistake={addMistake}
           frozen={celebration !== null}
           autoNext={user.config.autoNext ?? false}
+          hidePoints={!!difficultAlreadyAwarded}
           replay={speech.replayNow}
           stopAudio={speech.stop}
           startAudio={(t) => {
@@ -625,61 +805,69 @@ export default function LearnPage({
       </div>
 
       {/* 单元/年级完成祝贺页 */}
-      {celebrationStats && (
+      {celebration && (
         <div className="absolute inset-0 z-40 overflow-y-auto bg-gradient-to-b from-primary-lighter via-bg to-[#FFF9EC] px-8 py-12">
           <div className="mx-auto flex max-w-sm flex-col items-center text-center">
             <div className="text-5xl animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)]">
               🎉
             </div>
-            {celebrationStats.level === "unit" ? (
-              <>
-                <h2 className="mt-3 text-xl font-semibold text-text">
-                  恭喜完成 {gradeLabel(celebrationStats.grade)}第{" "}
-                  {celebrationStats.unit} 单元！
-                </h2>
-                <p className="mt-1.5 text-sm leading-5 text-text2">
-                  <span className="font-semibold text-text">
-                    {celebrationStats.title}
-                  </span>
-                  ——通过努力学习，你完成了本单元的听写练习，太棒了！
-                </p>
-              </>
+            {celebration.level === "unit" ? (
+              (() => {
+                const unitInfo = cur.find(
+                  (u) => `${u.grade}-${u.unit}` === celebration.unitKey
+                );
+                if (!unitInfo) return null;
+                return (
+                  <>
+                    <h2 className="mt-3 text-xl font-semibold text-text">
+                      恭喜完成 {gradeLabel(unitInfo.grade)}第{" "}
+                      {unitInfo.unit} 单元！
+                    </h2>
+                    <p className="mt-1.5 text-sm leading-5 text-text2">
+                      <span className="font-semibold text-text">
+                        {unitInfo.title}
+                      </span>
+                      ——通过努力学习，你完成了本单元的听写练习，太棒了！
+                    </p>
+                  </>
+                );
+              })()
             ) : (
               <>
                 <h2 className="mt-3 text-xl font-semibold text-text">
-                  恭喜通关 {gradeLabel(celebrationStats.grade)}！
+                  恭喜通关 {gradeLabel(celebration.grade?.grade ?? progress.activeGrade)}！
                 </h2>
                 <p className="mt-1.5 text-sm leading-5 text-text2">
-                  {celebrationStats.unitCount} 个单元、{celebrationStats.doneCount}{" "}
-                  个词条全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！
+                  {celebration.grade?.unitCount ?? 0} 个单元、
+                  {celebration.grade?.doneCount ?? 0} 个词条全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！
                 </p>
               </>
             )}
 
             {/* 学习信息统计（仅年级完成时展示） */}
-            {celebrationStats.level === "grade" && (
+            {celebration.level === "grade" && celebration.grade && (
               <div className="mt-6 grid w-full grid-cols-2 gap-2.5">
-                <StatCard label="📅 开始学习" value={formatDateTime(celebrationStats.startAt)} valueColor="text-text" />
-                <StatCard label="⏱️ 完成用时" value={formatDuration(celebrationStats.durationMs)} valueColor="text-text" />
-                <StatCard label="💪 拼错或不会" value={`${celebrationStats.mistakeCount} 个词条`} valueColor="text-error" />
-                <StatCard label="✅ 一次做对" value={`${celebrationStats.onceRight} 个词条`} valueColor="text-success" />
-                <StatCard label="⭐ 本年级积分" value={`+${celebrationStats.gradePoints} 分`} valueColor="text-gold" />
-                <StatCard label="📚 完成词条" value={`${celebrationStats.doneCount}/${celebrationStats.doneCount} 全部学完`} valueColor="text-text" />
+                <StatCard label="📅 开始学习" value={formatDateTime(celebration.grade.startAt)} valueColor="text-text" />
+                <StatCard label="⏱️ 完成用时" value={formatDuration(celebration.grade.durationMs)} valueColor="text-text" />
+                <StatCard label="💪 拼错或不会" value={`${celebration.grade.mistakeCount} 个词条`} valueColor="text-error" />
+                <StatCard label="✅ 一次做对" value={`${celebration.grade.onceRight} 个词条`} valueColor="text-success" />
+                <StatCard label="⭐ 本轮积分" value={`+${celebration.grade.gradePoints} 分`} valueColor="text-gold" />
+                <StatCard label="🔁 完成轮数" value={`第 ${celebration.grade.rounds} 轮`} valueColor="text-text" />
               </div>
             )}
 
             {/* 随机电影台词 */}
-            <div className={`w-full rounded-2xl bg-[#FAEEDA] px-5 py-4 animate-[slideUp_.4s_ease] ${celebrationStats.level === "unit" ? "mt-6" : "mt-4"}`}>
-              {celebrationStats.quote.en && (
+            <div className={`w-full rounded-2xl bg-[#FAEEDA] px-5 py-4 animate-[slideUp_.4s_ease] ${celebration.level === "unit" ? "mt-6" : "mt-4"}`}>
+              {celebration.quote.en && (
                 <p className="text-sm italic leading-6 text-[#854F0B]">
-                  “{celebrationStats.quote.en}”
+                  “{celebration.quote.en}”
                 </p>
               )}
               <p className="mt-1.5 text-sm font-semibold leading-6 text-[#854F0B]">
-                {celebrationStats.quote.cn}
+                {celebration.quote.cn}
               </p>
               <p className="mt-1.5 text-xs text-[#854F0B]/70">
-                —— 电影《{celebrationStats.quote.movie}》
+                —— 电影《{celebration.quote.movie}》
               </p>
             </div>
 
@@ -689,6 +877,14 @@ export default function LearnPage({
               className="mt-6 w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
             >
               继续学习
+            </button>
+            {/* 重新学习本单元：进度回滚到本单元第 1 个词条（积分不回收） */}
+            <button
+              type="button"
+              onClick={restartUnitFromCelebration}
+              className="mt-3 w-full rounded-full bg-[#756CC5] py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(83,74,183,0.25)] transition-transform active:scale-[0.98]"
+            >
+              重新学习本单元
             </button>
             <button
               type="button"

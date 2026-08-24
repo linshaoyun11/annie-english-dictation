@@ -15,9 +15,10 @@ import { flushStorage } from "./lib/storage";
 import { primeSpeech } from "./hooks/useSpeechLoop";
 import {
   type Progress,
+  findResumePosition,
+  freshGradeState,
   freshProgress,
   loadProgress,
-  makeUnitOrder,
   resetProgress,
   saveProgress,
   shuffle,
@@ -201,92 +202,40 @@ export default function App() {
     [currentUser]
   );
 
+  /**
+   * 开始学习（各年级进度完全独立）：
+   * - 传入年级号：点年级卡片 → 进入该年级本轮的进度（跳过本轮已处理词条）
+   * - 不传：首页「继续学习」→ 进入最近一次学习的年级（activeGrade）的进度；
+   *   重点记忆学习不改 activeGrade，因此不会干扰正常学习进度
+   */
   const startLearning = useCallback(
-    (unitIndex?: number) => {
+    (grade?: number) => {
       if (!progress || !currentUser) return;
+      const targetGrade = grade ?? progress.activeGrade;
 
-      // 给定单元顺序，返回第一个未完成的题目下标；全部完成返回 order.length
-      const firstUnfinished = (order: string[]) => {
-        let i = 0;
-        while (
-          i < order.length &&
-          progress.completedEntryIds.includes(order[i])
-        ) {
-          i += 1;
-        }
-        return i;
-      };
-
-      // 从指定单元开始向后查找，返回第一个有未学题目的单元及其顺序、下标。
-      // 如果所有单元都学完，返回起始单元及其顺序、下标 0（从头复习）。
-      const findNextUnfinishedUnit = (
-        startUnitIndex: number
-      ): { target: number; order: string[]; entryIndex: number } => {
-        for (let ui = startUnitIndex; ui < cur.length; ui += 1) {
-          const order =
-            ui === progress.unitIndex ? progress.unitOrder : makeUnitOrder(ui, version);
-          const ei = firstUnfinished(order);
-          if (ei < order.length) {
-            return { target: ui, order, entryIndex: ei };
-          }
-        }
-        // 全部完成：回到起始单元从头复习
-        const order =
-          startUnitIndex === progress.unitIndex
-            ? progress.unitOrder
-            : makeUnitOrder(startUnitIndex, version);
-        return { target: startUnitIndex, order, entryIndex: 0 };
-      };
-
-      let target: number;
-      let entryIndex: number;
-      let order: string[];
-
-      if (unitIndex !== undefined) {
-        // 点击年级卡片：优先恢复该年级上次保存的学习位置
-        const grade = cur[unitIndex]?.grade;
-        const saved =
-          grade != null ? progress.gradeProgress?.[String(grade)] : undefined;
-        if (saved && cur[saved.unitIndex]?.grade === grade) {
-          target = saved.unitIndex;
-          order =
-            saved.unitOrder?.length
-              ? saved.unitOrder
-              : makeUnitOrder(saved.unitIndex, version);
-          entryIndex = firstUnfinished(order);
-          // 该保存位置已全部完成 → 从该单元往后找下一个未学单元
-          if (entryIndex >= order.length) {
-            const next = findNextUnfinishedUnit(target);
-            target = next.target;
-            order = next.order;
-            entryIndex = next.entryIndex;
-          }
-        } else {
-          // 该年级没有学习记录，从第一单元开始
-          const next = findNextUnfinishedUnit(unitIndex);
-          target = next.target;
-          order = next.order;
-          entryIndex = next.entryIndex;
-        }
-      } else {
-        // 「继续学习」：从全局指针继续；若当前单元已学完则自动往后找
-        const next = findNextUnfinishedUnit(progress.unitIndex);
-        target = next.target;
-        order = next.order;
-        entryIndex = next.entryIndex;
-      }
+      // 在目标年级内找继续学习位置（跳过本轮已处理词条）
+      const pos = findResumePosition(progress, targetGrade, version);
 
       // 进入学习前预取第一题的真人音频，页面切过去时零等待
-      const firstId = order[entryIndex] ?? order[0];
-      const firstEntry = cur[target]?.entries.find((e) => e.id === firstId);
+      const firstId = pos.unitOrder[pos.entryIndex] ?? pos.unitOrder[0];
+      const firstEntry = cur[pos.unitIndex]?.entries.find(
+        (e) => e.id === firstId
+      );
       if (firstEntry) prefetchAudio(firstEntry.english, accent);
 
-      setProgress((prev) => ({
-        ...prev,
-        unitIndex: target,
-        entryIndex,
-        unitOrder: order,
-      }));
+      setProgress((prev) => {
+        const gs =
+          prev.grades[String(targetGrade)] ??
+          freshGradeState(version, targetGrade);
+        return {
+          ...prev,
+          activeGrade: targetGrade,
+          grades: {
+            ...prev.grades,
+            [String(targetGrade)]: { ...gs, ...pos },
+          },
+        };
+      });
       setView("learn");
     },
     [progress, currentUser, version, accent, cur, setProgress]
