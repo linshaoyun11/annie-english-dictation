@@ -5,6 +5,7 @@ import {
   resolveAudio,
   type AudioResult,
 } from "../lib/audio";
+import { safeClearTimeout, safeTimeout } from "../lib/timer";
 import type { Accent } from "../lib/users";
 
 /* ── Web Speech 兜底：仅当音频解析彻底失败时使用 ── */
@@ -70,17 +71,13 @@ export function useSpeechLoop(gapMs = 3000) {
   const myGen = useRef(0);
 
   function clearTimer() {
-    if (timerRef.current) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+    safeClearTimeout(timerRef.current);
+    timerRef.current = null;
   }
 
   function clearWatchdog() {
-    if (watchdogRef.current) {
-      window.clearTimeout(watchdogRef.current);
-      watchdogRef.current = null;
-    }
+    safeClearTimeout(watchdogRef.current);
+    watchdogRef.current = null;
   }
 
   function stopAll() {
@@ -117,13 +114,13 @@ export function useSpeechLoop(gapMs = 3000) {
     u.onend = () => {
       if (valid(myGen.current)) {
         clearTimer();
-        timerRef.current = window.setTimeout(speakWebSpeech, gapMs);
+        timerRef.current = safeTimeout(speakWebSpeech, gapMs);
       }
     };
     u.onerror = () => {
       if (valid(myGen.current)) {
         clearTimer();
-        timerRef.current = window.setTimeout(speakWebSpeech, gapMs);
+        timerRef.current = safeTimeout(speakWebSpeech, gapMs);
       }
     };
     window.speechSynthesis.speak(u);
@@ -138,7 +135,7 @@ export function useSpeechLoop(gapMs = 3000) {
     const dur =
       Number.isFinite(el.duration) && el.duration > 0 ? el.duration : 3;
     const expected = (dur / Math.max(rateRef.current, 0.1)) * 1000 + 2500;
-    watchdogRef.current = window.setTimeout(() => {
+    watchdogRef.current = safeTimeout(() => {
       if (!valid(gen) || modeRef.current !== "audio") return;
       if (el.paused && !el.ended) {
         playCurrent(gen); // 卡死：从头重播当前条目
@@ -152,12 +149,12 @@ export function useSpeechLoop(gapMs = 3000) {
     clearWatchdog();
     const isLast = seqIdxRef.current >= playlistRef.current.length - 1;
     if (isLast) {
-      timerRef.current = window.setTimeout(() => {
+      timerRef.current = safeTimeout(() => {
         seqIdxRef.current = 0;
         playCurrent(gen);
       }, gapMs);
     } else {
-      timerRef.current = window.setTimeout(() => {
+      timerRef.current = safeTimeout(() => {
         seqIdxRef.current += 1;
         playCurrent(gen);
       }, WORD_GAP_MS);
@@ -169,7 +166,7 @@ export function useSpeechLoop(gapMs = 3000) {
     if (!valid(gen)) return;
     const isLast = seqIdxRef.current >= playlistRef.current.length - 1;
     seqIdxRef.current = isLast ? 0 : seqIdxRef.current + 1;
-    window.setTimeout(() => playCurrent(gen), WORD_GAP_MS);
+    safeTimeout(() => playCurrent(gen), WORD_GAP_MS);
   }
 
   /** 播放列表中的当前条目（带失败重试：换新元素再试一次） */
@@ -229,7 +226,7 @@ export function useSpeechLoop(gapMs = 3000) {
             fresh.preload = "auto";
             fresh.src = item.url;
             item.el = fresh;
-            window.setTimeout(() => attempt(fresh, true), 80);
+            safeTimeout(() => attempt(fresh, true), 80);
           } else {
             failCountRef.current += 1;
             if (failCountRef.current > playlistRef.current.length + 1) {
@@ -268,14 +265,14 @@ export function useSpeechLoop(gapMs = 3000) {
     // 解析太慢（弱网网页版）→ 4s 后退回浏览器语音，避免长时间无声。
     // 不用更短的过渡语音：iOS 上 speechSynthesis 与 <audio> 音量通道不同，
     // 来回切换听感上就是"忽大忽小"。
-    const fallbackTimer = window.setTimeout(() => {
+    const fallbackTimer = safeTimeout(() => {
       if (!started && valid(gen)) speakWebSpeech();
     }, 4000);
 
     Promise.all(words.map((w) => resolveAudio(w, accent))).then((results) => {
       if (gen !== activeGen) return;
       started = true;
-      window.clearTimeout(fallbackTimer);
+      safeClearTimeout(fallbackTimer);
       if (!valid(gen)) return;
       const list = results.filter((r): r is AudioResult => !!r);
       if (list.length > 0) {
@@ -358,9 +355,13 @@ export function useSpeechLoop(gapMs = 3000) {
   /**
    * 语音兜底看门狗：iOS speechSynthesis 短句 onend 偶发不触发导致卡死。
    * 每 3s 检查一次：处于语音模式且既不在朗读也无排队 → 重新启动朗读。
+   * 用递归 safeTimeout 而非 setInterval：iOS 后台挂起会冻结 interval，
+   * safeTimeout 的心跳补发机制可在唤醒后自愈。
    */
   useEffect(() => {
-    const id = window.setInterval(() => {
+    let id: number | null = null;
+    const tick = () => {
+      id = safeTimeout(tick, 3000);
       if (!loopRef.current || myGen.current !== activeGen) return;
       if (modeRef.current !== "speech") return;
       if (!("speechSynthesis" in window)) return;
@@ -370,8 +371,9 @@ export function useSpeechLoop(gapMs = 3000) {
       ) {
         fnsRef.current.speakWebSpeech();
       }
-    }, 3000);
-    return () => window.clearInterval(id);
+    };
+    id = safeTimeout(tick, 3000);
+    return () => safeClearTimeout(id);
   }, []);
 
   useEffect(() => {

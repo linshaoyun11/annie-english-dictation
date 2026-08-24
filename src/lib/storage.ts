@@ -15,6 +15,7 @@
  */
 
 import { Capacitor } from "@capacitor/core";
+import { safeClearTimeout, safeTimeout } from "./timer";
 
 interface PrefsLike {
   set(options: { key: string; value: string }): Promise<void>;
@@ -91,7 +92,7 @@ export function storageSet(key: string, value: string): void {
   localStorage.setItem(key, value);
   pendingNativeWrites.set(key, value);
   if (nativeFlushTimer === null) {
-    nativeFlushTimer = window.setTimeout(() => {
+    nativeFlushTimer = safeTimeout(() => {
       nativeFlushTimer = null;
       void doFlushNativeWrites();
     }, NATIVE_WRITE_DELAY_MS);
@@ -101,7 +102,7 @@ export function storageSet(key: string, value: string): void {
 /** 等待正在进行的原生写入完成（切后台/退出学习页等关键时机调用） */
 export async function flushStorage(): Promise<void> {
   if (nativeFlushTimer !== null) {
-    window.clearTimeout(nativeFlushTimer);
+    safeClearTimeout(nativeFlushTimer);
     nativeFlushTimer = null;
   }
   await doFlushNativeWrites();

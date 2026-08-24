@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { avatarById, type User } from "../lib/users";
+import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "../components/AvatarImg";
 
 interface ProfilePageProps {
@@ -53,7 +54,7 @@ export default function ProfilePage({
     setWrong(true);
     navigator.vibrate?.(120);
     inputRef.current?.focus();
-    window.setTimeout(() => {
+    safeTimeout(() => {
       setPwd("");
       setWrong(false);
     }, 500);
@@ -64,7 +65,7 @@ export default function ProfilePage({
     setPwd("");
     setNewPwd("");
     setChanged(true);
-    window.setTimeout(() => setChanged(false), 2000);
+    safeTimeout(() => setChanged(false), 2000);
   };
 
   const submit = (value: string) => {
@@ -87,7 +88,7 @@ export default function ProfilePage({
         setMismatch(true);
         navigator.vibrate?.(120);
         inputRef.current?.focus();
-        window.setTimeout(() => {
+        safeTimeout(() => {
           setPwd("");
           setMismatch(false);
           // 重新输入新密码
@@ -102,7 +103,8 @@ export default function ProfilePage({
     const clean = v.replace(/\D/g, "").slice(0, 4);
     setPwd(clean);
     if (clean.length === 4) {
-      window.setTimeout(() => submit(clean), 150);
+      // safeTimeout：iOS 后台唤醒后普通定时器可能冻结，导致输完密码不提交
+      safeTimeout(() => submit(clean), 150);
     }
   };
 

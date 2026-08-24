@@ -20,6 +20,7 @@ import { pointsForEntry, type User } from "../lib/users";
 import { randomMovieQuote, type MovieQuote } from "../data/movieQuotes";
 import { useSpeechLoop, primeSpeech } from "../hooks/useSpeechLoop";
 import { prefetchAudio } from "../lib/audio";
+import { safeTimeout } from "../lib/timer";
 import { playCelebrationJingle } from "../lib/celebration";
 import LearningCard from "../components/LearningCard";
 
@@ -155,7 +156,7 @@ export default function LearnPage({
 
   const showToast = (msg: string) => {
     setToast(msg);
-    window.setTimeout(() => setToast(null), 1600);
+    safeTimeout(() => setToast(null), 1600);
   };
 
   // 预加载后续几题的音频：切题时真人录音已在缓存，零等待直放。
@@ -417,7 +418,9 @@ export default function LearnPage({
     if (busyRef.current) return;
     busyRef.current = true;
     const release = () => {
-      window.setTimeout(() => {
+      // busyRef 解锁必须用 safeTimeout：iOS 后台挂起冻结定时器时，
+      // 普通 setTimeout 永不触发 → busyRef 卡 true → 之后所有跳题失效
+      safeTimeout(() => {
         busyRef.current = false;
       }, 50);
     };
@@ -630,7 +633,7 @@ export default function LearnPage({
       setAnimKey((k) => k + 1);
     }
     lastProcessedUnitRef.current = null;
-    window.setTimeout(() => {
+    safeTimeout(() => {
       busyRef.current = false;
     }, 80);
   }, [
@@ -686,7 +689,7 @@ export default function LearnPage({
       setAnimKey((k) => k + 1);
     }
     lastProcessedUnitRef.current = null;
-    window.setTimeout(() => {
+    safeTimeout(() => {
       busyRef.current = false;
     }, 80);
   }, [celebration, cur, version, setProgress]);

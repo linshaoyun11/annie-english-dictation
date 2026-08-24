@@ -6,6 +6,7 @@ import {
   type CurriculumVersion,
 } from "../data/curriculum";
 import { avatarById, type Accent, type User, type UserConfig } from "../lib/users";
+import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "../components/AvatarImg";
 
 interface SettingsPageProps {
@@ -79,7 +80,7 @@ export default function SettingsPage({
     if (next.autoNext !== undefined) setAutoNext(next.autoNext);
     onSave(config);
     setSaved(true);
-    window.setTimeout(() => setSaved(false), 1800);
+    safeTimeout(() => setSaved(false), 1800);
   };
 
   return (

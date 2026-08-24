@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { type WordEntry, gradeLabel } from "../data/curriculum";
 import { pointsForEntry } from "../lib/users";
+import { safeClearTimeout, safeTimeout } from "../lib/timer";
 import SoundWave from "./SoundWave";
 import SpellingInput from "./SpellingInput";
 
@@ -60,7 +61,7 @@ export default function LearningCard({
     return () => {
       stopAudio();
       if (autoNextTimer.current) {
-        window.clearTimeout(autoNextTimer.current);
+        safeClearTimeout(autoNextTimer.current);
         autoNextTimer.current = null;
       }
     };
@@ -98,7 +99,7 @@ export default function LearningCard({
       if (completed || revealed) {
         e.preventDefault();
         if (autoNextTimer.current) {
-          window.clearTimeout(autoNextTimer.current);
+          safeClearTimeout(autoNextTimer.current);
           autoNextTimer.current = null;
         }
         onNext();
@@ -117,7 +118,7 @@ export default function LearningCard({
     onComplete(entry.id);
     if (frozen) return;
     if (!autoNext) return; // 关闭自动跳题：停在正确页，等空格 / 点按钮
-    autoNextTimer.current = window.setTimeout(() => {
+    autoNextTimer.current = safeTimeout(() => {
       autoNextTimer.current = null;
       onNext();
     }, 1800);
@@ -139,7 +140,7 @@ export default function LearningCard({
       onMouseDown={(e) => e.preventDefault()}
       onClick={() => {
         if (autoNextTimer.current) {
-          window.clearTimeout(autoNextTimer.current);
+          safeClearTimeout(autoNextTimer.current);
           autoNextTimer.current = null;
         }
         onNext();
