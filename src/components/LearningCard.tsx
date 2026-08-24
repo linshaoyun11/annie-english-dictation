@@ -51,6 +51,7 @@ export default function LearningCard({
   const [revealReason, setRevealReason] = useState<"dontKnow" | "strike5" | null>(null);
   const [revealSignal, setRevealSignal] = useState(0);
   const autoNextTimer = useRef<number | null>(null);
+  const skipBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setShowHint(false);
@@ -74,6 +75,15 @@ export default function LearningCard({
       autoNextTimer.current = null;
     }
   }, [frozen]);
+
+  // 展开提示后，若“我不会”按钮被键盘遮挡，则自动滚动使其可见
+  useEffect(() => {
+    if (!showHint) return;
+    const id = safeTimeout(() => {
+      skipBtnRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 60);
+    return () => safeClearTimeout(id);
+  }, [showHint]);
 
   // 空格键：答题中切换查看提示；答对/揭示后进入下一题
   useEffect(() => {
@@ -324,6 +334,7 @@ export default function LearningCard({
 
         {!completed && !revealed && (
           <button
+            ref={skipBtnRef}
             type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => revealAnswer("dontKnow")}
