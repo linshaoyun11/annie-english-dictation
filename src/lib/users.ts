@@ -14,7 +14,7 @@ export interface UserConfig {
 }
 
 export const DEFAULT_CONFIG: UserConfig = {
-  curriculum: "waiyanshe",
+  curriculum: "waiyanshe3",
   accent: "uk",
   autoNext: false,
 };

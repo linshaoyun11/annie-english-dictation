@@ -26,6 +26,7 @@ import {
 import {
   type User,
   type UserConfig,
+  DEFAULT_CONFIG,
   loadUsers,
   registerUser,
   saveUsers,
@@ -53,8 +54,8 @@ export default function App() {
   const [difficultOrder, setDifficultOrder] = useState<string[]>([]);
 
   // 当前用户的教材版本（进度按版本隔离加载）
-  const version = currentUser?.config.curriculum ?? "renjiao";
-  const accent = currentUser?.config.accent ?? "us";
+  const version = currentUser?.config.curriculum ?? DEFAULT_CONFIG.curriculum;
+  const accent = currentUser?.config.accent ?? DEFAULT_CONFIG.accent;
   const cur = getCurriculum(version);
 
   // 启动即预热浏览器语音引擎，消除首次发音的冷启动延迟

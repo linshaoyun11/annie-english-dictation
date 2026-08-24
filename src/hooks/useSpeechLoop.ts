@@ -243,7 +243,7 @@ export function useSpeechLoop(gapMs = 3000) {
   }
 
   /** 开始循环朗读（本地/网络音频优先，失败退回浏览器语音） */
-  function start(text: string, rate = 0.9, accent: Accent = "us") {
+  function start(text: string, rate = 0.9, accent: Accent = "uk") {
     const gen = ++activeGen;
     myGen.current = gen;
     textRef.current = text;
