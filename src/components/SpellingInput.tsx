@@ -238,12 +238,16 @@ export default function SpellingInput({
       */}
       <input
         ref={inputRef}
+        type="text"
         value={typed.join("")}
         onChange={handleChange}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="none"
         spellCheck={false}
+        inputMode="text"
+        lang="en"
+        pattern="[a-zA-Z]*"
         aria-label="拼写输入"
         className={
           done || revealed

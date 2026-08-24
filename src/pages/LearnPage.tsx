@@ -720,6 +720,13 @@ export default function LearnPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry?.grade, entry?.unit]);
 
+  // 祝贺页弹出时收起键盘（iOS 上输入框焦点不释放会导致键盘遮挡按钮）
+  useEffect(() => {
+    if (celebration) {
+      (document.activeElement as HTMLElement | null)?.blur();
+    }
+  }, [celebration]);
+
   const restart = () => {
     const p = freshProgress(version);
     setProgress(p);
