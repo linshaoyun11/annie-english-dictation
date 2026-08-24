@@ -871,26 +871,29 @@ export default function LearnPage({
               </p>
             </div>
 
-            {/* 操作按钮：返回首页 / 重新学习 / 继续学习，继续学习固定在页面最下方 */}
+            {/* 操作按钮：重新学习本单元 / 返回首页 在上方，继续学习固定在页面最下方 */}
             <div className="mt-auto w-full pt-6">
-              <button
-                type="button"
-                onClick={onExit}
-                className="w-full rounded-full border border-border bg-surface py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
-              >
-                返回首页
-              </button>
-              <button
-                type="button"
-                onClick={restartUnitFromCelebration}
-                className="mt-3 w-full rounded-full bg-[#756CC5] py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(83,74,183,0.25)] transition-transform active:scale-[0.98]"
-              >
-                重新学习本单元
-              </button>
+              <div className="w-full">
+                {/* 重新学习本单元：进度回滚到本单元第 1 个词条（积分不回收） */}
+                <button
+                  type="button"
+                  onClick={restartUnitFromCelebration}
+                  className="w-full rounded-full bg-[#756CC5] py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(83,74,183,0.25)] transition-transform active:scale-[0.98]"
+                >
+                  重新学习本单元
+                </button>
+                <button
+                  type="button"
+                  onClick={onExit}
+                  className="mt-3 w-full rounded-full border border-border bg-surface py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
+                >
+                  返回首页
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={continueFromCelebration}
-                className="mt-3 w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+                className="mt-6 w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
               >
                 继续学习
               </button>
