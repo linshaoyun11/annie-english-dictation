@@ -7,6 +7,7 @@ import {
 } from "../data/curriculum";
 import { avatarById, type Accent, type User, type UserConfig } from "../lib/users";
 import { safeTimeout } from "../lib/timer";
+import { APP_VERSION } from "../lib/version";
 import { AvatarImg } from "../components/AvatarImg";
 
 interface SettingsPageProps {
@@ -54,6 +55,7 @@ export default function SettingsPage({
     user.config.autoNext ?? false
   );
   const [saved, setSaved] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   // 各版本统计（单元数 / 条目数）
   const stats = useMemo(() => {
@@ -235,6 +237,54 @@ export default function SettingsPage({
           💡 切换教材后，该教材的学习进度会从第一单元开始，其他教材上的进度仍然保留。
         </p>
       </div>
+
+      {/* 关于 */}
+      <button
+        type="button"
+        onClick={() => setShowAbout(true)}
+        className="mt-3 flex w-full items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3.5 text-left transition-all active:scale-[0.98]"
+      >
+        <span className="flex items-center gap-2.5">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4" />
+            <path d="M12 8h.01" />
+          </svg>
+          <span className="text-sm font-semibold text-text">关于</span>
+        </span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text3">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+
+      {/* 关于弹窗 */}
+      {showAbout && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-8"
+          onClick={() => setShowAbout(false)}
+        >
+          <div
+            className="w-full max-w-xs rounded-3xl bg-surface p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-base font-semibold text-text">关于</h3>
+            <div className="mt-3 space-y-1.5 text-xs leading-5 text-text2">
+              <p>版本号：{APP_VERSION}</p>
+              <p>开发：Luminous Soul Youth</p>
+              <p className="pt-1 text-[11px] leading-4 text-text3">
+                感谢Winnie、Pigpig、Dogdi提供技术支持和情绪价值。
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAbout(false)}
+              className="mt-4 w-full rounded-2xl bg-primary py-2.5 text-sm font-semibold text-white transition-transform active:scale-[0.97]"
+            >
+              知道了
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
