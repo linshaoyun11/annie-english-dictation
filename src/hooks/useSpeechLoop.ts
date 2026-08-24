@@ -5,6 +5,7 @@ import {
   resolveAudio,
   type AudioResult,
 } from "../lib/audio";
+import { playWebAudio, stopWebAudio } from "../lib/webaudio";
 import { safeClearTimeout, safeTimeout } from "../lib/timer";
 import type { Accent } from "../lib/users";
 
@@ -53,13 +54,22 @@ const WORD_GAP_MS = 260;
 
 /* ── 主循环 Hook ── */
 
-export function useSpeechLoop(gapMs = 3000) {
+/** 实际播放路径（诊断用："web"=Web Audio，"element"=<audio> 元素，"speech"=浏览器语音） */
+export type PlayPath = "web" | "element" | "speech";
+
+export function useSpeechLoop(
+  gapMs = 3000,
+  onPlayPath?: (path: PlayPath) => void
+) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<number | null>(null);
   const watchdogRef = useRef<number | null>(null);
   const loopRef = useRef(true);
   /** 当前播放模式："audio"=本地/网络音频序列，"speech"=浏览器语音，null=停止 */
   const modeRef = useRef<"audio" | "speech" | null>(null);
+  /** 播放路径回调（存 ref，避免调用方传新函数导致行为变化） */
+  const onPlayPathRef = useRef(onPlayPath);
+  onPlayPathRef.current = onPlayPath;
   /** 播放列表：单词为 1 项；短语拆词后为多个单词音频，顺序循环播放 */
   const playlistRef = useRef<AudioResult[]>([]);
   const seqIdxRef = useRef(0);
@@ -69,6 +79,12 @@ export function useSpeechLoop(gapMs = 3000) {
   const accentRef = useRef<Accent>("us");
   const rateRef = useRef(0.9);
   const myGen = useRef(0);
+  /**
+   * 播放序号：每次 playCurrent 自增。Web Audio 起播是异步的（fetch+解码），
+   * 期间用户可能切题/点重读触发新的播放 —— 旧请求回来后据此判断自己
+   * 是否仍是最新一次播放，是才继续（起播或回落），否则直接丢弃。
+   */
+  const playSeqRef = useRef(0);
 
   function clearTimer() {
     safeClearTimeout(timerRef.current);
@@ -88,6 +104,7 @@ export function useSpeechLoop(gapMs = 3000) {
       el.onerror = null;
       audioRef.current = null;
     }
+    stopWebAudio();
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
@@ -103,6 +120,7 @@ export function useSpeechLoop(gapMs = 3000) {
     if (!loopRef.current || !textRef.current) return;
     if (myGen.current !== activeGen) return;
     modeRef.current = "speech";
+    onPlayPathRef.current?.("speech");
     clearTimer();
     ensureVoiceListener();
     window.speechSynthesis.cancel();
@@ -143,6 +161,22 @@ export function useSpeechLoop(gapMs = 3000) {
     }, expected);
   }
 
+  /**
+   * 看门狗（Web Audio 路径）：BufferSource 的 onended 偶发不触发时兜底。
+   * 播放时长（按变速折算）+ 2.5s 后仍未安排下一轮（timerRef 为空）
+   * 则从头重播当前条目。onended 正常触发时 scheduleNext 会设置定时器
+   * 并清除本看门狗，不会误伤。
+   */
+  function startWatchdogMs(ms: number, gen: number) {
+    clearWatchdog();
+    watchdogRef.current = safeTimeout(() => {
+      if (!valid(gen) || modeRef.current !== "audio") return;
+      if (timerRef.current === null) {
+        playCurrent(gen); // 卡死：从头重播当前条目
+      }
+    }, ms);
+  }
+
   /** 当前条目播放完成 → 安排下一个（最后一个条目后等 gapMs 再整组重播） */
   function scheduleNext(gen: number) {
     if (!valid(gen)) return;
@@ -169,21 +203,10 @@ export function useSpeechLoop(gapMs = 3000) {
     safeTimeout(() => playCurrent(gen), WORD_GAP_MS);
   }
 
-  /** 播放列表中的当前条目（带失败重试：换新元素再试一次） */
-  function playCurrent(gen: number) {
-    if (!valid(gen)) return;
-    clearTimer();
-    clearWatchdog();
-    const item = playlistRef.current[seqIdxRef.current];
-    if (!item) {
-      speakWebSpeech();
-      return;
-    }
-    modeRef.current = "audio";
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-
+  /**
+   * <audio> 元素播放路径（Web Audio 不可用时的兜底，逻辑与旧版完全一致）。
+   */
+  function playViaElement(gen: number, item: AudioResult) {
     const attempt = (el: HTMLAudioElement, isRetry: boolean) => {
       if (!valid(gen)) return;
       audioRef.current = el;
@@ -204,6 +227,7 @@ export function useSpeechLoop(gapMs = 3000) {
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
+      onPlayPathRef.current?.("element");
       // 复用过的元素只在确实播放过（有进度/已结束）时才 load() 彻底重置：
       // 1) 不做 currentTime=0 的 seek——Edge TTS 生成的 mp3 无 Xing/Info 头，
       //    WebKit 里 duration=Infinity，seek(0) 会跳到接近结尾（"短促尾音"元凶）；
@@ -240,6 +264,49 @@ export function useSpeechLoop(gapMs = 3000) {
     };
 
     attempt(ensureElement(item), false);
+  }
+
+  /**
+   * 播放列表中的当前条目。
+   * 首选 Web Audio：所有播放走同一条 AudioContext→GainNode 路径，
+   * 根治 iOS「第一遍音量小、后续变大」。不可用时回落 <audio> 元素
+   * 路径（与旧版行为一致）。
+   */
+  function playCurrent(gen: number) {
+    if (!valid(gen)) return;
+    clearTimer();
+    clearWatchdog();
+    const item = playlistRef.current[seqIdxRef.current];
+    if (!item) {
+      speakWebSpeech();
+      return;
+    }
+    modeRef.current = "audio";
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    stopWebAudio(); // 停掉上一条（并使在途的旧播放请求作废）
+    const seq = ++playSeqRef.current;
+
+    playWebAudio(item.url, {
+      rate: rateRef.current,
+      onEnded: () => {
+        if (valid(gen)) scheduleNext(gen);
+      },
+    }).then((r) => {
+      // 起播是异步的：期间若已切题/重读（seq 变化）或已停止，直接丢弃
+      if (!valid(gen) || seq !== playSeqRef.current) return;
+      if (r.started) {
+        failCountRef.current = 0;
+        onPlayPathRef.current?.("web");
+        startWatchdogMs(
+          (r.duration / Math.max(rateRef.current, 0.1)) * 1000 + 2500,
+          gen
+        );
+      } else {
+        playViaElement(gen, item);
+      }
+    });
   }
 
   /** 开始循环朗读（本地/网络音频优先，失败退回浏览器语音） */
@@ -398,29 +465,12 @@ export function primeSpeech() {
     /* ignore */
   }
 
-  // 2) Web Audio API 热身：极短、极低音量（几乎不可闻）
-  //    让 WebKit / iOS 把页面标记为"已播放过音频"，避免首条 <audio>
-  //    走低增益路径，从而改善第一遍播放音量偏小的问题。
-  try {
-    const AC =
-      (window as unknown as { AudioContext?: typeof AudioContext }).AudioContext ??
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AC) return;
-    const ctx = new AC();
-    const gain = ctx.createGain();
-    gain.gain.value = 0.001;
-    gain.connect(ctx.destination);
-    const buf = ctx.createBuffer(1, Math.max(1, ctx.sampleRate * 0.02), ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = 0;
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(gain);
-    src.onended = () => ctx.close().catch(() => {});
-    src.start();
-  } catch {
-    /* ignore */
-  }
+  // 2) Web Audio 预热不在 primeSpeech 里做！
+  //    primeSpeech 会在 App 启动的 useEffect（无用户手势）中被调用，
+  //    此时 new AudioContext() 会得到永久 suspended 的 context（iOS
+  //    手势陷阱，build 23 失败根因），之后手势里 resume() 也可能假成功。
+  //    AudioContext 只能由手势事件处理器里调用的 primeWebAudio() 创建，
+  //    见 src/lib/webaudio.ts。
 
   if ("speechSynthesis" in window) {
     const u = new SpeechSynthesisUtterance(" ");

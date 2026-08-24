@@ -6,6 +6,7 @@ import {
 } from "../data/curriculum";
 import { type Progress, gradeStats, processedOf } from "../lib/progress";
 import { primeSpeech } from "../hooks/useSpeechLoop";
+import { primeWebAudio } from "../lib/webaudio";
 import { avatarById, type User } from "../lib/users";
 import { AvatarImg } from "../components/AvatarImg";
 import PasswordModal from "../components/PasswordModal";
@@ -135,6 +136,7 @@ export default function HomePage({
           type="button"
           onClick={() => {
             primeSpeech();
+            primeWebAudio(); // 手势栈内创建 AudioContext（iOS 手势陷阱，切勿移到手势外）
             onStart();
           }}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
@@ -161,6 +163,7 @@ export default function HomePage({
               type="button"
               onClick={() => {
                 primeSpeech();
+                primeWebAudio(); // 手势栈内创建 AudioContext（iOS 手势陷阱，切勿移到手势外）
                 onStart(g);
               }}
               className={`group flex flex-col rounded-2xl border bg-surface p-4 text-left shadow-sm transition-all active:scale-[0.98] ${
