@@ -721,10 +721,18 @@ export default function LearnPage({
   }, [entry?.grade, entry?.unit]);
 
   // 祝贺页弹出时收起键盘（iOS 上输入框焦点不释放会导致键盘遮挡按钮）
+  // 同时监听 visibilitychange：切到其它 APP 再回来时，iOS 可能自动恢复键盘，
+  // 需要再次强制失焦。
   useEffect(() => {
-    if (celebration) {
-      (document.activeElement as HTMLElement | null)?.blur();
-    }
+    if (!celebration) return;
+    const blurActive = () => {
+      if (document.visibilityState === "visible") {
+        (document.activeElement as HTMLElement | null)?.blur();
+      }
+    };
+    blurActive();
+    document.addEventListener("visibilitychange", blurActive);
+    return () => document.removeEventListener("visibilitychange", blurActive);
   }, [celebration]);
 
   const restart = () => {
@@ -817,7 +825,7 @@ export default function LearnPage({
 
       {/* 单元/年级完成祝贺页 */}
       {celebration && (
-        <div className="absolute inset-0 z-40 overflow-y-auto bg-gradient-to-b from-primary-lighter via-bg to-[#FFF9EC] px-8 py-12">
+        <div className="absolute inset-0 z-40 overflow-y-auto bg-primary-lighter px-8 py-12">
           <div className="mx-auto flex h-full max-w-sm flex-col items-center text-center">
             <div className="text-5xl animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)]">
               🎉

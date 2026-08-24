@@ -222,6 +222,15 @@ export default function DifficultWordsPage({
             </div>
           )}
 
+          <div className="flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-[11px] leading-relaxed text-text3">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+            重点记忆词条至少学习一次才能移除。
+          </div>
+
           <button
             type="button"
             disabled={visibleEntries.length === 0}
