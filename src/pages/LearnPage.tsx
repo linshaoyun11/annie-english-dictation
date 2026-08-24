@@ -211,6 +211,15 @@ export default function LearnPage({
       if (src) lastProcessedUnitRef.current = `${src.grade}-${src.unit}`;
 
       if (difficultMode) {
+        // 拼对一次即视为"学习过"，之后才允许从重点记忆列表移除
+        setProgress((prev) =>
+          prev.difficultStudiedIds?.includes(id)
+            ? prev
+            : {
+                ...prev,
+                difficultStudiedIds: [...(prev.difficultStudiedIds ?? []), id],
+              }
+        );
         // 重点记忆学习：积分只加一次（持久化 difficultAwardedIds 去重），
         // 重复学习不再加分；不写年级进度（重点记忆不参与进度推进）
         if (!awardedRef.current.has(id)) {

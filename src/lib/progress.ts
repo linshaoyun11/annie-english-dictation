@@ -40,6 +40,8 @@ export interface Progress {
   difficultEntryIds: string[]; // "我不会"的重点记忆列表（跨轮持续存在）
   /** 重点记忆学习已加过积分的词条（积分只加一次，之后重复学习不加分） */
   difficultAwardedIds?: string[];
+  /** 重点记忆学习中拼对过至少一次的词条（学习一次后才可从列表移除） */
+  difficultStudiedIds?: string[];
   errorCounts: Record<string, number>;
   lastLearnedAt: number;
   /** 各单元首次开始学习的时间戳（key: `${grade}-${unit}`） */
@@ -185,6 +187,9 @@ function sanitizeProgress(p: Progress, version: CurriculumVersion): Progress {
   const difficultAwarded = (p.difficultAwardedIds ?? []).filter((id) =>
     validIds.has(id)
   );
+  const difficultStudied = (p.difficultStudiedIds ?? []).filter((id) =>
+    validIds.has(id)
+  );
   const mistake = (p.mistakeEntryIds ?? []).filter((id) => validIds.has(id));
   const errorCounts: Record<string, number> = {};
   for (const [k, v] of Object.entries(p.errorCounts ?? {})) {
@@ -239,6 +244,7 @@ function sanitizeProgress(p: Progress, version: CurriculumVersion): Progress {
     grades,
     difficultEntryIds: difficult,
     difficultAwardedIds: difficultAwarded,
+    difficultStudiedIds: difficultStudied,
     mistakeEntryIds: mistake,
     errorCounts,
   };
@@ -314,6 +320,7 @@ function toGradeModel(old: OldProgress, version: CurriculumVersion): Progress {
     grades,
     difficultEntryIds: old.difficultEntryIds ?? [],
     difficultAwardedIds: [],
+    difficultStudiedIds: [],
     errorCounts: old.errorCounts ?? {},
     lastLearnedAt: old.lastLearnedAt ?? Date.now(),
     unitStartedAt: old.unitStartedAt ?? {},
@@ -471,6 +478,7 @@ export function freshProgress(version: CurriculumVersion): Progress {
     grades: { [String(firstGrade)]: freshGradeState(version, firstGrade) },
     difficultEntryIds: [],
     difficultAwardedIds: [],
+    difficultStudiedIds: [],
     errorCounts: {},
     lastLearnedAt: Date.now(),
     unitStartedAt: {},
