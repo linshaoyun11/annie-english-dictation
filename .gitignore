@@ -43,3 +43,8 @@ capacitor.config.local.ts
 .workbuddy/tts-samples/
 .workbuddy/avatar-test.png
 .workbuddy/ios-cert-private-key.pub
+
+# Male-voice fix working data (originals backup + F0 scan reports)
+scripts/male_voice_backup/
+scripts/male_voice_report.tsv
+scripts/male_candidates.json
