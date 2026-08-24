@@ -261,54 +261,24 @@ export default function HomePage({
   );
 }
 
-/** 年级完成轮次徽章：带翅膀的紫色圆形徽章，中间显示轮次数 */
+/** 年级完成轮次徽章：直接使用设计图徽章，圆圈中间显示紫色轮次数 */
 function RoundsBadge({ rounds }: { rounds: number }) {
   const label = rounds > 99 ? "99+" : String(rounds);
   return (
     <span
-      className="inline-flex h-5 items-center align-middle"
+      className="relative inline-flex h-5 w-auto items-center align-middle"
       title={`已完整学完 ${rounds} 轮`}
       aria-label={`已完整学完 ${rounds} 轮`}
     >
-      <svg
-        width="46"
-        height="20"
-        viewBox="0 0 60 28"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+      <img
+        src="/grade-badge.jpg"
+        alt=""
+        className="h-5 w-auto object-contain"
         aria-hidden
-      >
-        <path
-          d="M17 14C10 5 2 8 4 15C2 21 10 23 17 17"
-          fill="#EEEDFE"
-          stroke="#AFA9EC"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M43 14C50 5 58 8 56 15C58 21 50 23 43 17"
-          fill="#EEEDFE"
-          stroke="#AFA9EC"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="30" cy="14" r="13" fill="#534AB7" stroke="#3C3489" strokeWidth="2" />
-        <circle cx="30" cy="14" r="9" fill="#FFFFFF" />
-        <text
-          x="30"
-          y="15.5"
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontFamily="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-          fontSize="14"
-          fontWeight="700"
-          fill="#534AB7"
-        >
-          {label}
-        </text>
-      </svg>
+      />
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center pt-0.5 text-[10px] font-bold text-primary">
+        {label}
+      </span>
     </span>
   );
 }
