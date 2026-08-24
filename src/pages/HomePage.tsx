@@ -266,17 +266,17 @@ function RoundsBadge({ rounds }: { rounds: number }) {
   const label = rounds > 99 ? "99+" : String(rounds);
   return (
     <span
-      className="relative inline-flex h-5 w-auto items-center align-middle"
+      className="relative inline-flex h-6 w-auto items-center align-middle"
       title={`已完整学完 ${rounds} 轮`}
       aria-label={`已完整学完 ${rounds} 轮`}
     >
       <img
         src="/grade-badge.jpg"
         alt=""
-        className="h-5 w-auto object-contain"
+        className="h-6 w-auto object-contain"
         aria-hidden
       />
-      <span className="pointer-events-none absolute inset-0 flex items-center justify-center pt-0.5 text-[10px] font-bold text-primary">
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center pt-0.5 text-[11px] font-bold text-primary">
         {label}
       </span>
     </span>
