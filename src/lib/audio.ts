@@ -16,7 +16,6 @@
  *    是"学习单元多了 App 变卡"的主要来源之一。
  */
 
-import { ensureBuffer } from "./webaudio";
 import type { Accent } from "./users";
 
 export interface AudioResult {
@@ -163,9 +162,7 @@ export function prefetchAudio(
   if (cached && cached.el) return;
   resolveAudio(text, accent)
     .then((r) => {
-      if (!r) return;
-      ensureElement(r); // <audio> 兜底路径预热
-      void ensureBuffer(r.url); // Web Audio 主路径预热（fetch + 解码并缓存）
+      if (r) ensureElement(r);
     })
     .catch(() => {});
 }
