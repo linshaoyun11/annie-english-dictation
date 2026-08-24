@@ -437,12 +437,13 @@ export default function LearnPage({
 
     // 单元完成检测：最近处理的词条所属单元，若全部词条都已处理过（答对 或 点过"我不会"）
     // 则弹出祝贺页并停在这里，等用户点"继续学习"再真正切题。
+    // 每次学完该单元都弹（不限第一次）；lastProcessedUnitRef 在继续学习/重学时清空，防重复触发。
     // 注意：必须读 progressRef（最新值），因为本函数可能被 1.8s 定时器以旧闭包调用。
     const p = progressRef.current;
     const g = p.grades[String(p.activeGrade)];
     const processed = g ? processedOf(g) : new Set<string>();
     const lastKey = lastProcessedUnitRef.current;
-    if (lastKey && !(p.celebratedUnits ?? []).includes(lastKey)) {
+    if (lastKey) {
       const lastUnit = cur.find((u) => `${u.grade}-${u.unit}` === lastKey);
       if (lastUnit) {
         const allProcessed = lastUnit.entries.every((e) => processed.has(e.id));
@@ -455,15 +456,6 @@ export default function LearnPage({
           if (gradeAllDone) {
             triggerGradeCelebration(p, lastUnit.grade, lastKey);
           } else {
-            // 持久化标记：该单元已庆祝，避免重复弹出
-            setProgress((prev) =>
-              prev.celebratedUnits?.includes(lastKey)
-                ? prev
-                : {
-                    ...prev,
-                    celebratedUnits: [...(prev.celebratedUnits ?? []), lastKey],
-                  }
-            );
             speech.stop(); // 停掉后台朗读，避免祝贺页背后响着下一题的音频
             playCelebrationJingle(); // 播放简短庆祝音效
             setCelebration({
@@ -480,7 +472,7 @@ export default function LearnPage({
 
     const next = nextPositionAfter(p);
     if (next === "grade-complete") {
-      // 单元已庆祝过但年级刚学完（如重新学习本单元后再通关）→ 年级祝贺
+      // 年级刚学完（如重新学习本单元后再通关）→ 年级祝贺
       const grade = cur[g?.unitIndex ?? 0]?.grade ?? p.activeGrade;
       const unitKey =
         lastKey ?? `${grade}-${cur[g?.unitIndex ?? 0]?.unit ?? 1}`;
