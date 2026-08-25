@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { Capacitor } from "@capacitor/core";
+import { Keyboard } from "@capacitor/keyboard";
 
 interface WordGroup {
   letters: string[]; // 需要输入的字母（保留原大小写）
@@ -150,7 +152,13 @@ export default function SpellingInput({
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState !== "visible") return;
-      if (done || revealed) return;
+      if (done || revealed) {
+        // 通关页/正确页/揭示页：回来时主动收起键盘，避免遮挡按钮。
+        // inputRef.blur() 可能因僵尸态失效，用原生 Keyboard.hide() 兜底。
+        inputRef.current?.blur();
+        if (Capacitor.isNativePlatform()) Keyboard.hide();
+        return;
+      }
       inputAliveRef.current = false; // 假定僵尸，直到 onChange 证明活着
       flushSync(() => {
         setInputKey((k) => k + 1);
@@ -166,6 +174,22 @@ export default function SpellingInput({
     if (!done && !revealed) {
       inputRef.current?.focus();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputKey]);
+
+  // input 重建后重新设置 DOM 属性：iOS WKWebView 在 inputKey 换 key 销毁旧
+  // input、创建新 input 时，React 设置的 autocapitalize/inputmode 等属性
+  // 可能不被 iOS 立即应用（键盘仍显示默认大写/中文）。直接通过 DOM API
+  // 重新设置，触发 iOS 重新评估键盘配置。
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.setAttribute("autocapitalize", "none");
+    el.setAttribute("autocomplete", "off");
+    el.setAttribute("autocorrect", "off");
+    el.setAttribute("inputmode", "latin");
+    el.setAttribute("lang", "en");
+    el.setAttribute("pattern", "[a-zA-Z]*");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputKey]);
 
@@ -310,7 +334,7 @@ export default function SpellingInput({
         autoCorrect="off"
         autoCapitalize="none"
         spellCheck={false}
-        inputMode="text"
+        inputMode="latin"
         lang="en"
         pattern="[a-zA-Z]*"
         aria-label="拼写输入"
