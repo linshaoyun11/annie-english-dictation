@@ -276,7 +276,7 @@ function RoundsBadge({ rounds }: { rounds: number }) {
       <img
         src="/grade-badge.jpg"
         alt=""
-        className="h-6 w-auto object-contain"
+        className="h-5 w-auto object-contain"
         aria-hidden
       />
       <span className="pointer-events-none absolute inset-0 flex items-center justify-center pt-0.5 text-[10px] font-bold text-primary">
