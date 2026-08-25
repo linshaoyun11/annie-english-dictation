@@ -391,7 +391,7 @@ export default function App() {
   );
 
   return (
-    <div className="mx-auto h-full max-w-md bg-bg shadow-sm">
+    <div className="mx-auto h-full max-w-md bg-bg">
       {view === "select" && (
         <UserSelectPage
           users={users}
