@@ -5,7 +5,7 @@ import {
   resolveAudio,
   type AudioResult,
 } from "../lib/audio";
-import { playWebAudio, stopWebAudio } from "../lib/webaudio";
+import { playWebAudio, primeWebAudio, stopWebAudio } from "../lib/webaudio";
 import { safeClearTimeout, safeTimeout } from "../lib/timer";
 import type { Accent } from "../lib/users";
 
@@ -85,6 +85,12 @@ export function useSpeechLoop(
    * 是否仍是最新一次播放，是才继续（起播或回落），否则直接丢弃。
    */
   const playSeqRef = useRef(0);
+  /**
+   * 前台恢复后标记需要重启音频。
+   * visibilitychange→visible 不是用户手势，iOS 不允许在此 resume AudioContext。
+   * 设标记后等首次 keydown/touchstart（= 用户手势）时 primeWebAudio() + 重播。
+   */
+  const needsAudioRestoreRef = useRef(false);
 
   function clearTimer() {
     safeClearTimeout(timerRef.current);
@@ -381,40 +387,62 @@ export function useSpeechLoop(
    * - 切后台（hidden）：立即停止音频循环（AVAudioSession 为 playback 类别时
    *   iOS 不会自动暂停，必须显式停），并取消朗读与全部定时器。
    *   保留 loopRef=true，回前台后由 visible 分支恢复。
-   * - 回前台（visible）：iOS 切后台会暂停音频并冻结定时器，
-   *   回前台后没人重启循环（表现：放后台回来就不循环了），这里主动恢复。
+   * - 回前台（visible）：iOS 切后台会冻结 AudioContext（suspended），
+   *   visibilitychange 不是用户手势事件，此时 resume() 会"假成功"（Promise
+   *   正常返回但 state 仍 suspended）。旧方案用 safeTimeout(500ms) 延迟恢复，
+   *   但 safeTimeout 本身也是 JS 定时器，后台冻结后需等用户交互才被心跳补发，
+   *   且补发时 AudioContext.resume() 仍不在用户手势内 → 可能假成功。
    *
-   *   ⚠️ 音频恢复延迟 500ms：原生 AppDelegate.applicationDidBecomeActive 里
-   *   activateAudioSession() 是在后台队列异步执行的，JS 的 visibilitychange
-   *   事件与之同时触发——若立即 play()，音频会话尚未就绪，play() 静默失败
-   *   （用户表现：放后台回来没声音，切一次 APP 再回来才有声）。
-   *   延迟 500ms 给原生会话激活足够时间；safeTimeout 即使被冻结，
-   *   心跳也会在后续用户交互时补发。
+   *   新方案：回前台只设 needsAudioRestoreRef=true，不尝试恢复音频。
+   *   等用户首次 keydown/touchstart（= iOS 要求的 user gesture）时，
+   *   在手势内同步 primeWebAudio()（resume AudioContext + 播放静音激活输出）
+   *   再重启播放循环。用户输入第一个字母时音频自动恢复，体验自然。
    */
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState === "hidden") {
         // 切后台：停止一切播放（不置 loopRef=false，回前台仍可恢复）
+        needsAudioRestoreRef.current = false;
         stopAll();
         clearTimer();
         clearWatchdog();
         return;
       }
       if (!loopRef.current || myGen.current !== activeGen) return;
+      if (modeRef.current === null) return;
+      // 标记需要恢复：等首次用户交互（手势）时恢复音频 + 重启播放
+      needsAudioRestoreRef.current = true;
+      // 丢弃僵尸 <audio> 元素，回前台后强制重建
+      const item = playlistRef.current[seqIdxRef.current];
+      if (item && item.el) item.el = undefined;
+      // 停掉旧播放（Web Audio / speech），清定时器
+      // 不在此处调 playCurrent —— 非用户手势，AudioContext.resume 会假成功
+      stopAll();
+      clearTimer();
+      clearWatchdog();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
+  /**
+   * 首次交互恢复音频：visibilitychange→visible 时设了 needsAudioRestoreRef，
+   * 用户第一次 keydown/touchstart（= iOS user gesture）时：
+   * 1. primeWebAudio()：在手势内 resume AudioContext + 播静音激活输出
+   * 2. 重启播放循环（audio 模式 → playCurrent，speech 模式 → speakWebSpeech）
+   *
+   * 捕获阶段 + passive：不阻止其他 keydown 监听器（含 SpellingInput 等），
+   * 且比 timer.ts 的心跳更早执行（同为 capture，按注册顺序）。
+   */
+  useEffect(() => {
+    const onFirstInteract = () => {
+      if (!needsAudioRestoreRef.current) return;
+      needsAudioRestoreRef.current = false;
+      if (!loopRef.current || myGen.current !== activeGen) return;
       if (modeRef.current === "audio") {
-        // 后台挂起后旧元素可能进入"僵尸"状态：play() 正常返回但完全无声，
-        // 或 ended 永不触发。回前台一律丢弃旧元素、新建元素从头重播，最可靠。
-        stopAll();
-        clearTimer();
-        clearWatchdog();
-        const item = playlistRef.current[seqIdxRef.current];
-        if (item && item.el) item.el = undefined; // 丢弃僵尸元素，强制重建
+        primeWebAudio();
         if (playlistRef.current.length) {
-          // 延迟 500ms 等原生音频会话就绪后再恢复播放
-          timerRef.current = safeTimeout(() => {
-            if (!valid(myGen.current) || modeRef.current !== "audio") return;
-            fnsRef.current.playCurrent(myGen.current);
-          }, 500);
+          fnsRef.current.playCurrent(myGen.current);
         }
       } else if (modeRef.current === "speech") {
         if (
@@ -426,8 +454,13 @@ export function useSpeechLoop(
         }
       }
     };
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
+    const opts: AddEventListenerOptions = { capture: true, passive: true };
+    document.addEventListener("keydown", onFirstInteract, opts);
+    document.addEventListener("touchstart", onFirstInteract, opts);
+    return () => {
+      document.removeEventListener("keydown", onFirstInteract, opts);
+      document.removeEventListener("touchstart", onFirstInteract, opts);
+    };
   }, []);
 
   /**

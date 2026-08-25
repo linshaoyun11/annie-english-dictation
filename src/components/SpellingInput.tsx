@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 interface WordGroup {
   letters: string[]; // 需要输入的字母（保留原大小写）
@@ -91,6 +92,25 @@ export default function SpellingInput({
    */
   const typedRef = useRef<string[]>([]);
 
+  /**
+   * 前台恢复时强制重建 input 元素的 key。
+   * iOS 后台挂起后 input 进入"僵尸态"：document.activeElement 指向它、
+   * 键盘可见，但 onChange 事件不送达。换 key 让 React 销毁旧 input、
+   * 创建新 input，iOS 重新绑定键盘事件。flushSync 确保即使 React
+   * 调度器异常也能立即重建。
+   */
+  const [inputKey, setInputKey] = useState(0);
+
+  /**
+   * input 是否"活着"（onChange 事件正常送达）。
+   * 前台恢复后设为 false（假定僵尸，直到 onChange 证明活着）。
+   * 全局 keydown 兜底据此判断是否需要接管按键：
+   * - input 有焦点 && 活着 → 让 onChange 处理
+   * - input 有焦点但僵尸 → 全局兜底接管（build 24 失败根因：
+   *   旧代码只查 activeElement，僵尸 input 有焦点但 onChange 不触发）
+   */
+  const inputAliveRef = useRef(false);
+
   // 最新处理函数引用（全局按键兜底用，避免每帧重绑监听器）
   const handlersRef = useRef<{ push: (c: string) => void; pop: () => void }>({
     push: () => {},
@@ -107,6 +127,7 @@ export default function SpellingInput({
     typedLenRef.current = 0;
     errorCountRef.current = 0;
     strike5FiredRef.current = false;
+    inputAliveRef.current = false; // 新题，假定 input 可能僵尸
     inputRef.current?.focus();
   }, [resetKey]);
 
@@ -120,18 +141,33 @@ export default function SpellingInput({
     return () => document.removeEventListener("click", onDocClick);
   }, [done, revealed]);
 
-  // App 从后台回前台 → 主动恢复焦点。
-  // iOS 后台挂起后 input 焦点可能失效（按键事件不再送达），
-  // 这正是"输完没反应 / 输对不跳转"且重启才好的根因。
+  // App 从后台回前台 → 强制重建 input DOM 元素。
+  // iOS 后台挂起后 input 进入"僵尸态"：document.activeElement 指向它、
+  // 键盘可见，但 onChange 事件不送达 → 打字没反应（"最后字母没反应"根因）。
+  // 用 flushSync 换 inputKey → React 同步销毁旧 input、创建新 input。
+  // 新 input 不带焦点 → 全局 keydown 兜底处理第一个按键并 focus，
+  // 之后新 input 的 onChange 正常工作。
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState !== "visible") return;
       if (done || revealed) return;
-      inputRef.current?.focus();
+      inputAliveRef.current = false; // 假定僵尸，直到 onChange 证明活着
+      flushSync(() => {
+        setInputKey((k) => k + 1);
+      });
     };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [done, revealed]);
+
+  // input 重建后聚焦新元素（visibilitychange 非用户手势，
+  // focus 可能不弹键盘，但首次点击/打字时 onDocClick 会补上）
+  useEffect(() => {
+    if (!done && !revealed) {
+      inputRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputKey]);
 
   useEffect(() => {
     if (revealSignal > 0) {
@@ -209,12 +245,15 @@ export default function SpellingInput({
 
   handlersRef.current = { push: pushLetter, pop: popLetter };
 
-  // 全局按键兜底：焦点不在输入层时，字母/退格直接进入拼写逻辑。
-  // 覆盖"焦点静默丢失但键盘仍在"的边缘场景（iOS 后台恢复后偶发）。
+  // 全局按键兜底：焦点不在输入层或 input 僵尸时，字母/退格直接进入拼写逻辑。
+  // 覆盖"焦点静默丢失但键盘仍在"和"僵尸 input（有焦点但 onChange 不触发）"两种场景。
+  // 关键：不能只查 document.activeElement —— 僵尸 input 有焦点但 onChange 不触发，
+  // 旧代码（build 24）因此跳过全局兜底，导致后台唤醒后打字完全无反应。
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (done || revealed) return;
-      if (document.activeElement === inputRef.current) return;
+      // input 有焦点 AND onChange 正常工作 → 让 onChange 处理
+      if (document.activeElement === inputRef.current && inputAliveRef.current) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.isComposing || e.keyCode === 229) return;
       const t = e.target as HTMLElement | null;
@@ -237,6 +276,7 @@ export default function SpellingInput({
 
   // 受控 diff：对比新旧值推导新增/删除，iOS 联想或快速输入一次多个字符也能正确处理
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    inputAliveRef.current = true; // onChange 送达 → input 不是僵尸
     const val = e.target.value;
     const prev = typedRef.current.join("");
     if (val.length > prev.length) {
@@ -261,6 +301,7 @@ export default function SpellingInput({
           保持键盘弹出，"正确页"不上下跳动；进入下一题时焦点原位复用
       */}
       <input
+        key={inputKey}
         ref={inputRef}
         type="text"
         value={typed.join("")}

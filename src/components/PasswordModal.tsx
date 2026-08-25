@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { avatarById, type User } from "../lib/users";
 import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "./AvatarImg";
@@ -14,27 +15,48 @@ export default function PasswordModal({ user, onSuccess, onClose }: PasswordModa
   const [wrong, setWrong] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const avatar = avatarById(user.avatarId);
+  /**
+   * 前台恢复时强制重建 input 元素的 key（与 SpellingInput 同理）。
+   * iOS 后台挂起后 input 僵尸态：有焦点有键盘但 onChange 不触发。
+   */
+  const [inputKey, setInputKey] = useState(0);
+  /** input onChange 是否正常工作（同 SpellingInput 的 inputAliveRef） */
+  const inputAliveRef = useRef(false);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  // App 从后台回前台 → 主动恢复焦点。
-  // iOS 后台挂起后 input 焦点可能失效（按键事件不再送达），
-  // 正是"输完密码没反应"且重启才好的根因。
+  // App 从后台回前台 → 强制重建 input DOM 元素（同 SpellingInput 原理）。
+  // 旧版只 focus()，对僵尸 input 无效；重建才能让 iOS 重新绑定键盘事件。
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState === "visible") {
-        inputRef.current?.focus();
+        inputAliveRef.current = false;
+        flushSync(() => {
+          setInputKey((k) => k + 1);
+        });
       }
     };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
+  // input 重建后聚焦
+  useEffect(() => {
+    inputRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputKey]);
+
   const submit = (value: string) => {
     if (value === user.password) {
-      onSuccess();
+      // flushSync 强制 React 同步处理 onSuccess 触发的父组件状态更新。
+      // 后台唤醒后 React 调度器可能异常：onSuccess() 被调用了（手动
+      // 关闭弹窗后能跳转 = 状态确实更新了），但 re-render 没执行 →
+      // 弹窗不消失。flushSync 确保状态更新立即 flush，弹窗立即卸载。
+      flushSync(() => {
+        onSuccess();
+      });
     } else {
       setWrong(true);
       navigator.vibrate?.(120);
@@ -47,6 +69,7 @@ export default function PasswordModal({ user, onSuccess, onClose }: PasswordModa
   };
 
   const handleChange = (v: string) => {
+    inputAliveRef.current = true; // onChange 送达 → input 不是僵尸
     const clean = v.replace(/\D/g, "").slice(0, 4);
     setPwd(clean);
     if (clean.length === 4) {
@@ -56,6 +79,31 @@ export default function PasswordModal({ user, onSuccess, onClose }: PasswordModa
       submit(clean);
     }
   };
+
+  // 全局按键兜底：input 僵尸时（有焦点但 onChange 不触发），
+  // 数字键直接进入密码逻辑。与 SpellingInput 同理。
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (wrong) return;
+      // input 有焦点 AND onChange 正常 → 让 onChange 处理
+      if (document.activeElement === inputRef.current && inputAliveRef.current) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        const next = (pwd + e.key).slice(0, 4);
+        setPwd(next);
+        if (next.length === 4) submit(next);
+        inputRef.current?.focus();
+      } else if (e.key === "Backspace" && pwd.length > 0) {
+        e.preventDefault();
+        setPwd(pwd.slice(0, -1));
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pwd, wrong]);
 
   return (
     <div
@@ -105,6 +153,7 @@ export default function PasswordModal({ user, onSuccess, onClose }: PasswordModa
             改为全尺寸覆盖层后每次输入都稳定触发 onChange。
           */}
           <input
+            key={inputKey}
             ref={inputRef}
             value={pwd}
             onChange={(e) => handleChange(e.target.value)}

@@ -161,6 +161,17 @@ export default function LearningCard({
         <span
           className="absolute top-0 left-0 h-[3px] bg-white/40"
           style={{ animation: "autoNextBar 1.8s linear forwards" }}
+          onAnimationEnd={() => {
+            // CSS 动画跑在合成器线程，不受 iOS 后台 JS 时钟冻结影响。
+            // 后台唤醒后动画恢复并正常触发 animationend → 可靠跳题。
+            // safeTimeout 作为兜底：若 animationend 因故未触发，心跳补发仍可跳题。
+            // 互斥守餐：safeTimeout 回调会先置 autoNextTimer.current = null，
+            // 此处检测到 null 即说明已跳过，防止双调用。
+            if (autoNextTimer.current === null) return;
+            safeClearTimeout(autoNextTimer.current);
+            autoNextTimer.current = null;
+            onNext();
+          }}
         />
       )}
       <span className="relative z-10">{completed ? "下一题" : "记住了，进入下一题"}</span>

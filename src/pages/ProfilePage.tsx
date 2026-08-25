@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { avatarById, type User } from "../lib/users";
 import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "../components/AvatarImg";
@@ -34,21 +35,38 @@ export default function ProfilePage({
   const [mismatch, setMismatch] = useState(false);
   const [changed, setChanged] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  /**
+   * 前台恢复时强制重建 input 元素（同 PasswordModal / SpellingInput 原理）。
+   * iOS 后台挂起后 input 僵尸态：有焦点有键盘但 onChange 不触发。
+   */
+  const [inputKey, setInputKey] = useState(0);
+  /** input onChange 是否正常工作（同 PasswordModal 的 inputAliveRef） */
+  const inputAliveRef = useRef(false);
 
   useEffect(() => {
     if (pwdStep) inputRef.current?.focus();
   }, [pwdStep]);
 
-  // App 从后台回前台 → 主动恢复焦点（iOS 后台挂起后焦点可能失效）
+  // App 从后台回前台 → 强制重建 input DOM 元素（同 PasswordModal 原理）。
+  // 旧版只 focus()，对僵尸 input 无效；重建才能让 iOS 重新绑定键盘事件。
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState === "visible" && pwdStep) {
-        inputRef.current?.focus();
+        inputAliveRef.current = false;
+        flushSync(() => {
+          setInputKey((k) => k + 1);
+        });
       }
     };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [pwdStep]);
+
+  // input 重建后聚焦
+  useEffect(() => {
+    if (pwdStep) inputRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputKey]);
 
   const shakeAndClear = () => {
     setWrong(true);
@@ -71,18 +89,28 @@ export default function ProfilePage({
   const submit = (value: string) => {
     if (pwdStep === "old") {
       if (value === user.password) {
-        setPwdStep("new");
-        setPwd("");
+        // flushSync 确保后台唤醒后 React 调度器异常时步骤切换仍立即生效
+        flushSync(() => {
+          setPwdStep("new");
+          setPwd("");
+        });
+        inputAliveRef.current = false; // 新步骤，假定 input 可能僵尸
       } else {
         shakeAndClear();
       }
     } else if (pwdStep === "new") {
-      setNewPwd(value);
-      setPwd("");
-      setPwdStep("confirm");
+      flushSync(() => {
+        setNewPwd(value);
+        setPwd("");
+        setPwdStep("confirm");
+      });
+      inputAliveRef.current = false;
     } else if (pwdStep === "confirm") {
       if (value === newPwd) {
-        onChangePassword(newPwd);
+        // flushSync 确保父组件 onChangePassword 触发的状态更新立即 flush
+        flushSync(() => {
+          onChangePassword(newPwd);
+        });
         finishChanged();
       } else {
         setMismatch(true);
@@ -100,6 +128,7 @@ export default function ProfilePage({
   };
 
   const handlePwdInput = (v: string) => {
+    inputAliveRef.current = true; // onChange 送达 → input 不是僵尸
     const clean = v.replace(/\D/g, "").slice(0, 4);
     setPwd(clean);
     if (clean.length === 4) {
@@ -109,6 +138,32 @@ export default function ProfilePage({
       submit(clean);
     }
   };
+
+  // 全局按键兜底：input 僵尸时（有焦点但 onChange 不触发），
+  // 数字键直接进入密码逻辑。与 PasswordModal 同理。
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!pwdStep) return;
+      if (wrong || mismatch) return;
+      // input 有焦点 AND onChange 正常 → 让 onChange 处理
+      if (document.activeElement === inputRef.current && inputAliveRef.current) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        const next = (pwd + e.key).slice(0, 4);
+        setPwd(next);
+        if (next.length === 4) submit(next);
+        inputRef.current?.focus();
+      } else if (e.key === "Backspace" && pwd.length > 0) {
+        e.preventDefault();
+        setPwd(pwd.slice(0, -1));
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pwd, pwdStep, wrong, mismatch]);
 
   const stepText =
     pwdStep === "old"
@@ -223,6 +278,7 @@ export default function ProfilePage({
               ))}
             </div>
             <input
+              key={inputKey}
               ref={inputRef}
               value={pwd}
               onChange={(e) => handlePwdInput(e.target.value)}
