@@ -83,6 +83,13 @@ export default function SpellingInput({
   const typedLenRef = useRef(0);
   const errorCountRef = useRef(0);
   const strike5FiredRef = useRef(false);
+  /**
+   * 同步镜像 typed 数组（ref），用于在 pushLetter 里同步检测完成。
+   * 后台唤醒后 WebKit 定时器冻结时，React 的 useEffect 可能不触发
+   * （状态更新后排队的重渲染被冻结的 event loop 卡住），
+   * 因此完成检测必须在输入回调中同步完成，不依赖 useEffect。
+   */
+  const typedRef = useRef<string[]>([]);
 
   // 最新处理函数引用（全局按键兜底用，避免每帧重绑监听器）
   const handlersRef = useRef<{ push: (c: string) => void; pop: () => void }>({
@@ -92,6 +99,7 @@ export default function SpellingInput({
 
   useEffect(() => {
     setTyped([]);
+    typedRef.current = [];
     setDone(false);
     setRevealed(false);
     firstInputFired.current = false;
@@ -129,6 +137,7 @@ export default function SpellingInput({
     if (revealSignal > 0) {
       completedRef.current = true;
       typedLenRef.current = totalLetters;
+      typedRef.current = [...allLetters];
       setTyped([...allLetters]);
       setDone(true);
       setRevealed(true);
@@ -167,20 +176,35 @@ export default function SpellingInput({
       }
     }
     typedLenRef.current = idx + 1;
-    setTyped((prev) => {
-      if (prev.length >= totalLetters) return prev;
-      return [...prev, c];
-    });
+    const next = [...typedRef.current, c];
+    typedRef.current = next;
+    setTyped(next);
     if (!firstInputFired.current) {
       firstInputFired.current = true;
       onFirstInput?.();
+    }
+    // 同步检测完成：后台唤醒后 WebKit 定时器冻结可能导致
+    // useEffect 不触发，因此在输入回调中直接检查并调用 onComplete
+    if (next.length === totalLetters && !completedRef.current) {
+      const allCorrect = next.every(
+        (ch, i) => ch.toLowerCase() === allLetters[i].toLowerCase()
+      );
+      if (allCorrect) {
+        completedRef.current = true;
+        setDone(true);
+        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+        inputRef.current?.blur();
+        onComplete();
+      }
     }
   };
 
   const popLetter = () => {
     if (done) return;
     if (typedLenRef.current > 0) typedLenRef.current -= 1;
-    setTyped((prev) => prev.slice(0, -1));
+    const next = typedRef.current.slice(0, -1);
+    typedRef.current = next;
+    setTyped(next);
   };
 
   handlersRef.current = { push: pushLetter, pop: popLetter };
@@ -214,7 +238,7 @@ export default function SpellingInput({
   // 受控 diff：对比新旧值推导新增/删除，iOS 联想或快速输入一次多个字符也能正确处理
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    const prev = typed.join("");
+    const prev = typedRef.current.join("");
     if (val.length > prev.length) {
       for (const c of val.slice(prev.length)) pushLetter(c);
     } else if (val.length < prev.length) {

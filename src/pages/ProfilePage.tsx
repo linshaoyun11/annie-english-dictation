@@ -103,8 +103,10 @@ export default function ProfilePage({
     const clean = v.replace(/\D/g, "").slice(0, 4);
     setPwd(clean);
     if (clean.length === 4) {
-      // safeTimeout：iOS 后台唤醒后普通定时器可能冻结，导致输完密码不提交
-      safeTimeout(() => submit(clean), 150);
+      // 直接同步提交：后台唤醒后 WebKit 定时器冻结时，
+      // safeTimeout 的心跳只在后续用户交互时才补发，
+      // 但输完 4 位密码后没有更多交互，回调永不执行。
+      submit(clean);
     }
   };
 

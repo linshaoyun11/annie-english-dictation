@@ -383,6 +383,13 @@ export function useSpeechLoop(
    *   保留 loopRef=true，回前台后由 visible 分支恢复。
    * - 回前台（visible）：iOS 切后台会暂停音频并冻结定时器，
    *   回前台后没人重启循环（表现：放后台回来就不循环了），这里主动恢复。
+   *
+   *   ⚠️ 音频恢复延迟 500ms：原生 AppDelegate.applicationDidBecomeActive 里
+   *   activateAudioSession() 是在后台队列异步执行的，JS 的 visibilitychange
+   *   事件与之同时触发——若立即 play()，音频会话尚未就绪，play() 静默失败
+   *   （用户表现：放后台回来没声音，切一次 APP 再回来才有声）。
+   *   延迟 500ms 给原生会话激活足够时间；safeTimeout 即使被冻结，
+   *   心跳也会在后续用户交互时补发。
    */
   useEffect(() => {
     const onVis = () => {
@@ -403,7 +410,11 @@ export function useSpeechLoop(
         const item = playlistRef.current[seqIdxRef.current];
         if (item && item.el) item.el = undefined; // 丢弃僵尸元素，强制重建
         if (playlistRef.current.length) {
-          fnsRef.current.playCurrent(myGen.current);
+          // 延迟 500ms 等原生音频会话就绪后再恢复播放
+          timerRef.current = safeTimeout(() => {
+            if (!valid(myGen.current) || modeRef.current !== "audio") return;
+            fnsRef.current.playCurrent(myGen.current);
+          }, 500);
         }
       } else if (modeRef.current === "speech") {
         if (
