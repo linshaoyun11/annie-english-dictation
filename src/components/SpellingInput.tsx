@@ -334,7 +334,7 @@ export default function SpellingInput({
         autoCorrect="off"
         autoCapitalize="none"
         spellCheck={false}
-        inputMode="latin"
+        inputMode="text"
         lang="en"
         pattern="[a-zA-Z]*"
         aria-label="拼写输入"
