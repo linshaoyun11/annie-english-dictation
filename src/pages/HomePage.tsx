@@ -264,22 +264,22 @@ export default function HomePage({
   );
 }
 
-/** 年级完成轮次徽章：直接使用设计图徽章，圆圈中间显示紫色轮次数 */
+/** 年级完成轮次徽章：勋章设计图，圆盘中心显示紫色轮次数 */
 function RoundsBadge({ rounds }: { rounds: number }) {
   const label = rounds > 99 ? "99+" : String(rounds);
   return (
     <span
-      className="relative inline-flex h-6 w-auto items-center align-middle"
+      className="relative inline-flex h-7 w-auto items-start align-middle"
       title={`已完整学完 ${rounds} 轮`}
       aria-label={`已完整学完 ${rounds} 轮`}
     >
       <img
-        src="/grade-badge.jpg"
+        src="/grade-badge.png"
         alt=""
-        className="h-5 w-auto object-contain"
+        className="h-7 w-auto object-contain"
         aria-hidden
       />
-      <span className="pointer-events-none absolute inset-0 flex items-center justify-center pt-0.5 text-[10px] font-bold text-primary">
+      <span className="pointer-events-none absolute left-0 right-0 top-[36%] flex -translate-y-1/2 justify-center text-[11px] font-bold text-primary">
         {label}
       </span>
     </span>
