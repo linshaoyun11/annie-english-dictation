@@ -123,7 +123,7 @@ const bufferCache = new Map<string, AudioBuffer>();
 const MAX_BUFFERS = 64;
 
 /** 在途解码请求（url → Promise），避免同一文件并发重复解码 */
-const pendingDecodes = new Map<string, Promise<AudioBuffer | null>>();
+const pendingDecodes = new Map<string, Promise<BufferResult>>();
 
 /** decodeAudioData 兼容包装：Promise 版优先，失败/异常一律 resolve(null) */
 function decodeAudioData(
@@ -150,33 +150,107 @@ function decodeAudioData(
 }
 
 /**
- * 取（或解码并缓存）指定 url 的 AudioBuffer。
- * 任何失败返回 null；并发调用共享同一次解码。
+ * 剥离 MP3 开头的 ID3v2 标签。
+ *
+ * ⚠️ WebKit 已知坑（ELEMENT:DECODE 的根因，build 28 诊断确认）：
+ * Safari / WKWebView 的 decodeAudioData 对带 ID3v2.4 标签的 MP3 解码失败
+ * （本项目全部美音 mp3 由 ffmpeg Lavf 写入统一 45 字节 ID3v2.4 头）。
+ * Chrome 容忍 ID3，桌面测不出来；剥掉标签后 WebKit 即可正常解码。
+ * 英音文件实为 WAV 数据（RIFF 头），不含 ID3，原样返回。
  */
-export async function ensureBuffer(url: string): Promise<AudioBuffer | null> {
+function stripId3(arr: ArrayBuffer): ArrayBuffer {
+  if (arr.byteLength < 10) return arr;
+  const head = new Uint8Array(arr, 0, 10);
+  // "ID3" = 0x49 0x44 0x33
+  if (head[0] !== 0x49 || head[1] !== 0x44 || head[2] !== 0x33) return arr;
+  // 标签长度为 syncsafe integer（每字节仅低 7 位有效），正文从 10 + size 开始
+  const size =
+    ((head[6] & 0x7f) << 21) |
+    ((head[7] & 0x7f) << 14) |
+    ((head[8] & 0x7f) << 7) |
+    (head[9] & 0x7f);
+  const start = 10 + size;
+  if (start <= 10 || start >= arr.byteLength) return arr;
+  return arr.slice(start);
+}
+
+/** 已解码缓冲取回结果：buf 为空时 fail 说明失败发生在哪个阶段 */
+export interface BufferResult {
+  buf: AudioBuffer | null;
+  /**
+   * fetch-fail = 取字节失败（fetch 与 XHR 兜底均失败，WKWebView
+   *              capacitor:// 自定义协议上 fetch 有已知兼容问题）；
+   * decode-fail = decodeAudioData 解码失败。
+   * 两者的修复方向完全不同，诊断标签必须区分。
+   */
+  fail?: "fetch-fail" | "decode-fail";
+}
+
+/** XHR 取 ArrayBuffer：WKWebView 自定义协议（capacitor://）上 fetch
+ *  可能失败而 XHR 正常，作为取字节的兜底通道 */
+function xhrArrayBuffer(url: string): Promise<ArrayBuffer | null> {
+  return new Promise((resolve) => {
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = () => {
+        const okStatus = xhr.status === 200 || xhr.status === 0;
+        const b = xhr.response;
+        resolve(okStatus && b instanceof ArrayBuffer ? b : null);
+      };
+      xhr.onerror = () => resolve(null);
+      xhr.onabort = () => resolve(null);
+      xhr.ontimeout = () => resolve(null);
+      xhr.send();
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+/** 取字节：fetch 优先，失败（抛异常 / 非 2xx / 空响应）回落 XHR */
+async function fetchArrayBuffer(url: string): Promise<ArrayBuffer | null> {
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      const arr = await res.arrayBuffer();
+      if (arr.byteLength > 0) return arr;
+    }
+  } catch {
+    /* 落入 XHR 兜底 */
+  }
+  return xhrArrayBuffer(url);
+}
+
+/**
+ * 取（或解码并缓存）指定 url 的 AudioBuffer。
+ * 返回 { buf, fail }；并发调用共享同一次解码。
+ */
+export async function ensureBuffer(url: string): Promise<BufferResult> {
   const cached = bufferCache.get(url);
-  if (cached) return cached;
+  if (cached) return { buf: cached };
   const inflight = pendingDecodes.get(url);
   if (inflight) return inflight;
-  const p = (async () => {
+  const p = (async (): Promise<BufferResult> => {
     try {
-      // 只复用手势内创建的 context；不存在则解码失败走 <audio> 兜底
+      // 只复用手势内创建的 context；不存在则失败走 <audio> 兜底
       const c = getAudioContext(false);
-      if (!c) return null;
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const arr = await res.arrayBuffer();
-      const buf = await decodeAudioData(c, arr);
+      if (!c) return { buf: null, fail: "decode-fail" };
+      const arr = await fetchArrayBuffer(url);
+      if (!arr || arr.byteLength === 0) return { buf: null, fail: "fetch-fail" };
+      const buf = await decodeAudioData(c, stripId3(arr));
       if (buf) {
         if (bufferCache.size >= MAX_BUFFERS) {
           const oldest = bufferCache.keys().next().value;
           if (oldest !== undefined) bufferCache.delete(oldest);
         }
         bufferCache.set(url, buf);
+        return { buf };
       }
-      return buf;
+      return { buf: null, fail: "decode-fail" };
     } catch {
-      return null;
+      return { buf: null, fail: "fetch-fail" };
     } finally {
       pendingDecodes.delete(url);
     }
@@ -214,7 +288,12 @@ export interface WebAudioPlayResult {
   /** 成功起播时为音频时长（秒，未变速），失败为 0 */
   duration: number;
   /** 失败原因（诊断用），成功时为 undefined */
-  failReason?: "no-ctx" | "decode-fail" | "not-running" | "superseded";
+  failReason?:
+    | "no-ctx"
+    | "fetch-fail"
+    | "decode-fail"
+    | "not-running"
+    | "superseded";
 }
 
 /** 便捷常量 */
@@ -249,10 +328,10 @@ export async function playWebAudio(
       /* ignore */
     }
   }
-  const buf = await ensureBuffer(url);
+  const { buf, fail } = await ensureBuffer(url);
   // 在途期间被新的播放/停止请求取代 → 放弃（不回落，交由最新请求接管）
   if (token !== playToken) return notStarted("superseded");
-  if (!buf) return notStarted("decode-fail");
+  if (!buf) return notStarted(fail ?? "decode-fail");
   if (c.state !== "running") {
     try {
       await c.resume();

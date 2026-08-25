@@ -61,8 +61,11 @@ const WORD_GAP_MS = 260;
 /**
  * 实际播放路径（诊断用）：
  * - "web" = Web Audio BufferSource（统一增益，音量必然一致）
- * - "element" / "element:no-ctx" / "element:decode" / "element:not-running"
+ * - "element" / "element:no-ctx" / "element:fetch-fail" / "element:decode-fail"
+ *   / "element:not-running"
  *   = <audio> 元素直出（带 Web Audio 失败原因；原生路径可能首遍音量偏小）
+ *   FETCH-FAIL = 取字节失败（capacitor:// 上 fetch 兼容问题，XHR 兜底也失败）
+ *   DECODE-FAIL = decodeAudioData 解码失败
  * - "speech" = 浏览器语音
  * - "waiting" = 后台唤醒后等待首次用户交互
  */
@@ -70,6 +73,8 @@ export type PlayPath =
   | "web"
   | "element"
   | "element:no-ctx"
+  | "element:fetch-fail"
+  | "element:decode-fail"
   | "element:decode"
   | "element:not-running"
   | "speech"

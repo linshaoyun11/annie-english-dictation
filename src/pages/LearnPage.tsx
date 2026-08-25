@@ -796,7 +796,7 @@ export default function LearnPage({
     >
       {/* ⚠️ 临时诊断指示器：显示当前实际播放路径，确认音量修复后移除。
           WEB = Web Audio BufferSource（音量应一致）
-          ELEMENT / ELEMENT:原因 = 元素直出（原因: NO-CTX 无 ctx / DECODE 解码失败 / NOT-RUNNING ctx 未激活）
+          ELEMENT / ELEMENT:原因 = 元素直出（原因: NO-CTX 无 ctx / FETCH-FAIL 取字节失败 / DECODE-FAIL 解码失败 / NOT-RUNNING ctx 未激活）
           ⏳ = 后台唤醒等待首次交互 */}
       {playPath && (
         <div className="pointer-events-none fixed right-2 top-2 z-50 rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white/90">

@@ -165,7 +165,12 @@ export function prefetchAudio(
     .then((r) => {
       if (!r) return;
       ensureElement(r); // <audio> 兜底路径预热
-      void ensureBuffer(r.url); // Web Audio 主路径预热（fetch + 解码并缓存）
+      void ensureBuffer(r.url).then((res) => {
+        // 预取诊断：预热失败原因记 console，配合页面指示器区分 FETCH/DECODE
+        if (!res.buf && res.fail) {
+          console.warn("[prefetch] WebAudio 预热失败:", res.fail, r.url);
+        }
+      });
     })
     .catch(() => {});
 }
