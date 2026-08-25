@@ -13,9 +13,36 @@
  *  - 一次只播一条：新播放开始前显式停掉上一条（onended 置空再 stop）。
  */
 
+import { safeTimeout } from "./timer";
+
 /* ── 共享 AudioContext ── */
 
 let ctx: AudioContext | null = null;
+
+/**
+ * App 切后台后 iOS 会中断音频输出管线（来电/挂起/其他 App 抢占）。
+ * 中断后 ctx.state 可能仍是 "running"（僵尸态：resume() 是 no-op、
+ * BufferSource.start() 正常返回，但实际完全无声 —— build 30 真机实测
+ * "后台唤醒后显示 WEB 却没声音"的根因）。
+ * 切后台时置 true；下次用户手势内的 primeWebAudio / ensureWebAudioActive
+ * 消费它：close 旧 ctx 并重建（手势内 new AudioContext 合法且必然有声）。
+ */
+let needsRebuild = false;
+
+/**
+ * 标记 AudioContext 可能已被系统中断。App 切后台
+ * （visibilitychange → hidden）时调用。
+ */
+export function markAudioPossiblyDead(): void {
+  needsRebuild = true;
+}
+
+/** safeTimeout 的 Promise 包装（iOS 时钟冻结后可被交互心跳补发自愈） */
+function sleepSafe(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    safeTimeout(resolve, ms);
+  });
+}
 
 type AudioContextCtor = typeof AudioContext;
 
@@ -50,6 +77,34 @@ function getAudioContext(create: boolean): AudioContext | null {
 }
 
 /**
+ * 关闭并重建 AudioContext（必须只从用户手势内的调用链同步执行）。
+ * 解决 iOS 中断后的"僵尸 running"：state 报告 running、resume() no-op、
+ * start() 正常返回但完全无声 —— 唯一可靠的恢复方式是整体重建管线。
+ * 旧 ctx 的解码缓存一并作废（AudioBuffer 与旧 ctx 生命周期绑定），
+ * 之后各词条重新 fetch + decode（本地 capacitor:// 文件，毫秒级）。
+ */
+function recreateContext(): AudioContext | null {
+  const old = ctx;
+  ctx = null;
+  bufferCache.clear();
+  playedUrls.clear();
+  pendingDecodes.clear(); // 旧 ctx 上的在途解码作废（close 后行为未定义）
+  if (old) {
+    try {
+      void old.close().catch(() => {});
+    } catch {
+      /* ignore */
+    }
+  }
+  const c = getAudioContext(true);
+  if (!c) return null;
+  if (c.state === "suspended") {
+    c.resume().catch(() => {});
+  }
+  return c;
+}
+
+/**
  * 用户手势内调用（真实点击事件处理器中同步调用，切勿在 useEffect 里调）：
  * 创建/恢复共享 AudioContext 并播放一段静音，激活音频输出。
  * 必须在手势栈内创建 context，否则 iOS 上永久 suspended（见上方注释）。
@@ -58,8 +113,17 @@ function getAudioContext(create: boolean): AudioContext | null {
  * 渲染 LearnPage、LearningCard useEffect 调 startAudio → speech.start →
  * resolveAudio → playCurrent → playWebAudio，整个链条约 100-300ms。
  * 2 秒静音缓冲覆盖此窗口，保持 context "running" 不被 iOS 自动挂起。
+ *
+ * needsRebuild（切后台标记）：close 旧 ctx 重建 —— 后台唤醒后旧 ctx 是
+ * "僵尸 running"（无声），重建是唯一可靠恢复手段。
  */
 export function primeWebAudio(): void {
+  if (needsRebuild) {
+    needsRebuild = false;
+    const c = recreateContext();
+    if (c) playSilence(c);
+    return;
+  }
   const c = getAudioContext(true);
   if (!c) return;
   if (c.state === "suspended") {
@@ -74,8 +138,16 @@ export function primeWebAudio(): void {
  *
  * 用途：任何首次 keydown/touchstart 都可安全调用——解决冷启动
  * App 直接恢复到学习页时 ctx 不存在（no-ctx 回落 Element）的问题。
+ * needsRebuild（切后台标记）时即使 running 也强制重建（僵尸态恢复）。
  */
 export function ensureWebAudioActive(): boolean {
+  if (needsRebuild) {
+    needsRebuild = false;
+    const c = recreateContext();
+    if (!c) return false;
+    playSilence(c);
+    return true;
+  }
   const existing = getAudioContext(false);
   if (existing && (existing.state as string) === "running") return true;
   const c = getAudioContext(true);
@@ -89,14 +161,16 @@ export function ensureWebAudioActive(): boolean {
 
 function playSilence(c: AudioContext): void {
   try {
-    const buf = c.createBuffer(
-      1,
-      Math.max(1, Math.floor(c.sampleRate * 2)),
-      c.sampleRate
-    );
-    // 静音（全 0），无需写入数据
+    const len = Math.max(1, Math.floor(c.sampleRate * 2));
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    // 非零低幅噪声（不可闻）：纯零样本可能被 WebKit 判定为 idle 而不
+    // 打开输出通路（与 primeOutput 同理）；非零样本确保管线真正激活
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.0005;
+    }
     const gain = c.createGain();
-    gain.gain.value = 0.001; // 几乎不可闻
+    gain.gain.value = 1;
     gain.connect(c.destination);
     const src = c.createBufferSource();
     src.buffer = buf;
@@ -121,6 +195,53 @@ const bufferCache = new Map<string, AudioBuffer>();
 // 与 audio.ts 的元素缓存（48）同一量级；词条音频约 0.5~1s，
 // 解码后 PCM 每条约 100~200KB，64 条约 10MB，安全。
 const MAX_BUFFERS = 64;
+
+/**
+ * 已真正出声播放过的 url（首播预热用）。
+ * 真机实测（build 30，纯 WebAudio 路径）：每题切词后的第一遍播放
+ * 音量偏小、3 秒后循环重播的第二遍正常 —— 怀疑 WebKit 对静音期后的
+ * 首次出声有输出管线重启渐强（idle 省电机制）。每个 url 首次播放前
+ * 先播一段非零低幅噪声（见 primeOutput）预热输出通路。
+ */
+const playedUrls = new Set<string>();
+
+/**
+ * 输出通路预热：播放约 300ms 极低幅度（振幅 0.0005，约 -66dB，不可闻）
+ * 的非零白噪声。
+ * 旧 playSilence 播的是数字全零样本，WebKit 可能将纯零输出判定为
+ * idle 而不真正打开输出通路 —— 所以它从未治好"首遍小声"。
+ * 非零样本强制 WebKit 打开完整输出管线，随后的正式播放满增益起播。
+ */
+async function primeOutput(c: AudioContext, ms = 300): Promise<void> {
+  try {
+    const len = Math.max(1, Math.floor((c.sampleRate * ms) / 1000));
+    const buf = c.createBuffer(1, len, c.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.0005;
+    }
+    await new Promise<void>((resolve) => {
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      const gain = c.createGain();
+      gain.gain.value = 1;
+      src.connect(gain);
+      gain.connect(c.destination);
+      src.onended = () => {
+        try {
+          src.disconnect();
+          gain.disconnect();
+        } catch {
+          /* ignore */
+        }
+        resolve();
+      };
+      src.start();
+    });
+  } catch {
+    /* 预热失败不阻塞正式播放 */
+  }
+}
 
 /** 在途解码请求（url → Promise），避免同一文件并发重复解码 */
 const pendingDecodes = new Map<string, Promise<BufferResult>>();
@@ -346,6 +467,16 @@ export async function playWebAudio(
   // 取代上一条正在播放的音频（不递增 token，本次调用自身仍有效）
   detachActiveSource();
 
+  // 首播预热：该 url 第一次真正出声前，先播 300ms 不可闻的非零噪声
+  // 打开 WebKit 输出管线（见 primeOutput 注释），再等 120ms 让管线稳定。
+  // 每个 url 只预热一次；循环重播（第二遍起）零延迟零开销。
+  if (!playedUrls.has(url)) {
+    await primeOutput(c, 300);
+    if (token !== playToken) return notStarted("superseded");
+    await sleepSafe(120);
+    if (token !== playToken) return notStarted("superseded");
+  }
+
   const src = c.createBufferSource();
   src.buffer = buf;
   src.playbackRate.value = opts.rate ?? 1;
@@ -366,6 +497,7 @@ export async function playWebAudio(
     }
     return notStarted("not-running");
   }
+  playedUrls.add(url);
   activeSource = src;
   src.onended = () => {
     if (activeSource === src) activeSource = null;

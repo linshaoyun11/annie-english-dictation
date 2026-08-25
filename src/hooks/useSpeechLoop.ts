@@ -7,6 +7,7 @@ import {
 } from "../lib/audio";
 import {
   ensureWebAudioActive,
+  markAudioPossiblyDead,
   playWebAudio,
   stopWebAudio,
 } from "../lib/webaudio";
@@ -441,7 +442,11 @@ export function useSpeechLoop(
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState === "hidden") {
-        // 切后台：停止一切播放（不置 loopRef=false，回前台仍可恢复）
+        // 切后台：iOS 会中断音频输出管线，ctx 可能变"僵尸 running"
+        // （state 仍 running 但完全无声）。标记后，下次用户手势内的
+        // primeWebAudio / ensureWebAudioActive 会 close + 重建 ctx。
+        markAudioPossiblyDead();
+        // 停止一切播放（不置 loopRef=false，回前台仍可恢复）
         needsAudioRestoreRef.current = false;
         stopAll();
         clearTimer();
