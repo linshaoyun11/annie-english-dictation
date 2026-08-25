@@ -274,9 +274,10 @@ function RoundsBadge({ rounds }: { rounds: number }) {
       aria-label={`已完整学完 ${rounds} 轮`}
     >
       <img
-        src="/grade-badge.png"
+        src="/grade-badge.png?v=2"
         alt=""
         className="h-7 w-auto object-contain"
+        style={{ filter: "brightness(1.15) saturate(1.25)" }}
         aria-hidden
       />
       <span className="pointer-events-none absolute left-0 right-0 top-[36%] flex -translate-y-1/2 justify-center text-[9px] font-bold text-primary">
