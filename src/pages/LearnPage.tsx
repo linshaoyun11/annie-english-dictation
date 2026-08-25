@@ -18,7 +18,7 @@ import {
 } from "../lib/progress";
 import { pointsForEntry, type User } from "../lib/users";
 import { randomMovieQuote, type MovieQuote } from "../data/movieQuotes";
-import { useSpeechLoop, primeSpeech } from "../hooks/useSpeechLoop";
+import { useSpeechLoop, primeSpeech, type PlayPath } from "../hooks/useSpeechLoop";
 import { primeWebAudio } from "../lib/webaudio";
 import { prefetchAudio } from "../lib/audio";
 import { safeTimeout } from "../lib/timer";
@@ -98,11 +98,9 @@ export default function LearnPage({
   difficultMode = false,
   difficultOrder = [],
 }: LearnPageProps) {
-  // 实际播放路径（诊断指示器）："web"=Web Audio / "element"=<audio> / "speech"=语音 / "waiting"=等待交互
+  // 实际播放路径（诊断指示器）：WEB / ELEMENT[:原因] / SPEECH / ⏳等待交互
   // ⚠️ 临时诊断 UI：确认 iOS 首遍音量修复后移除
-  const [playPath, setPlayPath] = useState<
-    "web" | "element" | "speech" | "waiting" | null
-  >(null);
+  const [playPath, setPlayPath] = useState<PlayPath | null>(null);
   const speech = useSpeechLoop(3000, setPlayPath);
   const touchStartY = useRef<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -796,16 +794,13 @@ export default function LearnPage({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* ⚠️ 临时诊断指示器：显示当前实际播放路径，确认音量修复后移除 */}
+      {/* ⚠️ 临时诊断指示器：显示当前实际播放路径，确认音量修复后移除。
+          WEB = Web Audio BufferSource（音量应一致）
+          ELEMENT / ELEMENT:原因 = 元素直出（原因: NO-CTX 无 ctx / DECODE 解码失败 / NOT-RUNNING ctx 未激活）
+          ⏳ = 后台唤醒等待首次交互 */}
       {playPath && (
         <div className="pointer-events-none fixed right-2 top-2 z-50 rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white/90">
-          {playPath === "web"
-            ? "WebAudio"
-            : playPath === "element"
-              ? "Element"
-              : playPath === "waiting"
-                ? "⏳"
-                : "Speech"}
+          {playPath === "waiting" ? "⏳" : playPath.toUpperCase()}
         </div>
       )}
       <div key={animKey} className="h-full animate-[cardIn_.35s_ease]">

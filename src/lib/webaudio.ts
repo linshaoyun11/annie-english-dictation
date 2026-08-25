@@ -65,6 +65,29 @@ export function primeWebAudio(): void {
   if (c.state === "suspended") {
     c.resume().catch(() => {});
   }
+  playSilence(c);
+}
+
+/**
+ * 手势内幂等激活：ctx 已存在且 running 时零开销直接返回；
+ * 不存在 / suspended 时创建或恢复并播放静音热身。
+ *
+ * 用途：任何首次 keydown/touchstart 都可安全调用——解决冷启动
+ * App 直接恢复到学习页时 ctx 不存在（no-ctx 回落 Element）的问题。
+ */
+export function ensureWebAudioActive(): boolean {
+  const existing = getAudioContext(false);
+  if (existing && (existing.state as string) === "running") return true;
+  const c = getAudioContext(true);
+  if (!c) return false;
+  if (c.state === "suspended") {
+    c.resume().catch(() => {});
+  }
+  playSilence(c);
+  return true;
+}
+
+function playSilence(c: AudioContext): void {
   try {
     const buf = c.createBuffer(
       1,
@@ -276,44 +299,4 @@ export async function playWebAudio(
     opts.onEnded?.();
   };
   return { started: true, duration: buf.duration };
-}
-
-/* ── MediaElementSource 路径 ── */
-
-/**
- * 已包装的元素集合。createMediaElementSource 是不可逆操作，
- * 同一元素只能包装一次，用 WeakSet 避免重复调用。
- */
-const wrappedElements = new WeakSet<HTMLAudioElement>();
-
-/**
- * 尝试将 <audio> 元素通过 Web Audio 路由到输出。
- *
- * 解决 iOS WKWebView <audio> 元素「第一遍播放音量偏小」问题：
- * 不依赖 fetch + decodeAudioData（可能因 MP3 无 Xing 头等原因失败），
- * 而是用元素原生解码 + Web Audio 统一增益路径。
- *
- * ⚠️ 一旦包装，元素音频只能通过 AudioContext 输出（不可逆）。
- * AudioContext suspended 时包装后的元素无声——但后台唤醒时
- * visibilitychange handler 已丢弃僵尸元素（item.el = undefined），
- * 新元素不会被包装直到 context 恢复 running。
- *
- * 返回 true = 元素音频走 Web Audio 路径（音量一致）
- * 返回 false = 元素直接播放（原生路径，可能有首遍音量问题）
- */
-export function tryWrapElement(el: HTMLAudioElement): boolean {
-  if (wrappedElements.has(el)) return true; // 已包装
-  const c = getAudioContext(false);
-  if (!c || (c.state as string) !== "running") return false;
-  try {
-    const src = c.createMediaElementSource(el);
-    const gain = c.createGain();
-    gain.gain.value = 1;
-    src.connect(gain);
-    gain.connect(c.destination);
-    wrappedElements.add(el);
-    return true;
-  } catch {
-    return false;
-  }
 }

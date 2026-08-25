@@ -6,10 +6,9 @@ import {
   type AudioResult,
 } from "../lib/audio";
 import {
+  ensureWebAudioActive,
   playWebAudio,
-  primeWebAudio,
   stopWebAudio,
-  tryWrapElement,
 } from "../lib/webaudio";
 import { safeClearTimeout, safeTimeout } from "../lib/timer";
 import type { Accent } from "../lib/users";
@@ -59,8 +58,22 @@ const WORD_GAP_MS = 260;
 
 /* ── 主循环 Hook ── */
 
-/** 实际播放路径（诊断用："web"=Web Audio，"element"=<audio> 元素，"speech"=浏览器语音，"waiting"=等待用户交互恢复） */
-export type PlayPath = "web" | "element" | "speech" | "waiting";
+/**
+ * 实际播放路径（诊断用）：
+ * - "web" = Web Audio BufferSource（统一增益，音量必然一致）
+ * - "element" / "element:no-ctx" / "element:decode" / "element:not-running"
+ *   = <audio> 元素直出（带 Web Audio 失败原因；原生路径可能首遍音量偏小）
+ * - "speech" = 浏览器语音
+ * - "waiting" = 后台唤醒后等待首次用户交互
+ */
+export type PlayPath =
+  | "web"
+  | "element"
+  | "element:no-ctx"
+  | "element:decode"
+  | "element:not-running"
+  | "speech"
+  | "waiting";
 
 export function useSpeechLoop(
   gapMs = 3000,
@@ -216,8 +229,18 @@ export function useSpeechLoop(
 
   /**
    * <audio> 元素播放路径（Web Audio 不可用时的兜底，逻辑与旧版完全一致）。
+   * failReason：Web Audio 失败原因（诊断显示用，如 "no-ctx"）。
+   *
+   * ⚠️ 不做 createMediaElementSource 包装（build 27 教训）：包装不可逆，
+   * AudioContext 之后 suspend 时（iOS 后台唤醒音频会话被中断很常见）
+   * 元素完全无声——比首遍音量偏小严重得多。且包装只是路由，元素内部
+   * 解码增益低（WebKit bug）依旧，音量问题实际也没修复。
    */
-  function playViaElement(gen: number, item: AudioResult) {
+  function playViaElement(
+    gen: number,
+    item: AudioResult,
+    failReason?: string
+  ) {
     const attempt = (el: HTMLAudioElement, isRetry: boolean) => {
       if (!valid(gen)) return;
       audioRef.current = el;
@@ -238,13 +261,10 @@ export function useSpeechLoop(
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
-      // 尝试将元素通过 Web Audio 路由，获得统一增益（解决首遍音量偏小）。
-      // decodeAudioData 对无 Xing 头的 Edge TTS MP3 可能失败（→ "Element"），
-      // 但 createMediaElementSource 用元素原生解码 + Web Audio 增益路径，
-      // 绕过 decodeAudioData 限制——包装成功后音量一致，显示 "web"。
-      // 包装失败（无 AudioContext / 非 running）→ 原生元素路径，显示 "element"。
-      const wrapped = tryWrapElement(el);
-      onPlayPathRef.current?.(wrapped ? "web" : "element");
+      // 元素直出（原生路径）：有声，但首遍音量可能偏小（WebKit bug，无法在此修复）
+      onPlayPathRef.current?.(
+        (failReason ? ("element:" + failReason) as PlayPath : "element")
+      );
       // 复用过的元素只在确实播放过（有进度/已结束）时才 load() 彻底重置：
       // 1) 不做 currentTime=0 的 seek——Edge TTS 生成的 mp3 无 Xing/Info 头，
       //    WebKit 里 duration=Infinity，seek(0) 会跳到接近结尾（"短促尾音"元凶）；
@@ -325,7 +345,7 @@ export function useSpeechLoop(
         if (r.failReason) {
           console.warn("[useSpeechLoop] Web Audio fallback:", r.failReason);
         }
-        playViaElement(gen, item);
+        playViaElement(gen, item, r.failReason);
       }
     });
   }
@@ -442,21 +462,26 @@ export function useSpeechLoop(
   }, []);
 
   /**
-   * 首次交互恢复音频：visibilitychange→visible 时设了 needsAudioRestoreRef，
-   * 用户第一次 keydown/touchstart（= iOS user gesture）时：
-   * 1. primeWebAudio()：在手势内 resume AudioContext + 播静音激活输出
-   * 2. 重启播放循环（audio 模式 → playCurrent，speech 模式 → speakWebSpeech）
+   * 首次交互恢复音频：
+   * 1. ensureWebAudioActive()：任何交互都幂等激活 Web Audio（ctx 不存在/
+   *    suspended 时在手势内创建/resume + 静音热身，running 时零开销）
+   * 2. 若 visibilitychange→visible 设了 needsAudioRestoreRef：重启播放循环
+   *    （audio 模式 → playCurrent，speech 模式 → speakWebSpeech）
    *
    * 捕获阶段 + passive：不阻止其他 keydown 监听器（含 SpellingInput 等），
    * 且比 timer.ts 的心跳更早执行（同为 capture，按注册顺序）。
    */
   useEffect(() => {
     const onFirstInteract = () => {
+      // 无条件幂等激活（手势内）：冷启动 App 直接恢复到学习页时没经过
+      // HomePage 的点击手势，ctx 不存在 → 首播 no-ctx 回落 Element
+      // （"先 Element 后 WebAudio"的根因）。此处已 running 时零开销。
+      ensureWebAudioActive();
       if (!needsAudioRestoreRef.current) return;
       needsAudioRestoreRef.current = false;
       if (!loopRef.current || myGen.current !== activeGen) return;
       if (modeRef.current === "audio") {
-        primeWebAudio();
+        // ctx 已在上面的 ensureWebAudioActive() 里激活，直接重播
         if (playlistRef.current.length) {
           fnsRef.current.playCurrent(myGen.current);
         }
