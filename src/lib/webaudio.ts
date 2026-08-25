@@ -53,6 +53,11 @@ function getAudioContext(create: boolean): AudioContext | null {
  * 用户手势内调用（真实点击事件处理器中同步调用，切勿在 useEffect 里调）：
  * 创建/恢复共享 AudioContext 并播放一段静音，激活音频输出。
  * 必须在手势栈内创建 context，否则 iOS 上永久 suspended（见上方注释）。
+ *
+ * 静音缓冲 2 秒：primeWebAudio 在 HomePage 点击手势内调用，之后 React
+ * 渲染 LearnPage、LearningCard useEffect 调 startAudio → speech.start →
+ * resolveAudio → playCurrent → playWebAudio，整个链条约 100-300ms。
+ * 2 秒静音缓冲覆盖此窗口，保持 context "running" 不被 iOS 自动挂起。
  */
 export function primeWebAudio(): void {
   const c = getAudioContext(true);
@@ -63,7 +68,7 @@ export function primeWebAudio(): void {
   try {
     const buf = c.createBuffer(
       1,
-      Math.max(1, Math.floor(c.sampleRate * 0.02)),
+      Math.max(1, Math.floor(c.sampleRate * 2)),
       c.sampleRate
     );
     // 静音（全 0），无需写入数据
@@ -185,9 +190,14 @@ export interface WebAudioPlayResult {
   started: boolean;
   /** 成功起播时为音频时长（秒，未变速），失败为 0 */
   duration: number;
+  /** 失败原因（诊断用），成功时为 undefined */
+  failReason?: "no-ctx" | "decode-fail" | "not-running" | "superseded";
 }
 
-const NOT_STARTED: WebAudioPlayResult = { started: false, duration: 0 };
+/** 便捷常量 */
+function notStarted(reason: WebAudioPlayResult["failReason"]): WebAudioPlayResult {
+  return { started: false, duration: 0, failReason: reason };
+}
 
 /**
  * 用 Web Audio 播放一条音频。
@@ -206,7 +216,7 @@ export async function playWebAudio(
   // 只复用手势内 primeWebAudio() 创建的 context；
   // 未创建（无手势入口）→ 直接回落 <audio> 路径，不在此处 new
   const c = getAudioContext(false);
-  if (!c) return NOT_STARTED;
+  if (!c) return notStarted("no-ctx");
 
   // 自动播放策略：suspended 时先尝试恢复（此前有用户手势即可成功）
   if (c.state === "suspended") {
@@ -218,17 +228,17 @@ export async function playWebAudio(
   }
   const buf = await ensureBuffer(url);
   // 在途期间被新的播放/停止请求取代 → 放弃（不回落，交由最新请求接管）
-  if (token !== playToken) return NOT_STARTED;
-  if (!buf) return NOT_STARTED;
+  if (token !== playToken) return notStarted("superseded");
+  if (!buf) return notStarted("decode-fail");
   if (c.state !== "running") {
     try {
       await c.resume();
     } catch {
       /* ignore */
     }
-    if (token !== playToken) return NOT_STARTED;
+    if (token !== playToken) return notStarted("superseded");
     // resume() 可能已把状态改为 running，但类型系统不感知，重新读取
-    if ((c.state as string) !== "running") return NOT_STARTED;
+    if ((c.state as string) !== "running") return notStarted("not-running");
   }
 
   // 取代上一条正在播放的音频（不递增 token，本次调用自身仍有效）
@@ -252,7 +262,7 @@ export async function playWebAudio(
     } catch {
       /* ignore */
     }
-    return NOT_STARTED;
+    return notStarted("not-running");
   }
   activeSource = src;
   src.onended = () => {
@@ -266,4 +276,44 @@ export async function playWebAudio(
     opts.onEnded?.();
   };
   return { started: true, duration: buf.duration };
+}
+
+/* ── MediaElementSource 路径 ── */
+
+/**
+ * 已包装的元素集合。createMediaElementSource 是不可逆操作，
+ * 同一元素只能包装一次，用 WeakSet 避免重复调用。
+ */
+const wrappedElements = new WeakSet<HTMLAudioElement>();
+
+/**
+ * 尝试将 <audio> 元素通过 Web Audio 路由到输出。
+ *
+ * 解决 iOS WKWebView <audio> 元素「第一遍播放音量偏小」问题：
+ * 不依赖 fetch + decodeAudioData（可能因 MP3 无 Xing 头等原因失败），
+ * 而是用元素原生解码 + Web Audio 统一增益路径。
+ *
+ * ⚠️ 一旦包装，元素音频只能通过 AudioContext 输出（不可逆）。
+ * AudioContext suspended 时包装后的元素无声——但后台唤醒时
+ * visibilitychange handler 已丢弃僵尸元素（item.el = undefined），
+ * 新元素不会被包装直到 context 恢复 running。
+ *
+ * 返回 true = 元素音频走 Web Audio 路径（音量一致）
+ * 返回 false = 元素直接播放（原生路径，可能有首遍音量问题）
+ */
+export function tryWrapElement(el: HTMLAudioElement): boolean {
+  if (wrappedElements.has(el)) return true; // 已包装
+  const c = getAudioContext(false);
+  if (!c || (c.state as string) !== "running") return false;
+  try {
+    const src = c.createMediaElementSource(el);
+    const gain = c.createGain();
+    gain.gain.value = 1;
+    src.connect(gain);
+    gain.connect(c.destination);
+    wrappedElements.add(el);
+    return true;
+  } catch {
+    return false;
+  }
 }

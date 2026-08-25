@@ -5,7 +5,12 @@ import {
   resolveAudio,
   type AudioResult,
 } from "../lib/audio";
-import { playWebAudio, primeWebAudio, stopWebAudio } from "../lib/webaudio";
+import {
+  playWebAudio,
+  primeWebAudio,
+  stopWebAudio,
+  tryWrapElement,
+} from "../lib/webaudio";
 import { safeClearTimeout, safeTimeout } from "../lib/timer";
 import type { Accent } from "../lib/users";
 
@@ -54,8 +59,8 @@ const WORD_GAP_MS = 260;
 
 /* ── 主循环 Hook ── */
 
-/** 实际播放路径（诊断用："web"=Web Audio，"element"=<audio> 元素，"speech"=浏览器语音） */
-export type PlayPath = "web" | "element" | "speech";
+/** 实际播放路径（诊断用："web"=Web Audio，"element"=<audio> 元素，"speech"=浏览器语音，"waiting"=等待用户交互恢复） */
+export type PlayPath = "web" | "element" | "speech" | "waiting";
 
 export function useSpeechLoop(
   gapMs = 3000,
@@ -233,7 +238,13 @@ export function useSpeechLoop(
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
-      onPlayPathRef.current?.("element");
+      // 尝试将元素通过 Web Audio 路由，获得统一增益（解决首遍音量偏小）。
+      // decodeAudioData 对无 Xing 头的 Edge TTS MP3 可能失败（→ "Element"），
+      // 但 createMediaElementSource 用元素原生解码 + Web Audio 增益路径，
+      // 绕过 decodeAudioData 限制——包装成功后音量一致，显示 "web"。
+      // 包装失败（无 AudioContext / 非 running）→ 原生元素路径，显示 "element"。
+      const wrapped = tryWrapElement(el);
+      onPlayPathRef.current?.(wrapped ? "web" : "element");
       // 复用过的元素只在确实播放过（有进度/已结束）时才 load() 彻底重置：
       // 1) 不做 currentTime=0 的 seek——Edge TTS 生成的 mp3 无 Xing/Info 头，
       //    WebKit 里 duration=Infinity，seek(0) 会跳到接近结尾（"短促尾音"元凶）；
@@ -310,6 +321,10 @@ export function useSpeechLoop(
           gen
         );
       } else {
+        // 诊断：Web Audio 失败原因（no-ctx/decode-fail/not-running/superseded）
+        if (r.failReason) {
+          console.warn("[useSpeechLoop] Web Audio fallback:", r.failReason);
+        }
         playViaElement(gen, item);
       }
     });
@@ -412,6 +427,7 @@ export function useSpeechLoop(
       if (modeRef.current === null) return;
       // 标记需要恢复：等首次用户交互（手势）时恢复音频 + 重启播放
       needsAudioRestoreRef.current = true;
+      onPlayPathRef.current?.("waiting"); // 诊断：显示等待交互
       // 丢弃僵尸 <audio> 元素，回前台后强制重建
       const item = playlistRef.current[seqIdxRef.current];
       if (item && item.el) item.el = undefined;
