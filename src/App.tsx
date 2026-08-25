@@ -132,6 +132,31 @@ export default function App() {
     saveUsers(next);
   }, []);
 
+  // ── DEV 预览入口：URL 带 ?preview=grade 时直接进入通关页（仅开发模式，
+  //    生产构建中该分支被编译器剔除，不影响线上行为）──
+  const previewGrade =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get("preview") === "grade";
+
+  useEffect(() => {
+    if (!previewGrade) return;
+    if (!currentUser) {
+      // 临时预览用户（不落盘），仅供通关页渲染
+      setCurrentUser({
+        id: "preview-user",
+        avatarId: "dog",
+        password: "0000",
+        points: 620,
+        learnedCount: 128,
+        createdAt: Date.now(),
+        config: { ...DEFAULT_CONFIG },
+      });
+    }
+    if (!progress) setProgressState(freshProgress(DEFAULT_CONFIG.curriculum));
+    setView("learn");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewGrade]);
+
   /** 登录：加载该用户独立的学习进度（按教材版本隔离） */
   const handleLogin = useCallback((user: User) => {
     setCurrentUser(user);
@@ -470,6 +495,7 @@ export default function App() {
           onRestart={handleReset}
           difficultMode={learnMode === "difficult"}
           difficultOrder={difficultOrder}
+          previewCelebration={previewGrade}
         />
       )}
     </div>

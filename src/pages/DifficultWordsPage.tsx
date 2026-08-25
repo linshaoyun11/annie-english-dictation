@@ -7,7 +7,6 @@ import {
 } from "../data/curriculum";
 import type { Progress } from "../lib/progress";
 import { resolveAudio } from "../lib/audio";
-import { playWebAudio, primeWebAudio, stopWebAudio } from "../lib/webaudio";
 import type { Accent } from "../lib/users";
 
 interface DifficultWordsPageProps {
@@ -94,17 +93,11 @@ export default function DifficultWordsPage({
   );
 
   const playAudio = async (english: string, entryId: string) => {
-    // 播放按钮是点击手势：趁机创建/恢复 AudioContext（iOS 手势陷阱要求）
-    primeWebAudio();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
     }
-    stopWebAudio(); // 停掉上一条播放（含在途的 Web Audio 请求）
     setPlayingId(entryId);
-    /** 结束（或被新播放取代失败时）清除播放态；已被新点击取代则不覆盖 */
-    const done = () =>
-      setPlayingId((cur) => (cur === entryId ? null : cur));
 
     const result = await resolveAudio(english, accent);
     const fallbackSpeak = () => {
@@ -116,13 +109,7 @@ export default function DifficultWordsPage({
       speechSynthesis.speak(u);
     };
     if (result) {
-      // 首选 Web Audio（与学习页统一的增益路径，音量一致）；
-      // 失败回落 <audio> 元素 → 再失败回落浏览器语音。
-      const r = await playWebAudio(result.url, {
-        rate: 0.9,
-        onEnded: done,
-      });
-      if (r.started) return;
+      // <audio> 元素直出；失败回落浏览器语音
       const audio = new Audio(result.url);
       audio.playbackRate = 0.9;
       audio.onended = () => setPlayingId((cur) => (cur === entryId ? null : cur));

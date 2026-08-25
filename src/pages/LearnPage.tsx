@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { Keyboard } from "@capacitor/keyboard";
 import {
   getAllEntries,
   getCurriculum,
@@ -18,8 +20,7 @@ import {
 } from "../lib/progress";
 import { pointsForEntry, type User } from "../lib/users";
 import { randomMovieQuote, type MovieQuote } from "../data/movieQuotes";
-import { useSpeechLoop, primeSpeech, type PlayPath } from "../hooks/useSpeechLoop";
-import { primeWebAudio } from "../lib/webaudio";
+import { useSpeechLoop, primeSpeech } from "../hooks/useSpeechLoop";
 import { prefetchAudio } from "../lib/audio";
 import { safeTimeout } from "../lib/timer";
 import { playCelebrationJingle } from "../lib/celebration";
@@ -36,6 +37,8 @@ interface LearnPageProps {
   /** 重点记忆学习模式：difficultOrder 为打乱后的难词条目 id 列表 */
   difficultMode?: boolean;
   difficultOrder?: string[];
+  /** DEV 预览：挂载后直接弹通关页（示例数据，仅开发模式使用） */
+  previewCelebration?: boolean;
 }
 
 /** 年级完成（一轮通关）祝贺页的统计快照（在轮次清零前计算） */
@@ -97,11 +100,9 @@ export default function LearnPage({
   onRestart,
   difficultMode = false,
   difficultOrder = [],
+  previewCelebration = false,
 }: LearnPageProps) {
-  // 实际播放路径（诊断指示器）：WEB / ELEMENT[:原因] / SPEECH / ⏳等待交互
-  // ⚠️ 临时诊断 UI：确认 iOS 首遍音量修复后移除
-  const [playPath, setPlayPath] = useState<PlayPath | null>(null);
-  const speech = useSpeechLoop(3000, setPlayPath);
+  const speech = useSpeechLoop(3000);
   const touchStartY = useRef<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [finishedAll, setFinishedAll] = useState(false);
@@ -162,6 +163,33 @@ export default function LearnPage({
     setToast(msg);
     safeTimeout(() => setToast(null), 1600);
   };
+
+  // DEV 预览通关页：挂载后直接弹年级通关祝贺（示例数据，不进生产构建）
+  useEffect(() => {
+    if (!previewCelebration) return;
+    speech.stop(); // 预览不需要背后播题
+    const grade = progress.activeGrade;
+    const gradeUnits = cur.filter((u) => u.grade === grade);
+    const doneCount = gradeUnits.reduce((s, u) => s + u.entries.length, 0);
+    const previewSnapshot: GradeStatsSnapshot = {
+      grade,
+      unitCount: gradeUnits.length,
+      doneCount,
+      mistakeCount: 8,
+      onceRight: Math.max(doneCount - 8, 0),
+      gradePoints: 620,
+      startAt: Date.now() - 3 * 86400000,
+      durationMs: 3 * 86400000,
+      rounds: 3,
+    };
+    setCelebration({
+      unitKey: `${grade}-1`,
+      level: "grade",
+      quote: randomMovieQuote(),
+      grade: previewSnapshot,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewCelebration]);
 
   // 预加载后续几题的音频：切题时真人录音已在缓存，零等待直放。
   useEffect(() => {
@@ -724,19 +752,19 @@ export default function LearnPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry?.grade, entry?.unit]);
 
-  // 祝贺页弹出时收起键盘（iOS 上输入框焦点不释放会导致键盘遮挡按钮）
-  // 同时监听 visibilitychange：切到其它 APP 再回来时，iOS 可能自动恢复键盘，
-  // 需要再次强制失焦。
+  // 祝贺页（通关页）弹出时收起键盘（iOS 上输入框焦点不释放会导致键盘遮挡按钮）。
+  // 三重保险：blur 失焦 + 原生 Keyboard.hide()（blur 可能因僵尸态失效）+
+  // 监听 visibilitychange（切其它 APP 再回来时 iOS 可能自动恢复键盘）。
   useEffect(() => {
     if (!celebration) return;
-    const blurActive = () => {
-      if (document.visibilityState === "visible") {
-        (document.activeElement as HTMLElement | null)?.blur();
-      }
+    const hideKeyboard = () => {
+      if (document.visibilityState !== "visible") return;
+      (document.activeElement as HTMLElement | null)?.blur();
+      if (Capacitor.isNativePlatform()) Keyboard.hide().catch(() => {});
     };
-    blurActive();
-    document.addEventListener("visibilitychange", blurActive);
-    return () => document.removeEventListener("visibilitychange", blurActive);
+    hideKeyboard();
+    document.addEventListener("visibilitychange", hideKeyboard);
+    return () => document.removeEventListener("visibilitychange", hideKeyboard);
   }, [celebration]);
 
   const restart = () => {
@@ -794,15 +822,6 @@ export default function LearnPage({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* ⚠️ 临时诊断指示器：显示当前实际播放路径，确认音量修复后移除。
-          WEB = Web Audio BufferSource（音量应一致）
-          ELEMENT / ELEMENT:原因 = 元素直出（原因: NO-CTX 无 ctx / FETCH-FAIL 取字节失败 / DECODE-FAIL 解码失败 / NOT-RUNNING ctx 未激活）
-          ⏳ = 后台唤醒等待首次交互 */}
-      {playPath && (
-        <div className="pointer-events-none fixed right-2 top-2 z-50 rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white/90">
-          {playPath === "waiting" ? "⏳" : playPath.toUpperCase()}
-        </div>
-      )}
       <div key={animKey} className="h-full animate-[cardIn_.35s_ease]">
         <LearningCard
           entry={entry}
@@ -828,7 +847,6 @@ export default function LearnPage({
           autoNext={user.config.autoNext ?? false}
           hidePoints={!!difficultAlreadyAwarded}
           replay={() => {
-            primeWebAudio(); // 重读是点击手势：趁机恢复可能被系统挂起的 AudioContext
             speech.replayNow();
           }}
           stopAudio={speech.stop}
@@ -877,6 +895,37 @@ export default function LearnPage({
                   {celebration.grade?.doneCount ?? 0} 个词条全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！
                 </p>
               </>
+            )}
+
+            {/* 通关勋章提示：按完成轮数（学习次数）展示勋章 */}
+            {celebration.level === "grade" && celebration.grade && (
+              <div className="mt-4 flex w-full animate-[slideUp_.4s_ease] flex-col items-center gap-2 rounded-2xl bg-surface px-4 py-3 shadow-card">
+                <p className="text-sm font-semibold text-text">
+                  您已获得通关勋章：
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-1.5">
+                  {Array.from({
+                    length: Math.min(celebration.grade.rounds, 8),
+                  }).map((_, i) => (
+                    <img
+                      key={i}
+                      src="/grade-badge.png?v=2"
+                      alt=""
+                      aria-hidden
+                      className="h-8 w-auto object-contain"
+                      style={{ filter: "brightness(1.15) saturate(1.25)" }}
+                    />
+                  ))}
+                  {celebration.grade.rounds > 8 && (
+                    <span className="text-sm font-bold text-primary">
+                      ×{celebration.grade.rounds}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-text3">
+                  已完整学完本年级 {celebration.grade.rounds} 轮
+                </p>
+              </div>
             )}
 
             {/* 学习信息统计（仅年级完成时展示） */}

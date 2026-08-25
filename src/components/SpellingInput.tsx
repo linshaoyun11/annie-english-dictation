@@ -352,7 +352,7 @@ export default function SpellingInput({
           }`}
         >
           {groups.map((g, gi) => (
-            <div key={gi} className="flex items-end" style={{ gap: 5 }}>
+            <div key={gi} className="flex flex-wrap items-end justify-center" style={{ gap: 5 }}>
               {g.letters.map((ch, li) => {
                 letterIdx += 1;
                 const i = letterIdx;
