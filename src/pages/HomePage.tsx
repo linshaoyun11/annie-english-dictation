@@ -279,7 +279,7 @@ function RoundsBadge({ rounds }: { rounds: number }) {
         className="h-7 w-auto object-contain"
         aria-hidden
       />
-      <span className="pointer-events-none absolute left-0 right-0 top-[36%] flex -translate-y-1/2 justify-center text-[11px] font-bold text-primary">
+      <span className="pointer-events-none absolute left-0 right-0 top-[36%] flex -translate-y-1/2 justify-center text-[9px] font-bold text-primary">
         {label}
       </span>
     </span>
