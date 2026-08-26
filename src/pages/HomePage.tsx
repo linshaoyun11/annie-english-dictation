@@ -59,8 +59,12 @@ export default function HomePage({
   // 标签页：按年级开始 / 选择单元（单元练习不计入整体进度）
   const [tab, setTab] = useState<"grade" | "unit">("grade");
   // 选择单元标签内的临时选择：年级 + 全局单元下标
+  // 默认选中当前年级的第一个单元，使两个下拉框开箱即选、点击即学
   const [selGrade, setSelGrade] = useState<number>(progress.activeGrade);
-  const [selUnitIndex, setSelUnitIndex] = useState<number | null>(null);
+  const firstUnitIdx = cur.findIndex((u) => u.grade === progress.activeGrade);
+  const [selUnitIndex, setSelUnitIndex] = useState<number>(
+    firstUnitIdx >= 0 ? firstUnitIdx : 0
+  );
 
   return (
     <div className="h-full overflow-y-auto px-5 pb-10">
@@ -216,97 +220,87 @@ export default function HomePage({
       {/* Tab 2：选择单元（单元练习，不计入整体进度，但可加积分） */}
       {tab === "unit" && (
         <div className="mt-4">
-          {/* 年级选择 */}
-          <div className="mb-3 text-sm font-semibold text-text">选择年级</div>
-          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-            {grades.map((g) => {
-              const isSel = selGrade === g;
-              return (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => {
-                    setSelGrade(g);
-                    setSelUnitIndex(null);
-                  }}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all active:scale-95 ${
-                    isSel
-                      ? "border-primary bg-primary text-white shadow-sm"
-                      : "border-border bg-surface text-text2"
-                  }`}
-                >
+          {/* 年级下拉框 */}
+          <label className="mb-1.5 block text-sm font-semibold text-text">
+            选择年级
+          </label>
+          <div className="relative">
+            <select
+              value={selGrade}
+              onChange={(e) => {
+                const g = Number(e.target.value);
+                setSelGrade(g);
+                // 切换年级后，单元下拉框重置为该校第一个单元
+                const firstIdx = cur.findIndex((u) => u.grade === g);
+                setSelUnitIndex(firstIdx >= 0 ? firstIdx : 0);
+              }}
+              className="w-full appearance-none rounded-2xl border border-border bg-surface px-4 py-3 pr-10 text-sm font-medium text-text shadow-sm outline-none transition-colors focus:border-primary"
+            >
+              {grades.map((g) => (
+                <option key={g} value={g}>
                   {gradeLabel(g)}
-                </button>
-              );
-            })}
+                </option>
+              ))}
+            </select>
+            <svg
+              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text3"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
           </div>
 
-          {/* 单元列表 */}
-          <div className="mt-4 mb-2 text-sm font-semibold text-text">
+          {/* 单元下拉框 */}
+          <label className="mb-1.5 mt-4 block text-sm font-semibold text-text">
             选择单元
-          </div>
-          <div className="flex flex-col gap-2">
-            {cur
-              .filter((u) => u.grade === selGrade)
-              .map((u) => {
-                const unitIndex = cur.indexOf(u);
-                const gs = progress.grades[String(selGrade)];
-                const processed = gs ? processedOf(gs) : new Set<string>();
-                const doneInUnit = u.entries.filter((e) =>
-                  processed.has(e.id)
-                ).length;
-                const pct = Math.round(
-                  (doneInUnit / u.entries.length) * 100
-                );
-                const isSel = selUnitIndex === unitIndex;
-                return (
-                  <button
-                    key={unitIndex}
-                    type="button"
-                    onClick={() => setSelUnitIndex(unitIndex)}
-                    className={`flex items-center justify-between rounded-2xl border bg-surface px-4 py-3 text-left shadow-sm transition-all active:scale-[0.98] ${
-                      isSel
-                        ? "border-primary/40 bg-primary-lighter ring-1 ring-primary/20"
-                        : "border-border hover:border-primary/30"
-                    }`}
-                  >
-                    <div className="min-w-0">
-                      <p className="flex items-center gap-1.5 text-sm font-semibold text-text">
-                        第 {u.unit} 单元
-                        {u.title && (
-                          <span className="text-text2">· {u.title}</span>
-                        )}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-text3">
-                        {u.entries.length} 个词条 · {doneInUnit}/
-                        {u.entries.length} 已学
-                      </p>
-                    </div>
-                    <div className="ml-3 h-1.5 w-16 shrink-0 rounded-full bg-primary-lighter">
-                      <div
-                        className="h-1.5 rounded-full bg-primary"
-                        style={{ width: `${Math.max(pct, 3)}%` }}
-                      />
-                    </div>
-                  </button>
-                );
-              })}
+          </label>
+          <div className="relative">
+            <select
+              value={selUnitIndex}
+              onChange={(e) => setSelUnitIndex(Number(e.target.value))}
+              className="w-full appearance-none rounded-2xl border border-border bg-surface px-4 py-3 pr-10 text-sm font-medium text-text shadow-sm outline-none transition-colors focus:border-primary"
+            >
+              {cur
+                .filter((u) => u.grade === selGrade)
+                .map((u) => {
+                  const unitIndex = cur.indexOf(u);
+                  return (
+                    <option key={unitIndex} value={unitIndex}>
+                      第 {u.unit} 单元 · {u.title}
+                    </option>
+                  );
+                })}
+            </select>
+            <svg
+              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text3"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
           </div>
 
           {/* 开始单元练习 */}
           <button
             type="button"
-            disabled={selUnitIndex === null}
             onClick={() => {
-              if (selUnitIndex === null) return;
               primeSpeech();
               onStartUnit?.(selGrade, selUnitIndex);
             }}
-            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98] ${
-              selUnitIndex === null
-                ? "cursor-not-allowed bg-primary/40"
-                : "bg-primary"
-            }`}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5z" />
