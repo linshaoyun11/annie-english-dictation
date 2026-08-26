@@ -9,6 +9,7 @@ import { primeSpeech } from "../hooks/useSpeechLoop";
 import { avatarById, type User } from "../lib/users";
 import { AvatarImg } from "../components/AvatarImg";
 import PasswordModal from "../components/PasswordModal";
+import { StarIcon, SunIcon, sunsOf, starsOf } from "../components/RoundsStars";
 
 interface HomePageProps {
   user: User;
@@ -261,25 +262,23 @@ export default function HomePage({
   );
 }
 
-/** 年级完成轮次徽章：勋章设计图，圆盘中心显示紫色轮次数 */
+/** 年级完成轮次标识：太阳（5 轮/个）+ 星星（1 轮/颗），最多 5 个太阳 */
 function RoundsBadge({ rounds }: { rounds: number }) {
-  const label = rounds > 99 ? "99+" : String(rounds);
+  const suns = sunsOf(rounds);
+  const stars = starsOf(rounds);
+  if (suns === 0 && stars === 0) return null;
   return (
     <span
-      className="relative inline-flex h-7 w-auto items-start align-middle"
-      title={`已完整学完 ${rounds} 轮`}
-      aria-label={`已完整学完 ${rounds} 轮`}
+      className="inline-flex items-center gap-[2px] align-middle"
+      title={`已完整学完 ${rounds} 轮：${suns} 个太阳、${stars} 颗星星`}
+      aria-label={`已完整学完 ${rounds} 轮：${suns} 个太阳、${stars} 颗星星`}
     >
-      <img
-        src="/grade-badge.png?v=2"
-        alt=""
-        className="h-7 w-auto object-contain"
-        style={{ filter: "brightness(1.15) saturate(1.25)" }}
-        aria-hidden
-      />
-      <span className="pointer-events-none absolute left-0 right-0 top-[36%] flex -translate-y-1/2 justify-center text-[9px] font-bold text-primary">
-        {label}
-      </span>
+      {Array.from({ length: suns }).map((_, i) => (
+        <SunIcon key={`sun-${i}`} size={14} />
+      ))}
+      {Array.from({ length: stars }).map((_, i) => (
+        <StarIcon key={`star-${i}`} size={12} />
+      ))}
     </span>
   );
 }

@@ -1,7 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard } from "@capacitor/keyboard";
+
+/**
+ * 在 input 真实 DOM 上强制 iOS 评估为英文小写全键盘。
+ *
+ * 关键属性 inputmode="latin" 必须用 setAttribute 而不是 React 的
+ * inputMode prop（TypeScript 不支持 "latin"，且 React 渲染时机晚于
+ * iOS 评估键盘的时机）。在 ref callback（commit 阶段同步执行）和
+ * useLayoutEffect（DOM 插入后立即同步）中两次设置，覆盖冷启动第一次
+ * 进入学习页时 iOS 沿用上一次的输入模式（中文）的 BUG。
+ */
+function applyKeyboardAttributes(el: HTMLInputElement | null) {
+  if (!el) return;
+  el.setAttribute("autocapitalize", "none");
+  el.setAttribute("autocomplete", "off");
+  el.setAttribute("autocorrect", "off");
+  el.setAttribute("inputmode", "latin");
+  el.setAttribute("lang", "en");
+  el.setAttribute("pattern", "[a-zA-Z]*");
+}
 
 interface WordGroup {
   letters: string[]; // 需要输入的字母（保留原大小写）
@@ -177,20 +196,11 @@ export default function SpellingInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputKey]);
 
-  // input 重建后重新设置 DOM 属性：iOS WKWebView 在 inputKey 换 key 销毁旧
-  // input、创建新 input 时，React 设置的 autocapitalize/inputmode 等属性
-  // 可能不被 iOS 立即应用（键盘仍显示默认大写/中文）。直接通过 DOM API
-  // 重新设置，触发 iOS 重新评估键盘配置。
-  useEffect(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    el.setAttribute("autocapitalize", "none");
-    el.setAttribute("autocomplete", "off");
-    el.setAttribute("autocorrect", "off");
-    el.setAttribute("inputmode", "latin");
-    el.setAttribute("lang", "en");
-    el.setAttribute("pattern", "[a-zA-Z]*");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // 同步设置键盘属性：input 真实 DOM 插入时立即（useLayoutEffect 同步执行，
+  // 先于 iOS 评估键盘的时机）强制为英文拉丁小写全键盘。
+  // 解决"冷启动第一次进入学习页时 iOS 沿用上次输入模式（中文）"的 BUG。
+  useLayoutEffect(() => {
+    applyKeyboardAttributes(inputRef.current);
   }, [inputKey]);
 
   useEffect(() => {
@@ -326,7 +336,13 @@ export default function SpellingInput({
       */}
       <input
         key={inputKey}
-        ref={inputRef}
+        ref={(el) => {
+          // ref callback 在 React commit 阶段同步执行：input DOM 一插入就
+          // 立即设置 inputmode="latin" 等属性，时机早于 useLayoutEffect，
+          // 早于 iOS 评估键盘，能彻底避免冷启动第一次沿用上次输入模式。
+          inputRef.current = el;
+          applyKeyboardAttributes(el);
+        }}
         type="text"
         value={typed.join("")}
         onChange={handleChange}
@@ -334,7 +350,6 @@ export default function SpellingInput({
         autoCorrect="off"
         autoCapitalize="none"
         spellCheck={false}
-        inputMode="text"
         lang="en"
         pattern="[a-zA-Z]*"
         aria-label="拼写输入"

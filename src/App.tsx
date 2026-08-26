@@ -132,11 +132,15 @@ export default function App() {
     saveUsers(next);
   }, []);
 
-  // ── DEV 预览入口：URL 带 ?preview=grade 时直接进入通关页（仅开发模式，
-  //    生产构建中该分支被编译器剔除，不影响线上行为）──
+  // ── DEV 预览入口：URL 带 ?preview=grade 时直接进入通关页，
+  //    URL 带 ?preview=home 时直接进首页（带示例轮数）。
+  //    生产构建中该分支被编译器剔除，不影响线上行为。──
   const previewGrade =
     import.meta.env.DEV &&
     new URLSearchParams(window.location.search).get("preview") === "grade";
+  const previewHome =
+    import.meta.env.DEV &&
+    new URLSearchParams(window.location.search).get("preview") === "home";
 
   useEffect(() => {
     if (!previewGrade) return;
@@ -156,6 +160,40 @@ export default function App() {
     setView("learn");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewGrade]);
+
+  useEffect(() => {
+    if (!previewHome) return;
+    if (!currentUser) {
+      setCurrentUser({
+        id: "preview-user",
+        avatarId: "dog",
+        password: "0000",
+        points: 620,
+        learnedCount: 128,
+        createdAt: Date.now(),
+        config: { ...DEFAULT_CONFIG },
+      });
+    }
+    if (!progress) {
+      const previewProgress = freshProgress(DEFAULT_CONFIG.curriculum);
+      // 构造示例轮数：3 年级 12 轮（2 太阳 2 星）、4 年级 5 轮（1 太阳）、6 年级 3 轮（3 星）
+      previewProgress.grades["3"] = {
+        ...freshGradeState(DEFAULT_CONFIG.curriculum, 3),
+        rounds: 12,
+      };
+      previewProgress.grades["4"] = {
+        ...freshGradeState(DEFAULT_CONFIG.curriculum, 4),
+        rounds: 5,
+      };
+      previewProgress.grades["6"] = {
+        ...freshGradeState(DEFAULT_CONFIG.curriculum, 6),
+        rounds: 3,
+      };
+      setProgressState(previewProgress);
+    }
+    setView("home");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewHome]);
 
   /** 登录：加载该用户独立的学习进度（按教材版本隔离） */
   const handleLogin = useCallback((user: User) => {

@@ -25,6 +25,13 @@ import { prefetchAudio } from "../lib/audio";
 import { safeTimeout } from "../lib/timer";
 import { playCelebrationJingle } from "../lib/celebration";
 import LearningCard from "../components/LearningCard";
+import {
+  MAX_ROUNDS,
+  StarIcon,
+  SunIcon,
+  sunsOf,
+  starsOf,
+} from "../components/RoundsStars";
 
 interface LearnPageProps {
   onExit: () => void;
@@ -76,16 +83,16 @@ function formatDuration(ms: number): string {
 function StatCard({
   label,
   value,
-  valueColor,
+  valueColor = "text-text",
 }: {
   label: string;
   value: string;
-  valueColor: string;
+  valueColor?: string;
 }) {
   return (
-    <div className="rounded-2xl bg-surface px-3 py-3 text-left shadow-card">
-      <p className="text-[11px] text-text3">{label}</p>
-      <p className={`mt-1 text-xs font-semibold ${valueColor}`}>{value}</p>
+    <div className="rounded-xl border border-border-light bg-surface px-3.5 py-3">
+      <p className="text-[11px] font-medium text-text3">{label}</p>
+      <p className={`mt-1 text-[13px] font-semibold ${valueColor}`}>{value}</p>
     </div>
   );
 }
@@ -178,9 +185,9 @@ export default function LearnPage({
       mistakeCount: 8,
       onceRight: Math.max(doneCount - 8, 0),
       gradePoints: 620,
-      startAt: Date.now() - 3 * 86400000,
-      durationMs: 3 * 86400000,
-      rounds: 3,
+        startAt: Date.now() - 3 * 86400000,
+        durationMs: 3 * 86400000,
+        rounds: 7,
     };
     setCelebration({
       unitKey: `${grade}-1`,
@@ -380,7 +387,8 @@ export default function LearnPage({
         gradePoints,
         startAt,
         durationMs: startAt ? Date.now() - startAt : 0,
-        rounds: (g?.rounds ?? 0) + 1,
+        // 5 个太阳（25 轮）封顶，之后不再累计
+        rounds: Math.min((g?.rounds ?? 0) + 1, MAX_ROUNDS),
       };
     },
     [cur, allEntriesMap]
@@ -401,7 +409,8 @@ export default function LearnPage({
         unitOrder: makeUnitOrder(gradeStart, version),
         completedEntryIds: [],
         skippedEntryIds: [],
-        rounds: (g?.rounds ?? 0) + 1,
+        // 5 个太阳（25 轮）封顶，之后不再累计
+        rounds: Math.min((g?.rounds ?? 0) + 1, MAX_ROUNDS),
       };
       const gradeIds = new Set(
         cur
@@ -897,63 +906,67 @@ export default function LearnPage({
               </>
             )}
 
-            {/* 通关勋章提示：按完成轮数（学习次数）展示勋章 */}
-            {celebration.level === "grade" && celebration.grade && (
-              <div className="mt-4 flex w-full animate-[slideUp_.4s_ease] flex-col items-center gap-2 rounded-2xl bg-surface px-4 py-3 shadow-card">
-                <p className="text-sm font-semibold text-text">
-                  您已获得通关勋章：
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-1.5">
-                  {Array.from({
-                    length: Math.min(celebration.grade.rounds, 8),
-                  }).map((_, i) => (
-                    <img
-                      key={i}
-                      src="/grade-badge.png?v=2"
-                      alt=""
-                      aria-hidden
-                      className="h-8 w-auto object-contain"
-                      style={{ filter: "brightness(1.15) saturate(1.25)" }}
-                    />
-                  ))}
-                  {celebration.grade.rounds > 8 && (
-                    <span className="text-sm font-bold text-primary">
-                      ×{celebration.grade.rounds}
-                    </span>
+            {/* 通关奖励：本轮获得的一颗星（5 的倍数轮合成太阳，满级显示最高荣誉） */}
+            {celebration.level === "grade" && celebration.grade && (() => {
+              const r = celebration.grade.rounds;
+              const isSun = r % 5 === 0; // 5/10/15/20/25 轮：本轮的星合成太阳
+              const isMax = r >= MAX_ROUNDS;
+              const suns = sunsOf(r);
+              const stars = starsOf(r);
+              return (
+                <div
+                  className="mt-5 flex w-full animate-[slideUp_.4s_ease] flex-col items-center gap-3 rounded-2xl bg-surface px-4 py-6 shadow-card"
+                  title={`累计 ${suns} 个太阳 · ${stars} 颗星星`}
+                >
+                  {isSun ? (
+                    <SunIcon size={56} />
+                  ) : (
+                    <StarIcon size={56} />
                   )}
+                  <p className="text-sm font-semibold text-text">
+                    {isMax
+                      ? "达成最高荣誉！"
+                      : isSun
+                        ? "5 颗星星合成了 1 个太阳！"
+                        : "本轮获得 1 颗星星"}
+                  </p>
+                  <p className="text-[11px] text-text3">
+                    {isMax
+                      ? "已集满 5 个太阳"
+                      : `已完整学完本年级 ${r} 轮 · 5 颗星星将合成 1 颗太阳`}
+                  </p>
                 </div>
-                <p className="text-[11px] text-text3">
-                  已完整学完本年级 {celebration.grade.rounds} 轮
-                </p>
-              </div>
-            )}
+              );
+            })()}
 
             {/* 学习信息统计（仅年级完成时展示） */}
             {celebration.level === "grade" && celebration.grade && (
-              <div className="mt-6 grid w-full grid-cols-2 gap-2.5">
-                <StatCard label="📅 开始学习" value={formatDateTime(celebration.grade.startAt)} valueColor="text-text" />
-                <StatCard label="⏱️ 完成用时" value={formatDuration(celebration.grade.durationMs)} valueColor="text-text" />
-                <StatCard label="💪 拼错或不会" value={`${celebration.grade.mistakeCount} 个词条`} valueColor="text-error" />
-                <StatCard label="✅ 一次做对" value={`${celebration.grade.onceRight} 个词条`} valueColor="text-success" />
-                <StatCard label="⭐ 本轮积分" value={`+${celebration.grade.gradePoints} 分`} valueColor="text-gold" />
-                <StatCard label="🔁 完成轮数" value={`第 ${celebration.grade.rounds} 轮`} valueColor="text-text" />
+              <div className="mt-5 grid w-full grid-cols-2 gap-2">
+                <StatCard label="开始学习" value={formatDateTime(celebration.grade.startAt)} />
+                <StatCard label="完成用时" value={formatDuration(celebration.grade.durationMs)} />
+                <StatCard label="拼错或不会" value={`${celebration.grade.mistakeCount} 个`} valueColor="text-error" />
+                <StatCard label="一次做对" value={`${celebration.grade.onceRight} 个`} valueColor="text-success" />
+                <StatCard label="本轮积分" value={`+${celebration.grade.gradePoints}`} valueColor="text-gold" />
+                <StatCard label="完成轮数" value={celebration.grade.rounds >= MAX_ROUNDS ? "第 25 轮" : `第 ${celebration.grade.rounds} 轮`} />
               </div>
             )}
 
-            {/* 随机电影台词 */}
-            <div className={`w-full rounded-2xl bg-[#FAEEDA] px-5 py-4 animate-[slideUp_.4s_ease] ${celebration.level === "unit" ? "mt-6" : "mt-4"}`}>
-              {celebration.quote.en && (
-                <p className="text-sm italic leading-6 text-[#854F0B]">
-                  “{celebration.quote.en}”
+            {/* 随机电影台词：仅单元完成时展示，年级通关页不显示 */}
+            {celebration.level === "unit" && (
+              <div className="mt-6 w-full animate-[slideUp_.4s_ease] rounded-2xl bg-[#FAEEDA] px-5 py-4">
+                {celebration.quote.en && (
+                  <p className="text-sm italic leading-6 text-[#854F0B]">
+                    “{celebration.quote.en}”
+                  </p>
+                )}
+                <p className="mt-1.5 text-sm font-semibold leading-6 text-[#854F0B]">
+                  {celebration.quote.cn}
                 </p>
-              )}
-              <p className="mt-1.5 text-sm font-semibold leading-6 text-[#854F0B]">
-                {celebration.quote.cn}
-              </p>
-              <p className="mt-1.5 text-xs text-[#854F0B]/70">
-                —— 电影《{celebration.quote.movie}》
-              </p>
-            </div>
+                <p className="mt-1.5 text-xs text-[#854F0B]/70">
+                  —— 电影《{celebration.quote.movie}》
+                </p>
+              </div>
+            )}
 
             {/* 操作按钮：重新学习本单元 / 返回首页 紧跟台词卡片上方；继续学习固定在页面最下方 */}
             <div className="mt-6 w-full">
