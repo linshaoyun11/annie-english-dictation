@@ -44,6 +44,10 @@ interface LearnPageProps {
   /** 重点记忆学习模式：difficultOrder 为打乱后的难词条目 id 列表 */
   difficultMode?: boolean;
   difficultOrder?: string[];
+  /** 单元练习模式：选定单元学习，只加积分、不计入年级整体进度 */
+  practiceMode?: boolean;
+  practiceOrder?: string[];
+  practiceUnitIndex?: number;
   /** DEV 预览：挂载后直接弹通关页（示例数据，仅开发模式使用） */
   previewCelebration?: boolean;
 }
@@ -107,6 +111,9 @@ export default function LearnPage({
   onRestart,
   difficultMode = false,
   difficultOrder = [],
+  practiceMode = false,
+  practiceOrder = [],
+  practiceUnitIndex = 0,
   previewCelebration = false,
 }: LearnPageProps) {
   const speech = useSpeechLoop(3000);
@@ -117,6 +124,9 @@ export default function LearnPage({
   // 重点记忆模式：独立的当前索引 + 全部学完提示
   const [difficultIndex, setDifficultIndex] = useState(0);
   const [difficultDone, setDifficultDone] = useState(false);
+  // 单元练习模式：独立的当前索引 + 全部学完提示
+  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [practiceDone, setPracticeDone] = useState(false);
   // 双保险：记录本次会话已加分的题目，防止同一题 onComplete 被多次调用导致重复加分
   const awardedRef = useRef<Set<string>>(new Set());
   // 最近处理（答对 / 我不会）的词条所属单元（单元完成祝贺检测用，避免切题竞态）
@@ -161,10 +171,18 @@ export default function LearnPage({
       )
     : undefined;
 
+  // 单元练习模式：从打乱的单元词条列表取当前条目
+  const practiceEntry = practiceMode
+    ? allEntriesMap.get(practiceOrder[practiceIndex] ?? "")
+    : undefined;
+  const practiceUnit = practiceMode ? cur[practiceUnitIndex] : undefined;
+
   const entry = difficultMode
     ? difficultEntry
-    : (unit.entries.find((e) => e.id === (gs.unitOrder[gs.entryIndex] ?? "")) ??
-      unit.entries[0]);
+    : practiceMode
+      ? practiceEntry
+      : (unit.entries.find((e) => e.id === (gs.unitOrder[gs.entryIndex] ?? "")) ??
+        unit.entries[0]);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -245,7 +263,7 @@ export default function LearnPage({
   const markComplete = useCallback(
     (id: string) => {
       // 记录最近处理词条的单元，供"单元完成"祝贺检测使用
-      const src = difficultMode
+      const src = difficultMode || practiceMode
         ? allEntriesMap.get(id)
         : unit.entries.find((e) => e.id === id);
       if (src) lastProcessedUnitRef.current = `${src.grade}-${src.unit}`;
@@ -277,6 +295,16 @@ export default function LearnPage({
         return;
       }
 
+      // 单元练习模式：只加积分，不写年级整体进度（练习不计进度）
+      if (practiceMode) {
+        if (!awardedRef.current.has(id)) {
+          awardedRef.current.add(id);
+          const pts = src ? pointsForEntry(src.type) : 5;
+          addPoints(user.id, pts, 1);
+        }
+        return;
+      }
+
       // 普通模式：积分规则不变 —— 每轮学习照常加分。
       // awardedRef 防同一题并发重复加分；轮次清零后重学（completed 已清空）可再次加分。
       const gsNow = progressRef.current.grades[
@@ -302,7 +330,7 @@ export default function LearnPage({
         };
       });
     },
-    [setProgress, unit, allEntriesMap, addPoints, user.id, difficultMode]
+    [setProgress, unit, allEntriesMap, addPoints, user.id, difficultMode, practiceMode]
   );
 
   /**
@@ -479,6 +507,19 @@ export default function LearnPage({
       return;
     }
 
+    // 单元练习模式：遍历打乱后的单元词条，全部学完弹完成提示
+    if (practiceMode) {
+      const nextIndex = practiceIndex + 1;
+      if (nextIndex < practiceOrder.length) {
+        setPracticeIndex(nextIndex);
+        setAnimKey((k) => k + 1);
+      } else {
+        setPracticeDone(true);
+      }
+      release();
+      return;
+    }
+
     // 单元完成检测：最近处理的词条所属单元，若全部词条都已处理过（答对 或 点过"我不会"）
     // 则弹出祝贺页并停在这里，等用户点"继续学习"再真正切题。
     // 每次学完该单元都弹（不限第一次）；lastProcessedUnitRef 在继续学习/重学时清空，防重复触发。
@@ -539,6 +580,9 @@ export default function LearnPage({
     difficultMode,
     difficultIndex,
     difficultOrder.length,
+    practiceMode,
+    practiceIndex,
+    practiceOrder.length,
     setProgress,
     cur,
     setCelebration,
@@ -577,7 +621,8 @@ export default function LearnPage({
           ? prev.difficultEntryIds
           : [...prev.difficultEntryIds, id];
         let grades = prev.grades;
-        if (!difficultMode) {
+        // 普通模式才写年级进度；重点记忆与单元练习都不计入整体进度
+        if (!difficultMode && !practiceMode) {
           const gk = String(prev.activeGrade);
           const g = prev.grades[gk];
           if (g && !g.skippedEntryIds.includes(id)) {
@@ -592,7 +637,22 @@ export default function LearnPage({
       addMistake(id); // "我不会"也计入拼错/不会统计
       showToast("📝 已加入重点记忆列表");
     },
-    [setProgress, addMistake, unit, allEntriesMap, difficultMode]
+    [setProgress, addMistake, unit, allEntriesMap, difficultMode, practiceMode]
+  );
+
+  /**
+   * 加入重点记忆：把词条加入重点记忆列表（不影响学习进度、不计错、不计分）。
+   * 与"我不会"不同：不推进进度，也不计入拼错/不会统计，适合"答对了但还想巩固"的场景。
+   */
+  const addToDifficult = useCallback(
+    (id: string) => {
+      setProgress((prev) => {
+        if (prev.difficultEntryIds.includes(id)) return prev;
+        return { ...prev, difficultEntryIds: [...prev.difficultEntryIds, id] };
+      });
+      showToast("📝 已加入重点记忆列表");
+    },
+    [setProgress]
   );
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -606,7 +666,7 @@ export default function LearnPage({
     if (dy < -60) {
       // 祝贺页打开时禁止上滑切题（祝贺页内容滚动也会冒泡到这里）
       if (celebration) return;
-      if (finishedAll || difficultDone) return;
+      if (finishedAll || difficultDone || practiceDone) return;
       if (!entry) return;
       const processedNow =
         difficultMode ||
@@ -838,20 +898,30 @@ export default function LearnPage({
           unitTitle={
             difficultMode
               ? `重点记忆 · ${difficultUnit?.title ?? ""}`
-              : `第 ${unit.unit} 单元 · ${unit.title}`
+              : practiceMode
+                ? `练习 · 第 ${practiceUnit?.unit} 单元 · ${practiceUnit?.title ?? ""}`
+                : `第 ${unit.unit} 单元 · ${unit.title}`
           }
           orderInUnit={
-            difficultMode ? difficultIndex + 1 : gs.entryIndex + 1
+            difficultMode
+              ? difficultIndex + 1
+              : practiceMode
+                ? practiceIndex + 1
+                : gs.entryIndex + 1
           }
           unitSize={
             difficultMode
               ? difficultOrder.length
-              : gs.unitOrder.length || unit.entries.length
+              : practiceMode
+                ? practiceOrder.length
+                : gs.unitOrder.length || unit.entries.length
           }
           onComplete={markComplete}
           onNext={goNext}
           onDontKnow={markDontKnow}
           onMistake={addMistake}
+          onAddToDifficult={difficultMode ? undefined : addToDifficult}
+          alreadyInDifficult={progress.difficultEntryIds.includes(entry.id)}
           frozen={celebration !== null}
           autoNext={user.config.autoNext ?? false}
           hidePoints={!!difficultAlreadyAwarded}
@@ -1017,6 +1087,30 @@ export default function LearnPage({
               className="mt-5 w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
             >
               确定
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 单元练习全部学完提示（只加积分、不计入整体进度） */}
+      {practiceMode && practiceDone && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/45 px-8">
+          <div className="w-full max-w-xs animate-[fadeIn_.2s_ease] rounded-3xl bg-surface p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success-light">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <h2 className="mt-3 text-base font-semibold text-text">本单元练习完成！</h2>
+            <p className="mt-1.5 text-sm text-text2">
+              本次练习获得的积分已计入总积分，不计入年级整体进度。
+            </p>
+            <button
+              type="button"
+              onClick={onExit}
+              className="mt-5 w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+            >
+              返回首页
             </button>
           </div>
         </div>

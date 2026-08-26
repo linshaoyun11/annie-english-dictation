@@ -42,16 +42,20 @@ type View =
   | "difficult"
   | "settings"
   | "profile";
-type LearnMode = "normal" | "difficult";
+type LearnMode = "normal" | "difficult" | "practice";
 
 export default function App() {
   const [view, setView] = useState<View>("select");
   const [users, setUsers] = useState<User[]>(() => loadUsers());
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [progress, setProgressState] = useState<Progress | null>(null);
-  // 学习模式：difficult = 重点记忆学习（随机遍历难词列表）
+  // 学习模式：difficult = 重点记忆学习（随机遍历难词列表）；
+  // practice = 单元练习（选定单元学习，只加积分、不计入整体进度）
   const [learnMode, setLearnMode] = useState<LearnMode>("normal");
   const [difficultOrder, setDifficultOrder] = useState<string[]>([]);
+  // 单元练习：选定的全局单元下标、打乱后的词条顺序
+  const [practiceUnitIndex, setPracticeUnitIndex] = useState<number>(0);
+  const [practiceOrder, setPracticeOrder] = useState<string[]>([]);
 
   // 当前用户的教材版本（进度按版本隔离加载）
   const version = currentUser?.config.curriculum ?? DEFAULT_CONFIG.curriculum;
@@ -135,12 +139,12 @@ export default function App() {
   // ── DEV 预览入口：URL 带 ?preview=grade 时直接进入通关页，
   //    URL 带 ?preview=home 时直接进首页（带示例轮数）。
   //    生产构建中该分支被编译器剔除，不影响线上行为。──
-  const previewGrade =
-    import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).get("preview") === "grade";
-  const previewHome =
-    import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).get("preview") === "home";
+  const previewParam =
+    import.meta.env.DEV
+      ? new URLSearchParams(window.location.search).get("preview")
+      : null;
+  const previewGrade = previewParam === "grade";
+  const previewHome = previewParam === "home";
 
   useEffect(() => {
     if (!previewGrade) return;
@@ -330,6 +334,27 @@ export default function App() {
     [progress, currentUser, version, accent]
   );
 
+  /** 开始单元练习：进入指定年级、指定全局单元下标的学习。
+   *  只加积分、不写入年级整体进度（grades 不变），适合针对性巩固某单元。 */
+  const startUnitPractice = useCallback(
+    (grade: number, unitIndex: number) => {
+      if (!progress || !currentUser) return;
+      const unit = cur[unitIndex];
+      if (!unit || unit.grade !== grade) return;
+      // 打乱单元内词条顺序，避免每次练习都按固定顺序
+      const ids = shuffle(unit.entries.map((e) => e.id));
+      if (ids.length === 0) return;
+      setPracticeUnitIndex(unitIndex);
+      setPracticeOrder(ids);
+      setLearnMode("practice");
+      setView("learn");
+      // 预取第一题的真人音频
+      const allMap = new Map(getAllEntries(version).map((e) => [e.id, e]));
+      const first = allMap.get(ids[0]);
+      if (first) prefetchAudio(first.english, accent);
+    },
+    [progress, currentUser, version, accent, cur]
+  );
   /** 退出学习页：难词模式回重点记忆页，普通模式回首页 */
   const exitLearn = useCallback(() => {
     // 退出学习页前确保进度已写入原生存储
@@ -508,6 +533,7 @@ export default function App() {
           onLeaderboard={() => setView("leaderboard")}
           onDifficultWords={() => setView("difficult")}
           onSettings={() => setView("settings")}
+          onStartUnit={startUnitPractice}
         />
       )}
 
@@ -533,6 +559,9 @@ export default function App() {
           onRestart={handleReset}
           difficultMode={learnMode === "difficult"}
           difficultOrder={difficultOrder}
+          practiceMode={learnMode === "practice"}
+          practiceOrder={practiceOrder}
+          practiceUnitIndex={practiceUnitIndex}
           previewCelebration={previewGrade}
         />
       )}

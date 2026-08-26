@@ -21,6 +21,8 @@ interface HomePageProps {
   onLeaderboard: () => void;
   onDifficultWords: () => void;
   onSettings: () => void;
+  /** 选择单元练习：进入指定年级、指定全局单元下标的学习（不计入整体进度） */
+  onStartUnit?: (grade: number, unitIndex: number) => void;
 }
 
 export default function HomePage({
@@ -33,6 +35,7 @@ export default function HomePage({
   onLeaderboard,
   onDifficultWords,
   onSettings,
+  onStartUnit,
 }: HomePageProps) {
   // 各年级进度独立：当前进度卡与"继续学习"都基于最近学习的年级
   const stats = gradeStats(progress, progress.activeGrade);
@@ -53,6 +56,11 @@ export default function HomePage({
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   // 清空进度的密码验证（确认清空后再输密码，密码正确才真正执行）
   const [resetAuth, setResetAuth] = useState(false);
+  // 标签页：按年级开始 / 选择单元（单元练习不计入整体进度）
+  const [tab, setTab] = useState<"grade" | "unit">("grade");
+  // 选择单元标签内的临时选择：年级 + 全局单元下标
+  const [selGrade, setSelGrade] = useState<number>(progress.activeGrade);
+  const [selUnitIndex, setSelUnitIndex] = useState<number | null>(null);
 
   return (
     <div className="h-full overflow-y-auto px-5 pb-10">
@@ -149,47 +157,169 @@ export default function HomePage({
         </button>
       </div>
 
-      {/* 年级选择（各年级进度独立，完成一轮清零、星章数字 +1） */}
-      <h2 className="mt-7 mb-3 text-sm font-semibold text-text">按年级开始</h2>
-      <div className="grid grid-cols-2 gap-3">
-        {grades.map((g) => {
-          const unitsOfGrade = cur.filter((u) => u.grade === g);
-          const gStats = gradeStats(progress, g);
-          const isCurrent = progress.activeGrade === g;
-          return (
-            <button
-              key={g}
-              type="button"
-              onClick={() => {
-                primeSpeech();
-                onStart(g);
-              }}
-              className={`group flex flex-col rounded-2xl border bg-surface p-4 text-left shadow-sm transition-all active:scale-[0.98] ${
-                isCurrent
-                  ? "border-primary/30 bg-primary-lighter ring-1 ring-primary/20"
-                  : "border-border hover:border-primary/30"
-              }`}
-            >
-              <span className="flex items-center gap-1.5 text-sm font-semibold text-text">
-                {gradeLabel(g)}
-                {gStats.rounds > 0 && <RoundsBadge rounds={gStats.rounds} />}
-              </span>
-              <span className="mt-0.5 text-[11px] text-text2">
-                {unitsOfGrade.length} 个单元
-              </span>
-              <div className="mt-3 h-1.5 w-full rounded-full bg-primary-lighter">
-                <div
-                  className="h-1.5 rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${Math.max(gStats.percent, 2)}%` }}
-                />
-              </div>
-              <span className="mt-2 text-[11px] text-text3">
-                {gStats.done}/{gStats.total} 已完成
-              </span>
-            </button>
-          );
-        })}
+      {/* 标签页切换：按年级开始 / 选择单元 */}
+      <div className="mt-7 flex rounded-2xl bg-primary-lighter p-1">
+        <TabBtn active={tab === "grade"} onClick={() => setTab("grade")}>
+          按年级开始
+        </TabBtn>
+        <TabBtn active={tab === "unit"} onClick={() => setTab("unit")}>
+          选择单元
+        </TabBtn>
       </div>
+
+      {/* Tab 1：按年级开始（各年级进度独立，完成一轮清零、星章数字 +1） */}
+      {tab === "grade" && (
+        <div className="mt-4">
+          <div className="mb-3 text-sm font-semibold text-text">选择年级</div>
+          <div className="grid grid-cols-2 gap-3">
+            {grades.map((g) => {
+              const unitsOfGrade = cur.filter((u) => u.grade === g);
+              const gStats = gradeStats(progress, g);
+              const isCurrent = progress.activeGrade === g;
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => {
+                    primeSpeech();
+                    onStart(g);
+                  }}
+                  className={`group flex flex-col rounded-2xl border bg-surface p-4 text-left shadow-sm transition-all active:scale-[0.98] ${
+                    isCurrent
+                      ? "border-primary/30 bg-primary-lighter ring-1 ring-primary/20"
+                      : "border-border hover:border-primary/30"
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5 text-sm font-semibold text-text">
+                    {gradeLabel(g)}
+                    {gStats.rounds > 0 && <RoundsBadge rounds={gStats.rounds} />}
+                  </span>
+                  <span className="mt-0.5 text-[11px] text-text2">
+                    {unitsOfGrade.length} 个单元
+                  </span>
+                  <div className="mt-3 h-1.5 w-full rounded-full bg-primary-lighter">
+                    <div
+                      className="h-1.5 rounded-full bg-primary transition-all duration-500"
+                      style={{ width: `${Math.max(gStats.percent, 2)}%` }}
+                    />
+                  </div>
+                  <span className="mt-2 text-[11px] text-text3">
+                    {gStats.done}/{gStats.total} 已完成
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Tab 2：选择单元（单元练习，不计入整体进度，但可加积分） */}
+      {tab === "unit" && (
+        <div className="mt-4">
+          {/* 年级选择 */}
+          <div className="mb-3 text-sm font-semibold text-text">选择年级</div>
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            {grades.map((g) => {
+              const isSel = selGrade === g;
+              return (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => {
+                    setSelGrade(g);
+                    setSelUnitIndex(null);
+                  }}
+                  className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all active:scale-95 ${
+                    isSel
+                      ? "border-primary bg-primary text-white shadow-sm"
+                      : "border-border bg-surface text-text2"
+                  }`}
+                >
+                  {gradeLabel(g)}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 单元列表 */}
+          <div className="mt-4 mb-2 text-sm font-semibold text-text">
+            选择单元
+          </div>
+          <div className="flex flex-col gap-2">
+            {cur
+              .filter((u) => u.grade === selGrade)
+              .map((u) => {
+                const unitIndex = cur.indexOf(u);
+                const gs = progress.grades[String(selGrade)];
+                const processed = gs ? processedOf(gs) : new Set<string>();
+                const doneInUnit = u.entries.filter((e) =>
+                  processed.has(e.id)
+                ).length;
+                const pct = Math.round(
+                  (doneInUnit / u.entries.length) * 100
+                );
+                const isSel = selUnitIndex === unitIndex;
+                return (
+                  <button
+                    key={unitIndex}
+                    type="button"
+                    onClick={() => setSelUnitIndex(unitIndex)}
+                    className={`flex items-center justify-between rounded-2xl border bg-surface px-4 py-3 text-left shadow-sm transition-all active:scale-[0.98] ${
+                      isSel
+                        ? "border-primary/40 bg-primary-lighter ring-1 ring-primary/20"
+                        : "border-border hover:border-primary/30"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-1.5 text-sm font-semibold text-text">
+                        第 {u.unit} 单元
+                        {u.title && (
+                          <span className="text-text2">· {u.title}</span>
+                        )}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-text3">
+                        {u.entries.length} 个词条 · {doneInUnit}/
+                        {u.entries.length} 已学
+                      </p>
+                    </div>
+                    <div className="ml-3 h-1.5 w-16 shrink-0 rounded-full bg-primary-lighter">
+                      <div
+                        className="h-1.5 rounded-full bg-primary"
+                        style={{ width: `${Math.max(pct, 3)}%` }}
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+          </div>
+
+          {/* 开始单元练习 */}
+          <button
+            type="button"
+            disabled={selUnitIndex === null}
+            onClick={() => {
+              if (selUnitIndex === null) return;
+              primeSpeech();
+              onStartUnit?.(selGrade, selUnitIndex);
+            }}
+            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98] ${
+              selUnitIndex === null
+                ? "cursor-not-allowed bg-primary/40"
+                : "bg-primary"
+            }`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5z" />
+              <path d="M12 11v4" />
+              <path d="M9 14h6" />
+            </svg>
+            开始学习
+          </button>
+          <p className="mt-2 text-center text-[11px] text-text3">
+            单元练习只增加积分，不计入年级整体进度
+          </p>
+        </div>
+      )}
 
       {/* 清空进度 */}
       <button
@@ -259,6 +389,31 @@ export default function HomePage({
         />
       )}
     </div>
+  );
+}
+
+/** 首页标签页切换按钮 */
+function TabBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 rounded-xl py-2 text-sm font-semibold transition-all active:scale-[0.98] ${
+        active
+          ? "bg-surface text-primary shadow-sm"
+          : "text-text2"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 

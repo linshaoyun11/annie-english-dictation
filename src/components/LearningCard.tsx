@@ -17,6 +17,10 @@ interface LearningCardProps {
   onExit: () => void;
   /** 词条拼错过或点过"我不会"（用于年级完成统计，整题只触发一次） */
   onMistake?: (entryId: string) => void;
+  /** 加入重点记忆：把当前词条加入重点记忆列表（不影响进度、不计错、不计分） */
+  onAddToDifficult?: (entryId: string) => void;
+  /** 当前词条是否已在重点记忆列表（按钮显示"已加入"并禁用） */
+  alreadyInDifficult?: boolean;
   /** 冻结模式：单元完成祝贺页弹出时置 true，阻止自动跳题与自动朗读 */
   frozen?: boolean;
   /** 隐藏积分徽章（重点记忆重复学习不再加分时不显示"+N 积分"） */
@@ -38,6 +42,8 @@ export default function LearningCard({
   onDontKnow,
   onExit,
   onMistake,
+  onAddToDifficult,
+  alreadyInDifficult = false,
   frozen = false,
   hidePoints = false,
   autoNext = false,
@@ -178,6 +184,27 @@ export default function LearningCard({
     </button>
   );
 
+  // 加入重点记忆：仅正确页显示，点击把当前词条加入重点记忆列表（不影响进度/积分）；
+  // 已在列表中时显示"已加入重点记忆"并禁用，给出明确反馈。
+  const addToDifficultBtn = onAddToDifficult ? (
+    <button
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        if (alreadyInDifficult) return;
+        onAddToDifficult(entry.id);
+      }}
+      disabled={alreadyInDifficult}
+      className={
+        alreadyInDifficult
+          ? "mt-3 w-full rounded-2xl border border-border bg-surface py-3 text-[15px] font-semibold text-text3"
+          : "mt-3 w-full rounded-2xl border border-border bg-white py-3 text-[15px] font-semibold text-text2 transition-colors active:bg-primary-lighter"
+      }
+    >
+      {alreadyInDifficult ? "已加入重点记忆" : "加入重点记忆"}
+    </button>
+  ) : null;
+
   return (
     <div className="flex h-full flex-col px-5 pt-5 pb-[calc(var(--kb-h,0px)+theme(space.6))]">
       {/* 顶部信息 + 关闭按钮（同一行） */}
@@ -253,6 +280,7 @@ export default function LearningCard({
                 </div>
               )}
             </div>
+            {addToDifficultBtn}
             {nextBtn}
             <p className="mt-3 text-center text-xs text-text3">
               {autoNext
