@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import {
-  ensureElement,
+  createAudioElement,
   releaseElement,
   resolveAudio,
   type AudioResult,
@@ -90,10 +90,7 @@ export function useSpeechLoop(gapMs = 3000) {
 
   function stopAll() {
     if (audioRef.current) {
-      const el = audioRef.current;
-      el.pause();
-      el.onended = null;
-      el.onerror = null;
+      releaseElement(audioRef.current);
       audioRef.current = null;
     }
     if ("speechSynthesis" in window) {
@@ -182,6 +179,9 @@ export function useSpeechLoop(gapMs = 3000) {
    * 首遍音量可能略偏小（WebKit 解码层行为，已知并接受）。
    */
   function playViaElement(gen: number, item: AudioResult) {
+    // 方案 A：每题新建 <audio> 元素，先释放上一题遗留元素，
+    // 杜绝解码缓冲在长列表连续学习中累积（卡死崩溃根因）。
+    if (audioRef.current) releaseElement(audioRef.current);
     const attempt = (el: HTMLAudioElement, isRetry: boolean) => {
       if (!valid(gen)) return;
       audioRef.current = el;
@@ -202,11 +202,9 @@ export function useSpeechLoop(gapMs = 3000) {
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
-      // 复用过的元素只在确实播放过（有进度/已结束）时才 load() 彻底重置：
-      // 1) 不做 currentTime=0 的 seek——Edge TTS 生成的 mp3 无 Xing/Info 头，
-      //    WebKit 里 duration=Infinity，seek(0) 会跳到接近结尾（"短促尾音"元凶）；
-      // 2) 预取刚加载完（readyState>0 但未播过）的元素不 load()，
-      //    保留已缓冲的数据——load() 会丢弃缓冲导致首遍播放音量偏小。
+      // 当前元素为新建（currentTime=0 且未 ended），不 load() 重置，
+      // 直接 play() 保留已缓冲数据（load() 会丢弃缓冲导致首遍音量偏小）。
+      // 防御：若元素实际播过（reuse 场景）仍重置。
       if (el.currentTime > 0 || el.ended) {
         el.load();
       }
@@ -217,13 +215,13 @@ export function useSpeechLoop(gapMs = 3000) {
         })
         .catch(() => {
           if (!valid(gen)) return;
-          // iOS 上复用的旧元素 ended 后可能进入死态 → 换新元素重试一次
+          // iOS 上元素可能进入死态 → 换新元素重试一次
           if (!isRetry) {
-            releaseElement(item.el); // 旧元素原生资源必须显式释放
+            releaseElement(audioRef.current); // 旧元素原生资源必须显式释放
             const fresh = new Audio();
             fresh.preload = "auto";
             fresh.src = item.url;
-            item.el = fresh;
+            audioRef.current = fresh;
             safeTimeout(() => attempt(fresh, true), 80);
           } else {
             failCountRef.current += 1;
@@ -237,7 +235,7 @@ export function useSpeechLoop(gapMs = 3000) {
         });
     };
 
-    attempt(ensureElement(item), false);
+    attempt(createAudioElement(item.url), false);
   }
 
   /** 播放列表中的当前条目（<audio> 元素直出） */
@@ -344,12 +342,10 @@ export function useSpeechLoop(gapMs = 3000) {
       }
       if (!loopRef.current || myGen.current !== activeGen) return;
       if (modeRef.current === "audio") {
-        // 丢弃僵尸 <audio> 元素，回前台后强制重建
+        // 回前台后强制重建元素（stopAll 已释放旧元素）
         stopAll();
         clearTimer();
         clearWatchdog();
-        const item = playlistRef.current[seqIdxRef.current];
-        if (item && item.el) item.el = undefined;
         if (playlistRef.current.length) {
           fnsRef.current.playCurrent(myGen.current);
         }
