@@ -25,7 +25,7 @@ workflows:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_VERSION: 1.0.0
-        APP_BUILD: 42
+        APP_BUILD: 43
         BUNDLE_ID: com.annie.dictation
     scripts:
       - name: 安装依赖
@@ -273,7 +273,9 @@ workflows:
               (app_dir / MANIFEST).write_text(xml, encoding='utf-8')
               fr = uuid.uuid4().hex.upper()[:24]
               br = uuid.uuid4().hex.upper()[:24]
-              file_ref = '\t\t%s /* %s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = %s; sourceTree = "<group>"; };\n' % (fr, MANIFEST, MANIFEST)
+              # 注意：fileRef 未挂入 PBXGroup 时，Xcode 相对根组（ios/App/）解析
+              # path；文件实际位于 ios/App/App/ 下，故 path 必须带 App/ 前缀。
+              file_ref = '\t\t%s /* %s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = App/%s; sourceTree = "<group>"; };\n' % (fr, MANIFEST, MANIFEST)
               text = text.replace('/* End PBXFileReference section */', file_ref + '\t\t/* End PBXFileReference section */', 1)
               build_ref = '\t\t%s /* %s in Resources */ = {isa = PBXBuildFile; fileRef = %s /* %s */; };\n' % (br, MANIFEST, fr, MANIFEST)
               text = text.replace('/* End PBXBuildFile section */', build_ref + '\t\t/* End PBXBuildFile section */', 1)
