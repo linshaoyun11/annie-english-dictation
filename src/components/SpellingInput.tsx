@@ -171,10 +171,12 @@ export default function SpellingInput({
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState !== "visible") return;
+      // 先把当前 input 主动失焦：iOS 在 app 恢复时不会重新评估已聚焦 input 的
+      // inputmode，会直接沿用后台前的中文输入法（表现为"回来后要手动切回英文小写"）。
+      // 先 blur 再重建新 input 并聚焦，才能迫使 iOS 重新读取 inputmode="latin"。
+      inputRef.current?.blur();
       if (done || revealed) {
-        // 通关页/正确页/揭示页：回来时主动收起键盘，避免遮挡按钮。
-        // inputRef.blur() 可能因僵尸态失效，用原生 Keyboard.hide() 兜底。
-        inputRef.current?.blur();
+        // 通关页/正确页/揭示页：回来时收起键盘，避免遮挡按钮。
         if (Capacitor.isNativePlatform()) Keyboard.hide();
         return;
       }

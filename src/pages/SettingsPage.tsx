@@ -270,7 +270,7 @@ export default function SettingsPage({
             <h3 className="text-base font-semibold text-text">关于</h3>
             <div className="mt-3 space-y-1.5 text-xs leading-5 text-text2">
               <p>版本号：{APP_VERSION}</p>
-              <p>开发：Luminous Soul Youth</p>
+              <p>开发：NO3NO4</p>
               <p className="pt-1 text-[11px] leading-4 text-text3">
                 感谢Winnie、Pigpig、Dogdi提供技术支持和情绪价值。
               </p>
