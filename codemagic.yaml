@@ -25,7 +25,7 @@ workflows:
         XCODE_WORKSPACE: ios/App/App.xcworkspace
         XCODE_SCHEME: App
         APP_VERSION: 1.0.0
-        APP_BUILD: 38
+        APP_BUILD: 39
         BUNDLE_ID: com.annie.dictation
     scripts:
       - name: 安装依赖
@@ -224,6 +224,72 @@ workflows:
           print('Patched AppDelegate.swift: category on main, activation on background queue')
           PYEOF
 
+      # iOS 17+ 隐私清单：Capacitor 用到 UserDefaults / FileManager 等"需理由 API"，
+      # 缺 PrivacyInfo.xcprivacy 会在新系统报警告甚至拒审。ios/ 由 CI 生成，故在此写入
+      # 并把文件登记进 Xcode 工程的 Resources 阶段（脚本幂等且失败不阻断构建，需一次测试构建验证）。
+      - name: 生成并登记隐私清单 PrivacyInfo.xcprivacy
+        script: |
+          python3 - <<'PYEOF'
+          try:
+              import pathlib, uuid
+              pbx = pathlib.Path('ios/App/App.xcodeproj/project.pbxproj')
+              if not pbx.exists():
+                  print('project.pbxproj not found, skip')
+                  raise SystemExit(0)
+              text = pbx.read_text(encoding='utf-8')
+              MANIFEST = 'PrivacyInfo.xcprivacy'
+              if MANIFEST in text:
+                  print('already referenced, skip')
+                  raise SystemExit(0)
+              app_dir = pathlib.Path('ios/App/App')
+              xml = '''<?xml version="1.0" encoding="UTF-8"?>
+              <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+              <plist version="1.0">
+              <dict>
+                  <key>NSPrivacyAccessedAPITypes</key>
+                  <array>
+                      <dict>
+                          <key>NSPrivacyAccessedAPIType</key>
+                          <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+                          <key>NSPrivacyAccessedAPITypeReasons</key>
+                          <array><string>CA92.1</string></array>
+                      </dict>
+                      <dict>
+                          <key>NSPrivacyAccessedAPIType</key>
+                          <string>NSPrivacyAccessedAPICategoryFileManager</string>
+                          <key>NSPrivacyAccessedAPITypeReasons</key>
+                          <array><string>C617.1</string></array>
+                      </dict>
+                  </array>
+                  <key>NSPrivacyCollectedDataTypes</key>
+                  <array/>
+                  <key>NSPrivacyTracking</key>
+                  <false/>
+                  <key>NSPrivacyTrackingDomains</key>
+                  <array/>
+              </dict>
+              </plist>
+              '''
+              (app_dir / MANIFEST).write_text(xml, encoding='utf-8')
+              fr = uuid.uuid4().hex.upper()[:24]
+              br = uuid.uuid4().hex.upper()[:24]
+              file_ref = '\t\t%s /* %s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = %s; sourceTree = "<group>"; };\n' % (fr, MANIFEST, MANIFEST)
+              text = text.replace('/* End PBXFileReference section */', file_ref + '\t\t/* End PBXFileReference section */', 1)
+              build_ref = '\t\t%s /* %s in Resources */ = {isa = PBXBuildFile; fileRef = %s /* %s */; };\n' % (br, MANIFEST, fr, MANIFEST)
+              text = text.replace('/* End PBXBuildFile section */', build_ref + '\t\t/* End PBXBuildFile section */', 1)
+              idx = text.find('isa = PBXResourcesBuildPhase')
+              if idx != -1:
+                  fs = text.find('files = (', idx)
+                  if fs != -1:
+                      end = text.find(');', fs)
+                      if end != -1:
+                          text = text[:end] + ('\n\t\t\t%s /* %s in Resources */,' % (br, MANIFEST)) + text[end:]
+              pbx.write_text(text, encoding='utf-8')
+              print('Injected PrivacyInfo.xcprivacy into Xcode project (verify in a test IPA)')
+          except Exception as e:
+              print('PrivacyInfo step failed (non-fatal):', e)
+          PYEOF
+
       # 显式自动签名：找不到描述文件时会自动创建（--create）
       - name: 初始化签名钥匙串
         script: keychain initialize
@@ -265,3 +331,7 @@ workflows:
         # 该变量不会注入，传给 CLI 的是字面量导致 "not a valid PEM" 报错
         auth: integration
         submit_to_testflight: true
+        # 正式上架：先在 App Store Connect 后台填齐所有元数据（描述/截图/隐私标签/隐私政策 URL），
+        # 再把下行的 submit_to_app_store 改为 true，即可在 CI 构建后自动「提交审核」。
+        # 注意：metadata 未备齐前务必保持 false，否则构建会因缺少提审资料而失败。
+        submit_to_app_store: false
