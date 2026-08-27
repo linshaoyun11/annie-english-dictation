@@ -21,6 +21,8 @@ interface HomePageProps {
   onLeaderboard: () => void;
   onDifficultWords: () => void;
   onSettings: () => void;
+  /** 点击头像进入用户资料页 */
+  onOpenProfile?: () => void;
   /** 选择单元练习：进入指定年级、指定全局单元下标的学习（不计入整体进度） */
   onStartUnit?: (grade: number, unitIndex: number) => void;
 }
@@ -35,6 +37,7 @@ export default function HomePage({
   onLeaderboard,
   onDifficultWords,
   onSettings,
+  onOpenProfile,
   onStartUnit,
 }: HomePageProps) {
   // 各年级进度独立：当前进度卡与"继续学习"都基于最近学习的年级
@@ -71,12 +74,16 @@ export default function HomePage({
       {/* 顶部导航 */}
       <div className="flex items-center justify-between pt-8">
         <div className="flex items-center gap-3">
-          <div
-            className="flex h-11 w-11 items-center justify-center rounded-full text-xl shadow-sm ring-2 ring-white"
+          <button
+            type="button"
+            onClick={onOpenProfile}
+            title="用户资料"
+            aria-label="用户资料"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-xl shadow-sm ring-2 ring-white"
             style={{ backgroundColor: avatar.color }}
           >
             <AvatarImg id={avatar.id} alt={avatar.name} />
-          </div>
+          </button>
           <div>
             <p className="text-sm font-semibold text-text">{avatar.name}</p>
             <p className="text-xs text-text3">⭐ {user.points} 积分</p>

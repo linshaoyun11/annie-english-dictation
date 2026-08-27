@@ -56,6 +56,10 @@ export default function App() {
   // 单元练习：选定的全局单元下标、打乱后的词条顺序
   const [practiceUnitIndex, setPracticeUnitIndex] = useState<number>(0);
   const [practiceOrder, setPracticeOrder] = useState<string[]>([]);
+  // 进入用户资料页的来源：区分从设置页还是首页头像点入，决定返回时的上级页面
+  const [profileFrom, setProfileFrom] = useState<"settings" | "home">(
+    "settings"
+  );
 
   // 当前用户的教材版本（进度按版本隔离加载）
   const version = currentUser?.config.curriculum ?? DEFAULT_CONFIG.curriculum;
@@ -392,7 +396,7 @@ export default function App() {
           setView("home");
           break;
         case "profile":
-          setView("settings");
+          setView(profileFrom);
           break;
         case "leaderboard":
           setView(currentUser ? "home" : "select");
@@ -440,7 +444,7 @@ export default function App() {
       window.removeEventListener("touchend", onEnd);
       window.removeEventListener("touchcancel", onCancel);
     };
-  }, [view, currentUser, exitLearn]);
+  }, [view, currentUser, exitLearn, profileFrom]);
 
   /** 清空当前用户在该教材下的学习进度，积分与已学数量一并清零 */
   const handleReset = useCallback(() => {
@@ -510,14 +514,17 @@ export default function App() {
           user={currentUser}
           onBack={() => setView("home")}
           onSave={handleSaveConfig}
-          onOpenProfile={() => setView("profile")}
+          onOpenProfile={() => {
+            setProfileFrom("settings");
+            setView("profile");
+          }}
         />
       )}
 
       {view === "profile" && currentUser && (
         <ProfilePage
           user={currentUser}
-          onBack={() => setView("settings")}
+          onBack={() => setView(profileFrom)}
           onChangePassword={handleChangePassword}
         />
       )}
@@ -533,6 +540,10 @@ export default function App() {
           onLeaderboard={() => setView("leaderboard")}
           onDifficultWords={() => setView("difficult")}
           onSettings={() => setView("settings")}
+          onOpenProfile={() => {
+            setProfileFrom("home");
+            setView("profile");
+          }}
           onStartUnit={startUnitPractice}
         />
       )}
