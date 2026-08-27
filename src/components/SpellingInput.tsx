@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Capacitor } from "@capacitor/core";
 import { Keyboard } from "@capacitor/keyboard";
+import { safeClearTimeout, safeTimeout } from "../lib/timer";
 
 /**
  * 在 input 真实 DOM 上强制 iOS 评估为英文小写全键盘。
@@ -162,31 +163,53 @@ export default function SpellingInput({
     return () => document.removeEventListener("click", onDocClick);
   }, [done, revealed]);
 
-  // App 从后台回前台 → 强制重建 input DOM 元素。
+  // App 从后台回前台 → 延迟重建 input DOM 元素。
   // iOS 后台挂起后 input 进入"僵尸态"：document.activeElement 指向它、
   // 键盘可见，但 onChange 事件不送达 → 打字没反应（"最后字母没反应"根因）。
-  // 用 flushSync 换 inputKey → React 同步销毁旧 input、创建新 input。
-  // 新 input 不带焦点 → 全局 keydown 兜底处理第一个按键并 focus，
-  // 之后新 input 的 onChange 正常工作。
+  // ⚠️ 唤醒瞬间（visibilitychange 触发时）iOS 仍在恢复过渡期：
+  // 立即重建的 input 可能被绑到后台前的旧键盘会话（中文），表现为
+  // "回来还是要手动切英文小写"（偶发）。因此先 blur 断开旧会话，
+  // 等恢复过渡完成（200ms）后再 flushSync 换 inputKey 重建 input，
+  // 最后双 rAF 重新聚焦——此时 iOS 才会按新 input 的 inputmode="latin"
+  // 重新评估键盘。
+  const resumeRebuildTimerRef = useRef<number | null>(null);
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState !== "visible") return;
       // 先把当前 input 主动失焦：iOS 在 app 恢复时不会重新评估已聚焦 input 的
       // inputmode，会直接沿用后台前的中文输入法（表现为"回来后要手动切回英文小写"）。
-      // 先 blur 再重建新 input 并聚焦，才能迫使 iOS 重新读取 inputmode="latin"。
       inputRef.current?.blur();
       if (done || revealed) {
         // 通关页/正确页/揭示页：回来时收起键盘，避免遮挡按钮。
         if (Capacitor.isNativePlatform()) Keyboard.hide();
         return;
       }
-      inputAliveRef.current = false; // 假定僵尸，直到 onChange 证明活着
-      flushSync(() => {
-        setInputKey((k) => k + 1);
-      });
+      // 旧监听器切换/重建的延迟定时器先清掉，避免重复重建
+      safeClearTimeout(resumeRebuildTimerRef.current);
+      resumeRebuildTimerRef.current = safeTimeout(() => {
+        // 延迟期间可能又切后台/切页/完成 → 放弃重建
+        if (document.visibilityState !== "visible") return;
+        inputAliveRef.current = false; // 假定僵尸，直到 onChange 证明活着
+        flushSync(() => {
+          setInputKey((k) => k + 1);
+        });
+        // 双 rAF 后再聚焦一次：确保 iOS 键盘会话绑定到新 input
+        // （inputKey effect 已同步 focus 一次，这里补一次延迟聚焦，
+        // 覆盖 iOS 恢复过渡期同步 focus 被吞掉的情况）
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (document.visibilityState === "visible" && !done && !revealed) {
+              inputRef.current?.focus();
+            }
+          });
+        });
+      }, 200);
     };
     document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      safeClearTimeout(resumeRebuildTimerRef.current);
+    };
   }, [done, revealed]);
 
   // input 重建后聚焦新元素（visibilitychange 非用户手势，

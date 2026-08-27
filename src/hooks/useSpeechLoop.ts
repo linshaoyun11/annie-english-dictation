@@ -65,6 +65,8 @@ export function useSpeechLoop(gapMs = 3000) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<number | null>(null);
   const watchdogRef = useRef<number | null>(null);
+  /** 回前台延迟重播的定时器（等 iOS 完成恢复过渡） */
+  const resumeTimerRef = useRef<number | null>(null);
   const loopRef = useRef(true);
   /** 当前播放模式："audio"=本地/网络音频序列，"speech"=浏览器语音，null=停止 */
   const modeRef = useRef<"audio" | "speech" | null>(null);
@@ -86,6 +88,11 @@ export function useSpeechLoop(gapMs = 3000) {
   function clearWatchdog() {
     safeClearTimeout(watchdogRef.current);
     watchdogRef.current = null;
+  }
+
+  function clearResumeTimer() {
+    safeClearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = null;
   }
 
   function stopAll() {
@@ -133,7 +140,8 @@ export function useSpeechLoop(gapMs = 3000) {
 
   /**
    * 看门狗：iOS 上 <audio> 偶发 ended 事件不触发/播放静默卡死
-   * （表现为"只播一次不循环"）。播完后超时仍未进入下一轮则强制重播。
+   * （表现为"只播一次不循环"或"回前台后无声"）。
+   * 播完后超时仍未进入下一轮则强制重播。
    */
   function startWatchdog(el: HTMLAudioElement, gen: number) {
     clearWatchdog();
@@ -142,7 +150,11 @@ export function useSpeechLoop(gapMs = 3000) {
     const expected = (dur / Math.max(rateRef.current, 0.1)) * 1000 + 2500;
     watchdogRef.current = safeTimeout(() => {
       if (!valid(gen) || modeRef.current !== "audio") return;
-      if (el.paused && !el.ended) {
+      if (el.ended) return;
+      // 两种卡死：paused（假播放）或进度停滞（state=playing 但
+      // currentTime 没走到接近结尾——回前台后偶发的静默僵尸态）。
+      // 到达预期结束时刻仍未 ended 且进度落后 → 从头重播。
+      if (el.paused || el.currentTime < dur - 0.3) {
         playCurrent(gen); // 卡死：从头重播当前条目
       }
     }, expected);
@@ -182,7 +194,10 @@ export function useSpeechLoop(gapMs = 3000) {
     // 方案 A：每题新建 <audio> 元素，先释放上一题遗留元素，
     // 杜绝解码缓冲在长列表连续学习中累积（卡死崩溃根因）。
     if (audioRef.current) releaseElement(audioRef.current);
-    const attempt = (el: HTMLAudioElement, isRetry: boolean) => {
+    // attemptNo：0=首播，1=80ms 快重试，2=600ms 慢重试。
+    // 回前台瞬间 play() 可能落在音频会话未就绪窗口而 reject，
+    // 递增延迟重试可躲开该窗口；两轮都失败才算条目失败。
+    const attempt = (el: HTMLAudioElement, attemptNo: number) => {
       if (!valid(gen)) return;
       audioRef.current = el;
       el.onended = () => {
@@ -215,14 +230,16 @@ export function useSpeechLoop(gapMs = 3000) {
         })
         .catch(() => {
           if (!valid(gen)) return;
-          // iOS 上元素可能进入死态 → 换新元素重试一次
-          if (!isRetry) {
+          if (attemptNo < 2) {
+            // iOS 上元素可能进入死态/恢复初期会话未就绪 →
+            // 换新元素递增延迟重试（80ms → 600ms）
             releaseElement(audioRef.current); // 旧元素原生资源必须显式释放
-            const fresh = new Audio();
-            fresh.preload = "auto";
-            fresh.src = item.url;
+            const fresh = createAudioElement(item.url);
             audioRef.current = fresh;
-            safeTimeout(() => attempt(fresh, true), 80);
+            safeTimeout(
+              () => attempt(fresh, attemptNo + 1),
+              attemptNo === 0 ? 80 : 600
+            );
           } else {
             failCountRef.current += 1;
             if (failCountRef.current > playlistRef.current.length + 1) {
@@ -235,7 +252,7 @@ export function useSpeechLoop(gapMs = 3000) {
         });
     };
 
-    attempt(createAudioElement(item.url), false);
+    attempt(createAudioElement(item.url), 0);
   }
 
   /** 播放列表中的当前条目（<audio> 元素直出） */
@@ -312,6 +329,7 @@ export function useSpeechLoop(gapMs = 3000) {
   function stop() {
     loopRef.current = false;
     modeRef.current = null;
+    clearResumeTimer();
     clearTimer();
     clearWatchdog();
     stopAll();
@@ -330,11 +348,15 @@ export function useSpeechLoop(gapMs = 3000) {
    * - 回前台（visible）：后台挂起后旧元素可能进入"僵尸"状态（play() 正常
    *   返回但完全无声，或 ended 永不触发）。回前台一律丢弃旧元素、
    *   新建元素从头重播，最可靠（元素播放无手势限制，可直接恢复）。
+   *   ⚠️ 重播延迟 350ms：visibilitychange 触发时 iOS 尚在恢复过渡期，
+   *   立即 play() 偶发落在音频会话未就绪窗口 → 播放失败/静默，
+   *   等 webview 与 AVAudioSession 就绪后再重播可避开该窗口。
    */
   useEffect(() => {
     const onVis = () => {
       if (document.visibilityState === "hidden") {
         // 停止一切播放（不置 loopRef=false，回前台仍可恢复）
+        clearResumeTimer();
         stopAll();
         clearTimer();
         clearWatchdog();
@@ -343,19 +365,34 @@ export function useSpeechLoop(gapMs = 3000) {
       if (!loopRef.current || myGen.current !== activeGen) return;
       if (modeRef.current === "audio") {
         // 回前台后强制重建元素（stopAll 已释放旧元素）
+        clearResumeTimer();
         stopAll();
         clearTimer();
         clearWatchdog();
         if (playlistRef.current.length) {
-          fnsRef.current.playCurrent(myGen.current);
+          resumeTimerRef.current = safeTimeout(() => {
+            // 恢复延迟期间可能又切后台/换题/停止 → 重新校验
+            if (!loopRef.current || myGen.current !== activeGen) return;
+            if (modeRef.current !== "audio") return;
+            fnsRef.current.playCurrent(myGen.current);
+          }, 350);
         }
       } else if (modeRef.current === "speech") {
-        if (
-          "speechSynthesis" in window &&
-          !window.speechSynthesis.speaking &&
-          !window.speechSynthesis.pending
-        ) {
-          fnsRef.current.speakWebSpeech();
+        if ("speechSynthesis" in window) {
+          // iOS 经典 BUG：后台恢复后 speechSynthesis 状态卡在
+          // speaking=true 但实际无声。pause()+resume() 强制解卡。
+          try {
+            window.speechSynthesis.pause();
+            window.speechSynthesis.resume();
+          } catch {
+            /* ignore */
+          }
+          if (
+            !window.speechSynthesis.speaking &&
+            !window.speechSynthesis.pending
+          ) {
+            fnsRef.current.speakWebSpeech();
+          }
         }
       }
     };
