@@ -115,6 +115,11 @@ export function useSpeechLoop(gapMs = 3000) {
     if (!loopRef.current || !textRef.current) return;
     if (myGen.current !== activeGen) return;
     modeRef.current = "speech";
+    // 切到语音管线前释放遗留的音频元素（原生解码器实例一并回收）
+    if (audioRef.current) {
+      releaseElement(audioRef.current);
+      audioRef.current = null;
+    }
     clearTimer();
     ensureVoiceListener();
     window.speechSynthesis.cancel();
@@ -155,7 +160,9 @@ export function useSpeechLoop(gapMs = 3000) {
       // currentTime 没走到接近结尾——回前台后偶发的静默僵尸态）。
       // 到达预期结束时刻仍未 ended 且进度落后 → 从头重播。
       if (el.paused || el.currentTime < dur - 0.3) {
-        playCurrent(gen); // 卡死：从头重播当前条目
+        // 卡死：强制换新元素从头重播（forceFresh——僵尸元素 play() 不报错
+        // 但无声，复用它只会无限循环卡死）
+        playCurrent(gen, true);
       }
     }, expected);
   }
@@ -183,17 +190,36 @@ export function useSpeechLoop(gapMs = 3000) {
     if (!valid(gen)) return;
     const isLast = seqIdxRef.current >= playlistRef.current.length - 1;
     seqIdxRef.current = isLast ? 0 : seqIdxRef.current + 1;
-    safeTimeout(() => playCurrent(gen), WORD_GAP_MS);
+    clearTimer(); // 纳入 timerRef 管理，stop() 时可一并取消，防幽灵回调
+    timerRef.current = safeTimeout(() => playCurrent(gen), WORD_GAP_MS);
   }
 
   /**
    * <audio> 元素直出播放（唯一音频路径）。
    * 首遍音量可能略偏小（WebKit 解码层行为，已知并接受）。
+   *
+   * 元素复用策略（方案 A'）：
+   * - 同一词条循环重播时**复用当前元素**（currentTime 归零重播、不清缓冲）；
+   * - 仅在换词条 / 后台恢复 / 看门狗解卡（forceFresh）/ 播放失败重试时新建。
+   * 之前每轮重播都新建元素：iOS WKWebView 为每个 media 元素分配原生
+   * 解码器/播放器实例且回收滞后，长会话累积数百个实例 → 内存压力持续
+   * 增大 → "学习久了打字/跳题整体越来越卡"。复用后常驻解码缓冲恒为 1 份。
    */
-  function playViaElement(gen: number, item: AudioResult) {
-    // 方案 A：每题新建 <audio> 元素，先释放上一题遗留元素，
-    // 杜绝解码缓冲在长列表连续学习中累积（卡死崩溃根因）。
-    if (audioRef.current) releaseElement(audioRef.current);
+  function playViaElement(gen: number, item: AudioResult, forceFresh = false) {
+    const prev = audioRef.current;
+    const reusable =
+      !forceFresh &&
+      !!prev &&
+      prev.error === null &&
+      (prev.ended || prev.paused) &&
+      prev.getAttribute("src") === item.url;
+    if (!reusable) {
+      // 方案 A：换词条时新建 <audio> 元素，先释放上一题遗留元素，
+      // 杜绝解码缓冲在长列表连续学习中累积（卡死崩溃根因）。
+      if (prev) releaseElement(prev);
+      audioRef.current = createAudioElement(item.url);
+    }
+    const el = audioRef.current!;
     // attemptNo：0=首播，1=80ms 快重试，2=600ms 慢重试。
     // 回前台瞬间 play() 可能落在音频会话未就绪窗口而 reject，
     // 递增延迟重试可躲开该窗口；两轮都失败才算条目失败。
@@ -217,11 +243,11 @@ export function useSpeechLoop(gapMs = 3000) {
       el.playbackRate = rateRef.current;
       el.volume = 1;
       el.muted = false;
-      // 当前元素为新建（currentTime=0 且未 ended），不 load() 重置，
-      // 直接 play() 保留已缓冲数据（load() 会丢弃缓冲导致首遍音量偏小）。
-      // 防御：若元素实际播过（reuse 场景）仍重置。
-      if (el.currentTime > 0 || el.ended) {
-        el.load();
+      // 复用元素重播：归零但不清缓冲（load() 会丢弃已解码数据，
+      // 导致重播退回"首遍音量偏小"且多一次解码）。
+      // 新元素 currentTime 本来就是 0，不触碰。
+      if (el.ended || el.currentTime > 0) {
+        el.currentTime = 0;
       }
       el.play()
         .then(() => {
@@ -252,11 +278,11 @@ export function useSpeechLoop(gapMs = 3000) {
         });
     };
 
-    attempt(createAudioElement(item.url), 0);
+    attempt(el, 0);
   }
 
-  /** 播放列表中的当前条目（<audio> 元素直出） */
-  function playCurrent(gen: number) {
+  /** 播放列表中的当前条目（<audio> 元素直出）。forceFresh=true 时强制换新元素（看门狗解卡）。 */
+  function playCurrent(gen: number, forceFresh = false) {
     if (!valid(gen)) return;
     clearTimer();
     clearWatchdog();
@@ -269,7 +295,7 @@ export function useSpeechLoop(gapMs = 3000) {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
-    playViaElement(gen, item);
+    playViaElement(gen, item, forceFresh);
   }
 
   /** 开始循环朗读（本地/网络音频优先，失败退回浏览器语音） */
@@ -433,15 +459,26 @@ export function useSpeechLoop(gapMs = 3000) {
 }
 
 /** 预热（用户手势触发，解锁音频播放权限并激活 iOS 音频会话） */
+/* 全局唯一静音解锁元素：之前每次调用都 new Audio() 用完即弃，
+ * 每答一题进下一题就叠一个原生媒体实例（从不释放），长会话下
+ * 与"循环重播反复新建元素"一起累积成 iOS 内存压力 → 整机变卡。
+ * 复用同一元素重播，零分配。 */
+let primeEl: HTMLAudioElement | null = null;
 export function primeSpeech() {
   ensureVoiceListener();
-  // 播放一段静音 Audio 解锁自动播放策略
+  // 重播同一段静音 Audio 维持音频会话解锁状态
   try {
-    const a = new Audio(
-      "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="
-    );
-    a.volume = 0;
-    a.play().catch(() => {});
+    if (!primeEl) {
+      primeEl = new Audio(
+        "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="
+      );
+      primeEl.volume = 0;
+      primeEl.preload = "auto";
+    }
+    if (primeEl.ended || primeEl.currentTime > 0) {
+      primeEl.currentTime = 0;
+    }
+    primeEl.play().catch(() => {});
   } catch {
     /* ignore */
   }
