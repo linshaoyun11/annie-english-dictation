@@ -225,7 +225,25 @@ export default function SpellingInput({
   // 先于 iOS 评估键盘的时机）强制为英文拉丁小写全键盘。
   // 解决"冷启动第一次进入学习页时 iOS 沿用上次输入模式（中文）"的 BUG。
   useLayoutEffect(() => {
-    applyKeyboardAttributes(inputRef.current);
+    const el = inputRef.current;
+    if (!el) return;
+    applyKeyboardAttributes(el);
+    // 双保险：iOS 18+ 在 commit 阶段对 input 元素会"焊死"一次 keyboard
+    // 评估快照（基于元素插入瞬间的属性），后续 setAttribute 的 inputmode
+    // 不会重评 → 仍沿用中文键盘。修复：先 blur() 让 iOS 丢弃该快照，
+    // 再 rAF 之后 focus() 触发**新一轮** keyboard 评估——此时
+    // inputmode=latin 已生效，iOS 按新属性正确评估为英文小写全键盘。
+    if (!done && !revealed) {
+      el.blur();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // 二次 rAF 之间若用户切后台/切页/答题完成，放弃重评
+          if (document.visibilityState !== "visible") return;
+          if (done || revealed) return;
+          inputRef.current?.focus();
+        });
+      });
+    }
   }, [inputKey]);
 
   useEffect(() => {

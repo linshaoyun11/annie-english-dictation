@@ -147,8 +147,12 @@ export function createAudioElement(url: string): HTMLAudioElement {
 }
 
 /**
- * 预加载音频：临时 <audio> 元素加载，解码完成后立即释放（不长期驻留），
- * 使切题时新建 <audio> 走媒体缓存零网络延迟，同时避免解码缓冲常驻内存（方案 A）。
+ * 预加载音频：仅预热 HTTP 媒体缓存层，不创建临时 <audio> 元素。
+ * 原因：iOS WKWebView 媒体资源调度繁忙，创建临时 <audio> 元素会与
+ * 当前播放的新元素争抢媒体并发加载限额（已知 6 个上限），偶发导致
+ * 切题时 play() 落在坏窗口无声/卡顿。改用 fetch() 仅命中 HTTP 缓存，
+ * 切题时新建 <audio> 元素从 WKWebView 媒体缓存解码，零网络延迟、
+ * 零资源争抢。
  */
 export function prefetchAudio(
   text: string,
@@ -158,13 +162,7 @@ export function prefetchAudio(
   if (audioCache.has(cacheKey)) return;
   resolveAudio(text, accent)
     .then((r) => {
-      if (!r) return;
-      const el = createAudioElement(r.url);
-      const cleanup = () => releaseElement(el);
-      el.addEventListener("canplaythrough", cleanup, { once: true });
-      el.addEventListener("error", cleanup, { once: true });
-      // 兜底：弱网下 canplaythrough 可能不触发，2s 后强制释放，防止元素泄漏
-      window.setTimeout(cleanup, 2000);
+      if (r) fetch(r.url, { cache: "force-cache" }).catch(() => {});
     })
     .catch(() => {});
 }
