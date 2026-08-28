@@ -749,7 +749,7 @@ export default function LearnPage({
   /**
    * 祝贺页"重新学习本单元"：进度回滚到本单元第 1 个词条
    * （该单元词条从本轮完成/跳过集合移除，重学完成可再次获得积分与祝贺；
-   * 已得积分不回收）。年级祝贺时触发的是新一轮中重学该单元。
+   * 已得积分不回收）。仅单元祝贺页展示该按钮，年级通关页不显示。
    */
   const restartUnitFromCelebration = useCallback(() => {
     if (busyRef.current || !celebration) return;
@@ -1038,32 +1038,36 @@ export default function LearnPage({
               </div>
             )}
 
-            {/* 操作按钮：重新学习本单元 / 返回首页 紧跟台词卡片上方；继续学习固定在页面最下方 */}
-            <div className="mt-6 w-full">
-              {/* 重新学习本单元：进度回滚到本单元第 1 个词条（积分不回收） */}
-              <button
-                type="button"
-                onClick={restartUnitFromCelebration}
-                className="w-full rounded-full bg-[#756CC5] py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(83,74,183,0.25)] transition-transform active:scale-[0.98]"
-              >
-                重新学习本单元
-              </button>
+            {/* 重新学习本单元：仅单元祝贺页，保持在内容流中（积分不回收，年级通关页不显示） */}
+            {celebration.level === "unit" && (
+              <div className="mt-6 w-full">
+                <button
+                  type="button"
+                  onClick={restartUnitFromCelebration}
+                  className="w-full rounded-full bg-[#756CC5] py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(83,74,183,0.25)] transition-transform active:scale-[0.98]"
+                >
+                  重新学习本单元
+                </button>
+              </div>
+            )}
+
+            {/* 底部操作区：返回首页在继续学习上方，整体贴页面下方 */}
+            <div className="mt-auto w-full">
               <button
                 type="button"
                 onClick={onExit}
-                className="mt-3 w-full rounded-full border border-border bg-surface py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
+                className="w-full rounded-full border border-border bg-surface py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
               >
                 返回首页
               </button>
+              <button
+                type="button"
+                onClick={continueFromCelebration}
+                className="mt-3 w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+              >
+                继续学习
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={continueFromCelebration}
-              className="mt-auto w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
-            >
-              继续学习
-            </button>
           </div>
         </div>
       )}
