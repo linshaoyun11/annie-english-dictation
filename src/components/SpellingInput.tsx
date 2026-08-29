@@ -150,7 +150,24 @@ export default function SpellingInput({
     errorCountRef.current = 0;
     strike5FiredRef.current = false;
     inputAliveRef.current = false; // 新题，假定 input 可能僵尸
-    inputRef.current?.focus();
+    // 新题聚焦前先重评键盘：iOS per-app 键盘语言记忆有超时窗口
+    // （App 约 2 小时未活跃后系统清除记忆、回到设备默认键盘语言，
+    // 多为中文拼音），若上一题键盘状态已被系统重置为中文，
+    // 只 focus 不重评会一路沿用中文键盘。因此先 blur 丢弃旧评估快照、
+    // 双 rAF 后 focus 触发新一轮评估（此时 inputmode="latin" + pattern 生效）。
+    const el = inputRef.current;
+    if (el && !done && !revealed) {
+      el.blur();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (document.visibilityState !== "visible") return;
+          if (done || revealed) return;
+          inputRef.current?.focus();
+        });
+      });
+    } else {
+      inputRef.current?.focus();
+    }
   }, [resetKey]);
 
   // 点击页面任意处 → 重新聚焦输入层（输入焦点丢失时快速恢复）
@@ -326,9 +343,32 @@ export default function SpellingInput({
   // 覆盖"焦点静默丢失但键盘仍在"和"僵尸 input（有焦点但 onChange 不触发）"两种场景。
   // 关键：不能只查 document.activeElement —— 僵尸 input 有焦点但 onChange 不触发，
   // 旧代码（build 24）因此跳过全局兜底，导致后台唤醒后打字完全无反应。
+  const lastComposeReevalRef = useRef(0); // 中文输入法激活自动重评的节流时间戳
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (done || revealed) return;
+      // 中文输入法激活（composition 进行中 / keyCode 229）：
+      // 说明键盘语言不是英文（iOS per-app 键盘记忆超时清除后回到中文）。
+      // 立即重评（blur + 双 rAF + focus）让 iOS 按 inputmode="latin" 重新评估，
+      // 30s 节流避免打字过程中反复打断。
+      if (e.isComposing || e.keyCode === 229) {
+        const now = Date.now();
+        if (now - lastComposeReevalRef.current > 30_000) {
+          lastComposeReevalRef.current = now;
+          const el = inputRef.current;
+          if (el && !done && !revealed) {
+            el.blur();
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (document.visibilityState !== "visible") return;
+                if (done || revealed) return;
+                inputRef.current?.focus();
+              });
+            });
+          }
+        }
+        return;
+      }
       // input 有焦点 AND onChange 正常工作 → 让 onChange 处理
       if (document.activeElement === inputRef.current && inputAliveRef.current) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;

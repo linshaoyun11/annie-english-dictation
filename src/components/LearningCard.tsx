@@ -282,11 +282,11 @@ export default function LearningCard({
             </div>
             {addToDifficultBtn}
             {nextBtn}
-            <p className="mt-3 text-center text-xs text-text3">
-              {autoNext
-                ? "1.8 秒后自动进入下一题，点击按钮跳过"
-                : "按空格键或点击按钮进入下一题"}
-            </p>
+            {autoNext && (
+              <p className="mt-3 text-center text-xs text-text3">
+                1.8 秒后自动进入下一题，点击按钮跳过
+              </p>
+            )}
           </div>
         ) : revealed ? (
           <div className="w-full max-w-[320px] animate-[slideUp_.35s_ease]">
