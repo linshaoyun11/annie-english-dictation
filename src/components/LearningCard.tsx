@@ -206,7 +206,7 @@ export default function LearningCard({
   ) : null;
 
   return (
-    <div className="flex h-full flex-col px-5 pt-5 pb-[calc(var(--kb-h,0px)+theme(space.6))]">
+    <div className="flex h-full flex-col px-5 pt-5 pb-[calc(var(--kb-h,0px)+var(--dkb-h,0px)+theme(space.6))]">
       {/* 顶部信息 + 关闭按钮（同一行） */}
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -325,7 +325,7 @@ export default function LearningCard({
           <div className="flex w-full flex-col items-center">
             <div
               className="relative flex flex-col items-center"
-              /* 阻止点击抢走拼写输入层焦点（键盘会收起） */
+              /* 阻止点击时选中文字、触发 iOS 长按菜单 */
               onMouseDown={(e) => e.preventDefault()}
             >
               <SoundWave active={!completed && !revealed} onClick={replay} />
@@ -355,21 +355,23 @@ export default function LearningCard({
         )}
 
         {/*
-          拼写输入层：常挂载（答对/揭示后也不卸载）。
-          SpellingInput 内部在完成态只渲染一个隐形的固定层输入框并保持焦点，
-          键盘全程不收起 —— 避免"输入正确页"界面上下跳动。
-          完成态外层高度归零，不占用正确/揭示卡片的布局空间。
+          拼写输入层：字母格在这里，A–Z 键盘条由组件内部 portal 固定到屏幕
+          最底部（不唤起系统键盘，详见 SpellingInput 头部注释），其高度通过
+          --dkb-h 回写给本卡片做底部避让。
+          答对/揭示后整块卸载，把空间完整让给正确页/揭示页卡片。
         */}
-        <div className={completed || revealed ? "h-0 w-full" : "mt-7 w-full"}>
-          <SpellingInput
-            target={entry.english}
-            resetKey={entry.id}
-            onComplete={handleComplete}
-            onFirstMistake={() => onMistake?.(entry.id)}
-            revealSignal={revealSignal}
-            onStrike5={() => revealAnswer("strike5")}
-          />
-        </div>
+        {!completed && !revealed && (
+          <div className="mt-7 w-full">
+            <SpellingInput
+              target={entry.english}
+              resetKey={entry.id}
+              onComplete={handleComplete}
+              onFirstMistake={() => onMistake?.(entry.id)}
+              revealSignal={revealSignal}
+              onStrike5={() => revealAnswer("strike5")}
+            />
+          </div>
+        )}
 
         {!completed && !revealed && (
           <button

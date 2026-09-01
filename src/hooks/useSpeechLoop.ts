@@ -57,9 +57,23 @@ const WORD_GAP_MS = 260;
  * 单词循环朗读（iOS 直出版）。
  *
  * 播放一律走 <audio> 元素原生路径：WKWebView 内最稳定的方案
- * （后台唤醒有声、无手势限制）。已知代价：每个文件第一遍音量略偏小
- * （约 80%）——WebKit 解码层行为，JS 层无法修复，已接受为产品现状。
- * 音频文件缺失/损坏时退回浏览器 speechSynthesis 朗读。
+ * （后台唤醒有声、无手势限制）。音频文件缺失/损坏时退回浏览器
+ * speechSynthesis 朗读。
+ *
+ * ── 「首遍音量偏小」的根因与对策 ──
+ * 现象：**每个词的第一遍都小，同一元素立刻重播就正常**（不是只有冷
+ * 启动那一次）。这说明问题不在 AVAudioSession 类别（那只会影响会话
+ * 首次激活），而在于**音频硬件通路的冷启动**：
+ *   词 A 播完 → 间隔 gapMs（默认 3s）→ 通路空闲回落 → 词 B 的
+ *   play() 要重新拉起硬件通路 → 开头一小段落在未就位窗口 → 偏小；
+ *   同一元素立刻重播时通路尚热 → 音量正常。
+ * 对策：见文件末尾的「通路保温」（startAudioWarm / stopAudioWarm）。
+ * 在两次朗读的间隔里持续播放一段 -96 dB 的静音，让通路始终处于
+ * 已激活状态；真词开播前再停掉，两者零重叠（不混音、不 ducking）。
+ *
+ * 注意：iOS 上 HTMLMediaElement.volume 只读且恒为 1，JS 层没有任何
+ * 音量杠杆——所以只能从"让通路别冷下来"这个方向解决，不要再去写
+ * el.volume = x（空操作）。
  */
 export function useSpeechLoop(gapMs = 3000) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -114,6 +128,8 @@ export function useSpeechLoop(gapMs = 3000) {
     if (!("speechSynthesis" in window)) return;
     if (!loopRef.current || !textRef.current) return;
     if (myGen.current !== activeGen) return;
+    // TTS 与 <audio> 走不同音量通道且会互相 duck，切语音前先停保温
+    stopAudioWarm();
     modeRef.current = "speech";
     // 切到语音管线前释放遗留的音频元素（原生解码器实例一并回收）
     if (audioRef.current) {
@@ -167,10 +183,12 @@ export function useSpeechLoop(gapMs = 3000) {
     }, expected);
   }
 
-  /** 当前条目播放完成 → 安排下一个（最后一个条目后等 gapMs 再整组重播） */
+  /** 当前条目播放完成 → 安排下一个（最后一个条目后等 gapMs 再整组重播）
+   *  等待期间启动通路保温，避免下一个词的第一遍音量偏小。 */
   function scheduleNext(gen: number) {
     if (!valid(gen)) return;
     clearWatchdog();
+    startAudioWarm();
     const isLast = seqIdxRef.current >= playlistRef.current.length - 1;
     if (isLast) {
       timerRef.current = safeTimeout(() => {
@@ -188,6 +206,7 @@ export function useSpeechLoop(gapMs = 3000) {
   /** 跳到下一个条目（错误路径：不等间隔，直接推进） */
   function advance(gen: number) {
     if (!valid(gen)) return;
+    startAudioWarm();
     const isLast = seqIdxRef.current >= playlistRef.current.length - 1;
     seqIdxRef.current = isLast ? 0 : seqIdxRef.current + 1;
     clearTimer(); // 纳入 timerRef 管理，stop() 时可一并取消，防幽灵回调
@@ -196,7 +215,9 @@ export function useSpeechLoop(gapMs = 3000) {
 
   /**
    * <audio> 元素直出播放（唯一音频路径）。
-   * 首遍音量可能略偏小（WebKit 解码层行为，已知并接受）。
+   *
+   * 首遍音量偏小由外层 scheduleNext() 的通路保温解决（见文件末尾注释），
+   * 这里不再做任何音量处理——iOS 上 volume 只读且恒为 1。
    *
    * 元素复用策略（方案 A'）：
    * - 同一词条循环重播时**复用当前元素**（currentTime 归零重播、不清缓冲）；
@@ -241,7 +262,7 @@ export function useSpeechLoop(gapMs = 3000) {
         }
       };
       el.playbackRate = rateRef.current;
-      el.volume = 1;
+      // ⚠️ 不要写 el.volume：iOS 上 HTMLMediaElement.volume 只读、恒为 1。
       el.muted = false;
       // 复用元素重播：归零但不清缓冲（load() 会丢弃已解码数据，
       // 导致重播退回"首遍音量偏小"且多一次解码）。
@@ -292,6 +313,8 @@ export function useSpeechLoop(gapMs = 3000) {
       return;
     }
     modeRef.current = "audio";
+    // 真词开播前停掉保温，保证全程只有一路媒体（不混音、不 ducking）
+    stopAudioWarm();
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
@@ -313,6 +336,8 @@ export function useSpeechLoop(gapMs = 3000) {
     stopAll();
     clearTimer();
     clearWatchdog();
+    // 解析音频期间先保温：给冷启动的第一遍留出通路拉起时间
+    startAudioWarm();
 
     // 待播放文本列表：整条播放（短语/句子用整句音频，不拆词）
     const words = [text];
@@ -355,6 +380,7 @@ export function useSpeechLoop(gapMs = 3000) {
   function stop() {
     loopRef.current = false;
     modeRef.current = null;
+    stopAudioWarm();
     clearResumeTimer();
     clearTimer();
     clearWatchdog();
@@ -384,6 +410,7 @@ export function useSpeechLoop(gapMs = 3000) {
         // 停止一切播放（不置 loopRef=false，回前台仍可恢复）
         clearResumeTimer();
         stopAll();
+        stopAudioWarm();
         clearTimer();
         clearWatchdog();
         return;
@@ -395,6 +422,8 @@ export function useSpeechLoop(gapMs = 3000) {
         stopAll();
         clearTimer();
         clearWatchdog();
+        // 350ms 恢复等待期保温，避免回前台后第一遍偏小
+        startAudioWarm();
         if (playlistRef.current.length) {
           resumeTimerRef.current = safeTimeout(() => {
             // 恢复延迟期间可能又切后台/换题/停止 → 重新校验
@@ -458,35 +487,100 @@ export function useSpeechLoop(gapMs = 3000) {
   return { start, stop, replayNow };
 }
 
-/** 预热（用户手势触发，解锁音频播放权限并激活 iOS 音频会话） */
-/* 全局唯一静音解锁元素：之前每次调用都 new Audio() 用完即弃，
- * 每答一题进下一题就叠一个原生媒体实例（从不释放），长会话下
- * 与"循环重播反复新建元素"一起累积成 iOS 内存压力 → 整机变卡。
- * 复用同一元素重播，零分配。 */
-let primeEl: HTMLAudioElement | null = null;
-export function primeSpeech() {
-  ensureVoiceListener();
-  // 重播同一段静音 Audio 维持音频会话解锁状态
+/* ═══ 音频通路保温（解决「每个词第一遍音量偏小」） ═══
+ *
+ * 原理：iOS 的音频硬件通路在最后一个媒体停止后会空闲回落，下一次
+ * play() 需要重新拉起通路，开头那一段就落在"未就位窗口"里而偏小。
+ * 本模块在两次朗读的间隔里循环播放一段 -96 dB 的静音（public/silence.wav，
+ * 48 kHz / mono，与主流词条音频同规格），让通路始终保持已激活状态。
+ *
+ * 关键设计：
+ * 1. 必须是**真实有音频帧、有 duration** 的片段。之前用的是 data 段
+ *    长度为 0 的 WAV（0 个采样点、duration=0），WebKit 根本不会为它
+ *    建立音频输出 → 完全没起到保温作用。
+ * 2. 内容用 ±1 LSB（≈ -96 dBFS）而不是纯 0：纯静音帧有可能被当作
+ *    "无音频输出"从而不激活会话；±1 LSB 是确定非零的信号，但任何
+ *    设备都听不见。
+ * 3. **不能用 muted = true**：muted 会让 WebKit 认为该元素无音频输出，
+ *    同样不会激活通路。同理 iOS 上 volume 只读（恒为 1），设 volume=0
+ *    是空操作。
+ * 4. 真词开播前会 stopAudioWarm()，两者零重叠：既不混音，也不会出现
+ *    两路媒体互相 ducking。
+ */
+
+/** 全局唯一保温元素（常驻复用，不产生实例累积） */
+let warmEl: HTMLAudioElement | null = null;
+/**
+ * 空闲自动停止：每次 startAudioWarm() 都续期，超过该时长没有续期
+ * 就自动停。这样首页等场景调 primeSpeech() 只是"解锁 + 短暂保温"，
+ * 不会让静音无限期常驻占用音频通路（学习页里每轮间隔都会续期，
+ * 所以整段学习期间是持续保温的）。
+ */
+const WARM_IDLE_MS = 8000;
+let warmStopTimer: number | null = null;
+
+function getWarmEl(): HTMLAudioElement | null {
+  if (warmEl) return warmEl;
   try {
-    if (!primeEl) {
-      primeEl = new Audio(
-        "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="
-      );
-      primeEl.volume = 0;
-      primeEl.preload = "auto";
-    }
-    if (primeEl.ended || primeEl.currentTime > 0) {
-      primeEl.currentTime = 0;
-    }
-    primeEl.play().catch(() => {});
+    const el = new Audio();
+    el.preload = "auto";
+    el.loop = true;
+    el.src = `${import.meta.env.BASE_URL}silence.wav`;
+    warmEl = el;
+  } catch {
+    return null;
+  }
+  return warmEl;
+}
+
+/**
+ * 开始保温：在朗读间隔期间持续播放静音，保持硬件通路处于已激活状态。
+ * 幂等，可重复调用（每次调用都会续期）。
+ */
+export function startAudioWarm() {
+  const el = getWarmEl();
+  if (!el) return;
+  if (warmStopTimer !== null) clearTimeout(warmStopTimer);
+  warmStopTimer = window.setTimeout(() => {
+    warmStopTimer = null;
+    stopAudioWarm();
+  }, WARM_IDLE_MS);
+  if (!el.paused) return;
+  try {
+    if (el.ended || el.currentTime > 0) el.currentTime = 0;
+    el.play().catch(() => {
+      /* 无手势 / 后台等场景会被拒绝，忽略即可，后续仍会自动重试 */
+    });
   } catch {
     /* ignore */
   }
+}
 
-  if ("speechSynthesis" in window) {
-    const u = new SpeechSynthesisUtterance(" ");
-    u.volume = 0;
-    window.speechSynthesis.speak(u);
-    window.speechSynthesis.cancel();
+/** 停止保温：真词开播前调用，避免两路媒体重叠。 */
+export function stopAudioWarm() {
+  if (warmStopTimer !== null) {
+    clearTimeout(warmStopTimer);
+    warmStopTimer = null;
   }
+  if (!warmEl) return;
+  try {
+    warmEl.pause();
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * 预热（用户手势触发，解锁音频播放权限并激活 iOS 音频会话）。
+ *
+ * 历史实现有两点问题，均已修正：
+ * - 用的是 0 帧 WAV（duration=0），等于什么都没预热；
+ * - 末尾调用 speechSynthesis.speak(" ")：iOS 的 TTS 跑在 App 进程，
+ *   而 WKWebView 是独立进程、有自己的 AVAudioSession，App 侧 TTS
+ *   激活时**被 duck 的正是 WebView 里的 <audio>**——它不但没用，
+ *   还是首遍音量偏小的加害项之一。
+ */
+export function primeSpeech() {
+  ensureVoiceListener();
+  startAudioWarm();
 }

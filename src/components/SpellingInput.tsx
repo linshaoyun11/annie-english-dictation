@@ -1,27 +1,41 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { flushSync } from "react-dom";
-import { Capacitor } from "@capacitor/core";
-import { Keyboard } from "@capacitor/keyboard";
-import { safeClearTimeout, safeTimeout } from "../lib/timer";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 /**
- * 在 input 真实 DOM 上强制 iOS 评估为英文小写全键盘。
+ * 自绘 A–Z 拼写键盘。
  *
- * 关键属性 inputmode="latin" 必须用 setAttribute 而不是 React 的
- * inputMode prop（TypeScript 不支持 "latin"，且 React 渲染时机晚于
- * iOS 评估键盘的时机）。在 ref callback（commit 阶段同步执行）和
- * useLayoutEffect（DOM 插入后立即同步）中两次设置，覆盖冷启动第一次
- * 进入学习页时 iOS 沿用上一次的输入模式（中文）的 BUG。
+ * 为什么不依赖系统键盘：iOS 的键盘语言是**系统级状态**，由「本 App 上次
+ * 使用的键盘」记忆与「设置 → 通用 → 键盘」列表顺序共同决定，Web 层既
+ * 读不到也写不了：
+ *  - inputmode 规范只有 none / text / tel / url / email / numeric /
+ *    decimal / search 八个值，此前使用的 "latin" 不属于规范，iOS 直接
+ *    忽略（等于从来没生效过）；
+ *  - 原生唯一的杠杆 UIResponder.textInputMode 对 WKWebView 无效，
+ *    底层 WKContentView 无法被覆盖（method swizzling 亦失败）；
+ *  - 连拥有原生键盘扩展权限的第三方键盘（SwiftKey）官方文档都写明
+ *    「锁定设备后返回 App / 切换 App 时键盘会回落系统默认」，只能让用户
+ *    手动点 globe 键。
+ *
+ * 因此这里**不再使用真实 <input>**（也就不会唤起系统键盘），改为页面内
+ * 自绘字母键盘：永远英文小写，行为 100% 确定，彻底不受系统键盘语言
+ * 记忆/回落影响。
+ *
+ * 物理键盘（妙控键盘 / 智能键盘 / 外接键盘）通过 window 级 keydown 兼容；
+ * 一旦检测到物理按键输入即自动收起屏幕键盘，并提供手动唤回入口。
+ *
+ * 键盘条用 portal 挂到 document.body，固定贴在屏幕最底部（视觉与行为都
+ * 对齐系统键盘），并把实测高度写入 CSS 变量 --dkb-h，页面内容区据此留出
+ * 避让空间，底部按钮不会被盖住。
  */
-function applyKeyboardAttributes(el: HTMLInputElement | null) {
-  if (!el) return;
-  el.setAttribute("autocapitalize", "none");
-  el.setAttribute("autocomplete", "off");
-  el.setAttribute("autocorrect", "off");
-  el.setAttribute("inputmode", "latin");
-  el.setAttribute("lang", "en");
-  el.setAttribute("pattern", "[a-zA-Z]*");
-}
+
+const KB_ROWS = [
+  ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+  ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+  ["z", "x", "c", "v", "b", "n", "m"],
+];
+
+/** 模块级：本次会话是否已检测到物理键盘（跨题目保持，重启 App 重置） */
+let hardwareKeyboardSeen = false;
 
 interface WordGroup {
   letters: string[]; // 需要输入的字母（保留原大小写）
@@ -100,45 +114,22 @@ export default function SpellingInput({
   const [typed, setTyped] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [kbVisible, setKbVisible] = useState(() => !hardwareKeyboardSeen);
+
   const firstInputFired = useRef(false);
   const completedRef = useRef(false);
   const typedLenRef = useRef(0);
   const errorCountRef = useRef(0);
   const strike5FiredRef = useRef(false);
-  /**
-   * 同步镜像 typed 数组（ref），用于在 pushLetter 里同步检测完成。
-   * 后台唤醒后 WebKit 定时器冻结时，React 的 useEffect 可能不触发
-   * （状态更新后排队的重渲染被冻结的 event loop 卡住），
-   * 因此完成检测必须在输入回调中同步完成，不依赖 useEffect。
-   */
+  /** typed 的同步镜像（用于在输入回调里同步判定完成，不依赖 useEffect） */
   const typedRef = useRef<string[]>([]);
-
-  /**
-   * 前台恢复时强制重建 input 元素的 key。
-   * iOS 后台挂起后 input 进入"僵尸态"：document.activeElement 指向它、
-   * 键盘可见，但 onChange 事件不送达。换 key 让 React 销毁旧 input、
-   * 创建新 input，iOS 重新绑定键盘事件。flushSync 确保即使 React
-   * 调度器异常也能立即重建。
-   */
-  const [inputKey, setInputKey] = useState(0);
-
-  /**
-   * input 是否"活着"（onChange 事件正常送达）。
-   * 前台恢复后设为 false（假定僵尸，直到 onChange 证明活着）。
-   * 全局 keydown 兜底据此判断是否需要接管按键：
-   * - input 有焦点 && 活着 → 让 onChange 处理
-   * - input 有焦点但僵尸 → 全局兜底接管（build 24 失败根因：
-   *   旧代码只查 activeElement，僵尸 input 有焦点但 onChange 不触发）
-   */
-  const inputAliveRef = useRef(false);
-
-  // 最新处理函数引用（全局按键兜底用，避免每帧重绑监听器）
+  /** 最新处理函数引用（供 window 级按键与键盘按钮共用） */
   const handlersRef = useRef<{ push: (c: string) => void; pop: () => void }>({
     push: () => {},
     pop: () => {},
   });
 
+  // 新题：清空全部状态
   useEffect(() => {
     setTyped([]);
     typedRef.current = [];
@@ -149,120 +140,10 @@ export default function SpellingInput({
     typedLenRef.current = 0;
     errorCountRef.current = 0;
     strike5FiredRef.current = false;
-    inputAliveRef.current = false; // 新题，假定 input 可能僵尸
-    // 新题聚焦前先重评键盘：iOS per-app 键盘语言记忆有超时窗口
-    // （App 约 2 小时未活跃后系统清除记忆、回到设备默认键盘语言，
-    // 多为中文拼音），若上一题键盘状态已被系统重置为中文，
-    // 只 focus 不重评会一路沿用中文键盘。因此先 blur 丢弃旧评估快照、
-    // 双 rAF 后 focus 触发新一轮评估（此时 inputmode="latin" + pattern 生效）。
-    const el = inputRef.current;
-    if (el && !done && !revealed) {
-      el.blur();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (document.visibilityState !== "visible") return;
-          if (done || revealed) return;
-          inputRef.current?.focus();
-        });
-      });
-    } else {
-      inputRef.current?.focus();
-    }
+    setKbVisible(!hardwareKeyboardSeen);
   }, [resetKey]);
 
-  // 点击页面任意处 → 重新聚焦输入层（输入焦点丢失时快速恢复）
-  useEffect(() => {
-    const onDocClick = () => {
-      if (done || revealed) return;
-      inputRef.current?.focus();
-    };
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, [done, revealed]);
-
-  // App 从后台回前台 → 延迟重建 input DOM 元素。
-  // iOS 后台挂起后 input 进入"僵尸态"：document.activeElement 指向它、
-  // 键盘可见，但 onChange 事件不送达 → 打字没反应（"最后字母没反应"根因）。
-  // ⚠️ 唤醒瞬间（visibilitychange 触发时）iOS 仍在恢复过渡期：
-  // 立即重建的 input 可能被绑到后台前的旧键盘会话（中文），表现为
-  // "回来还是要手动切英文小写"（偶发）。因此先 blur 断开旧会话，
-  // 等恢复过渡完成（200ms）后再 flushSync 换 inputKey 重建 input，
-  // 最后双 rAF 重新聚焦——此时 iOS 才会按新 input 的 inputmode="latin"
-  // 重新评估键盘。
-  const resumeRebuildTimerRef = useRef<number | null>(null);
-  useEffect(() => {
-    const onVis = () => {
-      if (document.visibilityState !== "visible") return;
-      // 先把当前 input 主动失焦：iOS 在 app 恢复时不会重新评估已聚焦 input 的
-      // inputmode，会直接沿用后台前的中文输入法（表现为"回来后要手动切回英文小写"）。
-      inputRef.current?.blur();
-      if (done || revealed) {
-        // 通关页/正确页/揭示页：回来时收起键盘，避免遮挡按钮。
-        if (Capacitor.isNativePlatform()) Keyboard.hide();
-        return;
-      }
-      // 旧监听器切换/重建的延迟定时器先清掉，避免重复重建
-      safeClearTimeout(resumeRebuildTimerRef.current);
-      resumeRebuildTimerRef.current = safeTimeout(() => {
-        // 延迟期间可能又切后台/切页/完成 → 放弃重建
-        if (document.visibilityState !== "visible") return;
-        inputAliveRef.current = false; // 假定僵尸，直到 onChange 证明活着
-        flushSync(() => {
-          setInputKey((k) => k + 1);
-        });
-        // 双 rAF 后再聚焦一次：确保 iOS 键盘会话绑定到新 input
-        // （inputKey effect 已同步 focus 一次，这里补一次延迟聚焦，
-        // 覆盖 iOS 恢复过渡期同步 focus 被吞掉的情况）
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            if (document.visibilityState === "visible" && !done && !revealed) {
-              inputRef.current?.focus();
-            }
-          });
-        });
-      }, 200);
-    };
-    document.addEventListener("visibilitychange", onVis);
-    return () => {
-      document.removeEventListener("visibilitychange", onVis);
-      safeClearTimeout(resumeRebuildTimerRef.current);
-    };
-  }, [done, revealed]);
-
-  // input 重建后聚焦新元素（visibilitychange 非用户手势，
-  // focus 可能不弹键盘，但首次点击/打字时 onDocClick 会补上）
-  useEffect(() => {
-    if (!done && !revealed) {
-      inputRef.current?.focus();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputKey]);
-
-  // 同步设置键盘属性：input 真实 DOM 插入时立即（useLayoutEffect 同步执行，
-  // 先于 iOS 评估键盘的时机）强制为英文拉丁小写全键盘。
-  // 解决"冷启动第一次进入学习页时 iOS 沿用上次输入模式（中文）"的 BUG。
-  useLayoutEffect(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    applyKeyboardAttributes(el);
-    // 双保险：iOS 18+ 在 commit 阶段对 input 元素会"焊死"一次 keyboard
-    // 评估快照（基于元素插入瞬间的属性），后续 setAttribute 的 inputmode
-    // 不会重评 → 仍沿用中文键盘。修复：先 blur() 让 iOS 丢弃该快照，
-    // 再 rAF 之后 focus() 触发**新一轮** keyboard 评估——此时
-    // inputmode=latin 已生效，iOS 按新属性正确评估为英文小写全键盘。
-    if (!done && !revealed) {
-      el.blur();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // 二次 rAF 之间若用户切后台/切页/答题完成，放弃重评
-          if (document.visibilityState !== "visible") return;
-          if (done || revealed) return;
-          inputRef.current?.focus();
-        });
-      });
-    }
-  }, [inputKey]);
-
+  // 揭示答案（"我不会" / 拼错 5 次）：填满字母并进入揭示态
   useEffect(() => {
     if (revealSignal > 0) {
       completedRef.current = true;
@@ -271,25 +152,8 @@ export default function SpellingInput({
       setTyped([...allLetters]);
       setDone(true);
       setRevealed(true);
-      // 揭示答案后收起键盘，避免"我不会"页/正确页还弹出键盘遮挡内容
-      inputRef.current?.blur();
     }
   }, [revealSignal, allLetters, totalLetters]);
-
-  useEffect(() => {
-    if (done || completedRef.current) return;
-    if (typed.length !== totalLetters) return;
-    const allCorrect = typed.every(
-      (ch, i) => ch.toLowerCase() === allLetters[i].toLowerCase()
-    );
-    if (!allCorrect) return;
-    completedRef.current = true;
-    setDone(true);
-    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
-    // 答对后收起键盘，避免正确页继续占用屏幕空间
-    inputRef.current?.blur();
-    onComplete();
-  }, [typed, totalLetters, allLetters, done, onComplete]);
 
   const pushLetter = (c: string) => {
     if (done || completedRef.current) return;
@@ -313,8 +177,7 @@ export default function SpellingInput({
       firstInputFired.current = true;
       onFirstInput?.();
     }
-    // 同步检测完成：后台唤醒后 WebKit 定时器冻结可能导致
-    // useEffect 不触发，因此在输入回调中直接检查并调用 onComplete
+    // 同步判定完成：不依赖 useEffect，避免后台唤醒后重渲染被冻结的情况
     if (next.length === totalLetters && !completedRef.current) {
       const allCorrect = next.every(
         (ch, i) => ch.toLowerCase() === allLetters[i].toLowerCase()
@@ -323,7 +186,6 @@ export default function SpellingInput({
         completedRef.current = true;
         setDone(true);
         if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
-        inputRef.current?.blur();
         onComplete();
       }
     }
@@ -339,38 +201,19 @@ export default function SpellingInput({
 
   handlersRef.current = { push: pushLetter, pop: popLetter };
 
-  // 全局按键兜底：焦点不在输入层或 input 僵尸时，字母/退格直接进入拼写逻辑。
-  // 覆盖"焦点静默丢失但键盘仍在"和"僵尸 input（有焦点但 onChange 不触发）"两种场景。
-  // 关键：不能只查 document.activeElement —— 僵尸 input 有焦点但 onChange 不触发，
-  // 旧代码（build 24）因此跳过全局兜底，导致后台唤醒后打字完全无反应。
-  const lastComposeReevalRef = useRef(0); // 中文输入法激活自动重评的节流时间戳
+  /** 收到物理键盘输入 → 收起屏幕键盘（跨题目保持） */
+  const noteHardwareInput = useCallback(() => {
+    if (hardwareKeyboardSeen) return;
+    hardwareKeyboardSeen = true;
+    setKbVisible(false);
+  }, []);
+
+  // 物理键盘兼容：window 级 keydown。
+  // 由于不再有真实 input，按键不会唤起任何系统键盘；这里直接把字母/
+  // 退格喂给拼写逻辑。
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (done || revealed) return;
-      // 中文输入法激活（composition 进行中 / keyCode 229）：
-      // 说明键盘语言不是英文（iOS per-app 键盘记忆超时清除后回到中文）。
-      // 立即重评（blur + 双 rAF + focus）让 iOS 按 inputmode="latin" 重新评估，
-      // 30s 节流避免打字过程中反复打断。
-      if (e.isComposing || e.keyCode === 229) {
-        const now = Date.now();
-        if (now - lastComposeReevalRef.current > 30_000) {
-          lastComposeReevalRef.current = now;
-          const el = inputRef.current;
-          if (el && !done && !revealed) {
-            el.blur();
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                if (document.visibilityState !== "visible") return;
-                if (done || revealed) return;
-                inputRef.current?.focus();
-              });
-            });
-          }
-        }
-        return;
-      }
-      // input 有焦点 AND onChange 正常工作 → 让 onChange 处理
-      if (document.activeElement === inputRef.current && inputAliveRef.current) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.isComposing || e.keyCode === 229) return;
       const t = e.target as HTMLElement | null;
@@ -379,72 +222,76 @@ export default function SpellingInput({
       }
       if (/^[a-zA-Z]$/.test(e.key)) {
         e.preventDefault();
+        noteHardwareInput();
         handlersRef.current.push(e.key);
-        inputRef.current?.focus();
       } else if (e.key === "Backspace") {
         e.preventDefault();
+        noteHardwareInput();
         handlersRef.current.pop();
-        inputRef.current?.focus();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [done, revealed]);
+  }, [done, revealed, noteHardwareInput]);
 
-  // 受控 diff：对比新旧值推导新增/删除，iOS 联想或快速输入一次多个字符也能正确处理
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    inputAliveRef.current = true; // onChange 送达 → input 不是僵尸
-    const val = e.target.value;
-    const prev = typedRef.current.join("");
-    if (val.length > prev.length) {
-      for (const c of val.slice(prev.length)) pushLetter(c);
-    } else if (val.length < prev.length) {
-      for (let i = 0; i < prev.length - val.length; i++) popLetter();
+  // 退格长按连续删除（首次立即删 1 个，按住 400ms 后每 110ms 继续删）
+  const bsDelay = useRef<number | null>(null);
+  const bsRepeat = useRef<number | null>(null);
+  const stopBackspace = useCallback(() => {
+    if (bsDelay.current !== null) {
+      window.clearTimeout(bsDelay.current);
+      bsDelay.current = null;
     }
+    if (bsRepeat.current !== null) {
+      window.clearInterval(bsRepeat.current);
+      bsRepeat.current = null;
+    }
+  }, []);
+  const startBackspace = () => {
+    handlersRef.current.pop();
+    bsDelay.current = window.setTimeout(() => {
+      bsDelay.current = null;
+      bsRepeat.current = window.setInterval(() => handlersRef.current.pop(), 110);
+    }, 400);
   };
+  useEffect(() => stopBackspace, [stopBackspace]);
 
+  /**
+   * 底部键盘条高度回写：把实测高度写入 CSS 变量 --dkb-h，页面内容区据此
+   * 加底部内边距，"我不会"等按钮不会被键盘条盖住（等价于系统键盘避让）。
+   */
+  const [barEl, setBarEl] = useState<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!barEl) return;
+    const update = () => {
+      const h = barEl.getBoundingClientRect().height;
+      document.documentElement.style.setProperty(
+        "--dkb-h",
+        `${Math.round(h)}px`
+      );
+    };
+    update();
+    const ro =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    ro?.observe(barEl);
+    window.addEventListener("resize", update);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", update);
+      document.documentElement.style.setProperty("--dkb-h", "0px");
+    };
+  }, [barEl]);
+
+  const answering = !done && !revealed;
+  const showKeyboard = kbVisible && answering;
   let letterIdx = -1;
 
   return (
-    <div
-      className="relative w-full select-none"
-      onClick={() => !done && inputRef.current?.focus()}
-    >
-      {/*
-        真实透明输入层（覆盖整个拼写区域）：
-        - 答题中：absolute inset-0 覆盖字母区，尺寸足够大，iOS 稳定触发 onChange
-          （旧版 1x1 隐藏 input 在 iOS 上会丢最后一位/丢事件）
-        - 已完成/已揭示：固定在底部的隐形输入层（非 display:none，不丢焦点），
-          保持键盘弹出，"正确页"不上下跳动；进入下一题时焦点原位复用
-      */}
-      <input
-        key={inputKey}
-        ref={(el) => {
-          // ref callback 在 React commit 阶段同步执行：input DOM 一插入就
-          // 立即设置 inputmode="latin" 等属性，时机早于 useLayoutEffect，
-          // 早于 iOS 评估键盘，能彻底避免冷启动第一次沿用上次输入模式。
-          inputRef.current = el;
-          applyKeyboardAttributes(el);
-        }}
-        type="text"
-        value={typed.join("")}
-        onChange={handleChange}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="none"
-        spellCheck={false}
-        lang="en"
-        pattern="[a-zA-Z]*"
-        aria-label="拼写输入"
-        className={
-          done || revealed
-            ? "pointer-events-none fixed bottom-0 left-0 h-11 w-full opacity-0"
-            : "absolute inset-0 z-10 w-full cursor-text opacity-0"
-        }
-        style={{ fontSize: 16 }}
-      />
-      {!(done || revealed) && (
+    <div className="w-full select-none">
+      {answering && (
         <div
+          role="textbox"
+          aria-label="拼写输入"
           className={`flex flex-wrap items-end justify-center gap-x-5 gap-y-4 ${
             totalLetters > 18 ? "px-2" : ""
           }`}
@@ -546,6 +393,132 @@ export default function SpellingInput({
           ))}
         </div>
       )}
+
+      {/*
+        底部键盘条：portal 到 body，固定贴屏幕最底部（与系统键盘一致）。
+        答题中常驻；检测到物理键盘后收起为一条唤回入口；答对/揭示后整块卸载。
+      */}
+      {answering &&
+        createPortal(
+          <div
+            ref={setBarEl}
+            className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-primary-lighter shadow-[0_-4px_18px_rgba(83,74,183,0.10)]"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          >
+            {showKeyboard ? (
+              <div className="mx-auto w-full max-w-[420px] p-2">
+                {KB_ROWS.map((row, ri) => (
+                  <div
+                    key={ri}
+                    className={`flex gap-[6px] ${ri === 0 ? "" : "mt-[6px]"}`}
+                  >
+                    {/*
+                      两侧留白：第 2 行 0.5（凑满 10 格与第 1 行对齐）；
+                      第 3 行 0.835 —— 删除键从 2 格收窄到 1.33 格后省下的
+                      0.67 格平均分给两侧，保证三行字母键宽度完全一致。
+                      （第 3 行 = 0.835 + 7 + 1.33 + 0.835 = 10）
+                    */}
+                    {(ri === 1 || ri === 2) && (
+                      <span
+                        className={`basis-0 ${ri === 2 ? "flex-[0.835]" : "flex-[0.5]"}`}
+                      />
+                    )}
+                    {row.map((ch) => (
+                      <button
+                        key={ch}
+                        type="button"
+                        aria-label={ch}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onContextMenu={(e) => e.preventDefault()}
+                        onClick={() => handlersRef.current.push(ch)}
+                        className="flex h-[44px] flex-1 basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-[19px] font-medium leading-none text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
+                      >
+                        {ch}
+                      </button>
+                    ))}
+                    {ri === 2 && (
+                      <button
+                        type="button"
+                        aria-label="删除"
+                        onContextMenu={(e) => e.preventDefault()}
+                        onPointerDown={(e) => {
+                          e.preventDefault();
+                          startBackspace();
+                        }}
+                        onPointerUp={stopBackspace}
+                        onPointerCancel={stopBackspace}
+                        onPointerLeave={stopBackspace}
+                        /* 删除键宽度 = 1.33 格（原 2 格，收窄约 1/3）；
+                           内部 SVG 固定 22px，不随按键缩放 */
+                        /* 与字母键同色（text-text），让图标颜色完全一致 */
+                        className="flex h-[44px] flex-[1.33] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
+                      >
+                        {/* iOS 删除键：上/下/右三边直线带圆角，左边 V 形尖 + 内部 X */}
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.7"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          {/* 键帽轮廓：从右上角 (20,5) 起 → 上边横线到 (9,5) → 左斜下到尖 (3,12) → 左斜上到 (9,19) → 下边横线到 (20,19) → 圆角上抬到 (22,17) → 右边竖线 (22,7) → 圆角收口回到 (20,5) */}
+                          <path d="M20 5 H9 L3 12 L9 19 H20 A2 2 0 0 0 22 17 V7 A2 2 0 0 0 20 5 Z" />
+                          {/* 键帽主体内的叉号 */}
+                          <path d="M13 9 L19 15 M19 9 L13 15" />
+                        </svg>
+                      </button>
+                    )}
+                    {(ri === 1 || ri === 2) && (
+                      <span
+                        className={`basis-0 ${ri === 2 ? "flex-[0.835]" : "flex-[0.5]"}`}
+                      />
+                    )}
+                  </div>
+                ))}
+                {hardwareKeyboardSeen && (
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setKbVisible(false)}
+                    className="mt-1 w-full py-0.5 text-center text-[11px] text-text3"
+                  >
+                    隐藏屏幕键盘
+                  </button>
+                )}
+              </div>
+            ) : (
+              /* 检测到物理键盘后，键盘条收起为一条唤回入口 */
+              <div className="mx-auto flex w-full max-w-[420px] justify-center px-3 py-2">
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => setKbVisible(true)}
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-1.5 text-xs font-medium text-text2 shadow-sm transition-colors active:bg-primary-lighter"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="2" y="6" width="20" height="12" rx="2" />
+                    <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
+                  </svg>
+                  使用屏幕键盘
+                </button>
+              </div>
+            )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
