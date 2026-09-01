@@ -48,3 +48,6 @@ capacitor.config.local.ts
 scripts/male_voice_backup/
 scripts/male_voice_report.tsv
 scripts/male_candidates.json
+
+# 会话中生成的临时效果预览图（仅用于本地核对，不入库）
+.workbuddy/preview-*.png
