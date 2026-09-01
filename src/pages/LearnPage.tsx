@@ -415,7 +415,7 @@ export default function LearnPage({
         gradePoints,
         startAt,
         durationMs: startAt ? Date.now() - startAt : 0,
-        // 5 个太阳（25 轮）封顶，之后不再累计
+        // 5 个太阳（10 轮）封顶，之后不再累计
         rounds: Math.min((g?.rounds ?? 0) + 1, MAX_ROUNDS),
       };
     },
@@ -437,7 +437,7 @@ export default function LearnPage({
         unitOrder: makeUnitOrder(gradeStart, version),
         completedEntryIds: [],
         skippedEntryIds: [],
-        // 5 个太阳（25 轮）封顶，之后不再累计
+        // 5 个太阳（10 轮）封顶，之后不再累计
         rounds: Math.min((g?.rounds ?? 0) + 1, MAX_ROUNDS),
       };
       const gradeIds = new Set(
@@ -976,10 +976,10 @@ export default function LearnPage({
               </>
             )}
 
-            {/* 通关奖励：本轮获得的一颗星（5 的倍数轮合成太阳，满级显示最高荣誉） */}
+            {/* 通关奖励：本轮获得的一颗星（2 的倍数轮合成太阳，满级显示最高荣誉） */}
             {celebration.level === "grade" && celebration.grade && (() => {
               const r = celebration.grade.rounds;
-              const isSun = r % 5 === 0; // 5/10/15/20/25 轮：本轮的星合成太阳
+              const isSun = r % 2 === 0; // 2/4/6/8/10 轮：本轮的星合成太阳
               const isMax = r >= MAX_ROUNDS;
               const suns = sunsOf(r);
               const stars = starsOf(r);
@@ -997,13 +997,13 @@ export default function LearnPage({
                     {isMax
                       ? "达成最高荣誉！"
                       : isSun
-                        ? "5 颗星星合成了 1 个太阳！"
+                        ? "2 颗星星合成了 1 个太阳！"
                         : "本轮获得 1 颗星星"}
                   </p>
                   <p className="text-[11px] text-text3">
                     {isMax
                       ? "已集满 5 个太阳"
-                      : `已完整学完本年级 ${r} 轮 · 5 颗星星将合成 1 颗太阳`}
+                      : `已完整学完本年级 ${r} 轮 · 2 颗星星将合成 1 颗太阳`}
                   </p>
                 </div>
               );
@@ -1017,7 +1017,7 @@ export default function LearnPage({
                 <StatCard label="拼错或不会" value={`${celebration.grade.mistakeCount} 个`} valueColor="text-error" />
                 <StatCard label="一次做对" value={`${celebration.grade.onceRight} 个`} valueColor="text-success" />
                 <StatCard label="本轮积分" value={`+${celebration.grade.gradePoints}`} valueColor="text-gold" />
-                <StatCard label="完成轮数" value={celebration.grade.rounds >= MAX_ROUNDS ? "第 25 轮" : `第 ${celebration.grade.rounds} 轮`} />
+                <StatCard label="完成轮数" value={celebration.grade.rounds >= MAX_ROUNDS ? "第 10 轮" : `第 ${celebration.grade.rounds} 轮`} />
               </div>
             )}
 

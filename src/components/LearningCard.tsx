@@ -339,7 +339,7 @@ export default function LearningCard({
                   <path d="M9.663 17h4.673M12 3v1M6.343 4.343l-.707-.707M18.364 4.343l.707-.707M4 12H3M21 12h-1M12 21v-1" />
                   <circle cx="12" cy="12" r="4" />
                 </svg>
-                {showHint ? "隐藏提示" : "查看提示"}
+                {showHint ? "隐藏提示" : "查看提示（空格）"}
               </button>
             </div>
 
@@ -369,6 +369,8 @@ export default function LearningCard({
               onFirstMistake={() => onMistake?.(entry.id)}
               revealSignal={revealSignal}
               onStrike5={() => revealAnswer("strike5")}
+              /* 屏幕空格键与物理空格键共用同一行为：切换提示 */
+              onSpaceKey={() => setShowHint((v) => !v)}
             />
           </div>
         )}

@@ -53,6 +53,12 @@ interface SpellingInputProps {
   revealSignal?: number;
   /** 本题累计拼错字母达到 5 次时回调（整题只触发一次） */
   onStrike5?: () => void;
+  /**
+   * 空格键回调：切换"查看提示"。
+   * 屏幕键盘第四行的空格键与物理空格键共用此回调，两者行为完全一致
+   * （物理空格键由 LearningCard 的 window keydown 处理）。
+   */
+  onSpaceKey?: () => void;
 }
 
 function parseTarget(target: string): WordGroup[] {
@@ -100,6 +106,7 @@ export default function SpellingInput({
   onFirstMistake,
   revealSignal = 0,
   onStrike5,
+  onSpaceKey,
 }: SpellingInputProps) {
   const groups = useMemo(() => parseTarget(target), [target]);
   const totalLetters = useMemo(
@@ -406,22 +413,27 @@ export default function SpellingInput({
             style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
           >
             {showKeyboard ? (
-              <div className="mx-auto w-full max-w-[420px] p-2">
+              /* iOS 系统键盘规格（iPhone 标准）：
+                 - 字母键 42×flex-1 / 字号 22pt
+                 - 第 4 行键 47pt
+                 - 键间距 5pt，行间距 10pt
+                 - 容器左右 padding 5px
+                 - 容器上下 padding 27px = 6px 基础内边距
+                   + 21px（≈ 一行键高 42px 的一半）的留白，
+                   键盘上下各留出半行高度，不贴顶也不贴底。
+                 - 上文 LearningCard 已按 --dkb-h 实测高度自动避让。
+                   实测高度 = 3×42 + 3×10 + 47 + 27×2 + 1px 边框 ≈ 258px，
+                   再加底部安全区；改 padding 后 --dkb-h 自动跟随。 */
+              <div className="mx-auto w-full max-w-[420px] px-[5px] py-[27px]">
                 {KB_ROWS.map((row, ri) => (
                   <div
                     key={ri}
-                    className={`flex gap-[6px] ${ri === 0 ? "" : "mt-[6px]"}`}
+                    className={`flex gap-[5px] ${ri === 0 ? "" : "mt-[10px]"}`}
                   >
-                    {/*
-                      两侧留白：第 2 行 0.5（凑满 10 格与第 1 行对齐）；
-                      第 3 行 0.835 —— 删除键从 2 格收窄到 1.33 格后省下的
-                      0.67 格平均分给两侧，保证三行字母键宽度完全一致。
-                      （第 3 行 = 0.835 + 7 + 1.33 + 0.835 = 10）
-                    */}
+                    {/* 第 2 行 = 0.5 + 9 + 0.5 = 10；第 3 行 = 0.5 + 7 + 1.5 + 1.5 + 0.5 = 10。
+                       删除键宽 1.5 letter（与 iOS 系统键盘退格一致），两侧各 0.5 留白。 */}
                     {(ri === 1 || ri === 2) && (
-                      <span
-                        className={`basis-0 ${ri === 2 ? "flex-[0.835]" : "flex-[0.5]"}`}
-                      />
+                      <span className="basis-0 flex-[0.5]" />
                     )}
                     {row.map((ch) => (
                       <button
@@ -431,7 +443,7 @@ export default function SpellingInput({
                         onMouseDown={(e) => e.preventDefault()}
                         onContextMenu={(e) => e.preventDefault()}
                         onClick={() => handlersRef.current.push(ch)}
-                        className="flex h-[44px] flex-1 basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-[19px] font-medium leading-none text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
+                        className="flex h-[42px] flex-1 basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-[22px] font-medium leading-none text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
                       >
                         {ch}
                       </button>
@@ -448,10 +460,9 @@ export default function SpellingInput({
                         onPointerUp={stopBackspace}
                         onPointerCancel={stopBackspace}
                         onPointerLeave={stopBackspace}
-                        /* 删除键宽度 = 1.33 格（原 2 格，收窄约 1/3）；
-                           内部 SVG 固定 22px，不随按键缩放 */
-                        /* 与字母键同色（text-text），让图标颜色完全一致 */
-                        className="flex h-[44px] flex-[1.33] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
+                        /* 退格键：iOS 系统键盘退格宽度 = 1.5 letter
+                           SVG 固定 22px 不随键缩放，与字母键同色（text-text） */
+                        className="flex h-[42px] flex-[1.5] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
                       >
                         {/* iOS 删除键：上/下/右三边直线带圆角，左边 V 形尖 + 内部 X */}
                         <svg
@@ -465,20 +476,46 @@ export default function SpellingInput({
                           strokeLinejoin="round"
                           aria-hidden="true"
                         >
-                          {/* 键帽轮廓：从右上角 (20,5) 起 → 上边横线到 (9,5) → 左斜下到尖 (3,12) → 左斜上到 (9,19) → 下边横线到 (20,19) → 圆角上抬到 (22,17) → 右边竖线 (22,7) → 圆角收口回到 (20,5) */}
                           <path d="M20 5 H9 L3 12 L9 19 H20 A2 2 0 0 0 22 17 V7 A2 2 0 0 0 20 5 Z" />
-                          {/* 键帽主体内的叉号 */}
                           <path d="M13 9 L19 15 M19 9 L13 15" />
                         </svg>
                       </button>
                     )}
                     {(ri === 1 || ri === 2) && (
-                      <span
-                        className={`basis-0 ${ri === 2 ? "flex-[0.835]" : "flex-[0.5]"}`}
-                      />
+                      <span className="basis-0 flex-[0.5]" />
                     )}
                   </div>
                 ))}
+
+                {/*
+                  第四行：严格按 iOS 截图布局。原 4 个位置——
+                    [123] [空格] [return] [hide_kb]
+                  其中 123 / return / hide_kb 三个位置删除留空（不渲染按钮），
+                  仅中间的「空格键」保留可点击域，按下 = 切换查看提示。
+
+                  空格键左右居中：左侧留空 2.0 letter，右侧留空 2.0 letter
+                  （= 原 return 1.4 + hide_kb 0.6，两段合并为一个占位 span，
+                    避免中间 5px gap 破坏对称性），空格键 5.5 letter，合计 9.5。
+                  左右 grow 相等 → 空格键几何中心与行中心重合。
+
+                  空格键内不放任何文字（用户要求清除），仅靠 active 时的
+                  scale + 背景色变化提供触觉反馈。
+                */}
+                <div className="mt-[10px] flex gap-[5px]">
+                  {/* 原「123」位置：留空 2.0，与右侧合计宽度相等 */}
+                  <span className="basis-0 flex-[2]" aria-hidden="true" />
+                  <button
+                    type="button"
+                    aria-label="空格：查看提示"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onClick={() => onSpaceKey?.()}
+                    className="flex h-[47px] flex-[5.5] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.98] active:bg-primary-light"
+                  />
+                  {/* 原「return」+「隐藏键盘」位置：合并留空 2.0，与左侧对称 */}
+                  <span className="basis-0 flex-[2]" aria-hidden="true" />
+                </div>
+
                 {hardwareKeyboardSeen && (
                   <button
                     type="button"

@@ -1,26 +1,26 @@
 /**
- * 学习轮数标识：每通关一轮得一颗星星，每 5 颗星星合成一个太阳；
- * 最多 5 个太阳（= 25 轮）后轮数不再累计。
+ * 学习轮数标识：每通关一轮得一颗星星，每 2 颗星星合成一个太阳；
+ * 最多 5 个太阳（= 10 轮）后轮数不再累计。
  *
  * 显示规则（rounds 为已完成的轮数）：
- * - 3 轮  → 3 颗星星
- * - 5 轮  → 1 个太阳（星星清零，合成太阳）
- * - 7 轮  → 1 个太阳 + 2 颗星星
- * - 25 轮 → 5 个太阳（满级）
+ * - 1 轮  → 1 颗星星
+ * - 2 轮  → 1 个太阳（星星清零，合成太阳）
+ * - 3 轮  → 1 个太阳 + 1 颗星星
+ * - 10 轮 → 5 个太阳（满级）
  */
 
-/** 轮数上限：5 个太阳 × 5 颗星星 */
-export const MAX_ROUNDS = 25;
+/** 轮数上限：5 个太阳 × 2 颗星星 */
+export const MAX_ROUNDS = 10;
 
 /** 已合成的太阳数（0~5） */
 export function sunsOf(rounds: number): number {
-  return Math.min(Math.floor(rounds / 5), 5);
+  return Math.min(Math.floor(rounds / 2), 5);
 }
 
-/** 剩余星星数（0~4，满级后为 0） */
+/** 剩余星星数（0~1，满级后为 0） */
 export function starsOf(rounds: number): number {
   if (rounds >= MAX_ROUNDS) return 0;
-  return rounds % 5;
+  return rounds % 2;
 }
 
 /** 金色五角星（与主题 --color-gold #f5b800 同系） */
@@ -50,7 +50,25 @@ export function StarIcon({ size = 16 }: { size?: number }) {
   );
 }
 
-/** 橙金色太阳：中心圆盘 + 8 道光芒（比星星更"高阶"的暖橙色调） */
+/**
+ * 太阳光芒：8 个实心尖三角（viewBox 24 坐标系，中心 12,12）
+ * 三角底边贴中心盘（半径 6.2）→ 尖角朝外到半径 10.6；前 4 个为正方向，后 4 个为斜角。
+ */
+const SUN_RAYS = [
+  "10.5,5.8 13.5,5.8 12,1.4",
+  "10.5,18.2 13.5,18.2 12,22.6",
+  "5.8,10.5 5.8,13.5 1.4,12",
+  "18.2,10.5 18.2,13.5 22.6,12",
+  "15.32,17.45 17.45,15.32 19.5,19.5",
+  "6.56,15.32 8.68,17.45 4.51,19.5",
+  "8.68,6.56 6.56,8.68 4.51,4.51",
+  "17.45,8.68 15.32,6.56 19.5,4.51",
+];
+
+/**
+ * 橙金色太阳：8 个实心尖三角 + 中心圆盘（比星星更"高阶"的暖橙色调）
+ * 不做小尺寸简化：8 个尖三角一律保留，与首页徽章保持一致的辨识度。
+ */
 export function SunIcon({ size = 18 }: { size?: number }) {
   return (
     <svg
@@ -60,32 +78,19 @@ export function SunIcon({ size = 18 }: { size?: number }) {
       aria-hidden
       className="shrink-0"
     >
-      {/* 8 道光芒 */}
-      <g
-        stroke="#F59E0B"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      >
-        <line x1="12" y1="1.8" x2="12" y2="4.6" />
-        <line x1="12" y1="19.4" x2="12" y2="22.2" />
-        <line x1="1.8" y1="12" x2="4.6" y2="12" />
-        <line x1="19.4" y1="12" x2="22.2" y2="12" />
-        <line x1="4.8" y1="4.8" x2="6.8" y2="6.8" />
-        <line x1="17.2" y1="17.2" x2="19.2" y2="19.2" />
-        <line x1="19.2" y1="4.8" x2="17.2" y2="6.8" />
-        <line x1="4.8" y1="19.2" x2="6.8" y2="17.2" />
-      </g>
-      {/* 中心圆盘 */}
+      {SUN_RAYS.map((points, i) => (
+        <polygon key={i} points={points} fill="#F59E0B" />
+      ))}
       <circle
         cx="12"
         cy="12"
-        r="5.4"
+        r="6.4"
         fill="#FFA726"
         stroke="#E8890B"
         strokeWidth="1.2"
       />
       {/* 中心高光 */}
-      <circle cx="10.6" cy="10.6" r="1.7" fill="#FFCC66" />
+      <circle cx="10.6" cy="10.6" r="1.9" fill="#FFCC66" />
     </svg>
   );
 }

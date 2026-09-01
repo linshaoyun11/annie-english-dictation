@@ -418,7 +418,7 @@ function TabBtn({
   );
 }
 
-/** 年级完成轮次标识：太阳（5 轮/个）+ 星星（1 轮/颗），最多 5 个太阳 */
+/** 年级完成轮次标识：太阳（2 轮/个）+ 星星（1 轮/颗），最多 5 个太阳 */
 function RoundsBadge({ rounds }: { rounds: number }) {
   const suns = sunsOf(rounds);
   const stars = starsOf(rounds);

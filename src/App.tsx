@@ -184,7 +184,7 @@ export default function App() {
     }
     if (!progress) {
       const previewProgress = freshProgress(DEFAULT_CONFIG.curriculum);
-      // 构造示例轮数：3 年级 12 轮（2 太阳 2 星）、4 年级 5 轮（1 太阳）、6 年级 3 轮（3 星）
+      // 构造示例轮数（2 星=1 太阳）：3 年级 12 轮（5 太阳·满级）、4 年级 5 轮（2 太阳 1 星）、6 年级 3 轮（1 太阳 1 星）
       previewProgress.grades["3"] = {
         ...freshGradeState(DEFAULT_CONFIG.curriculum, 3),
         rounds: 12,
