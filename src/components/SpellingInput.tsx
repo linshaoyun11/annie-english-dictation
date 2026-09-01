@@ -414,17 +414,17 @@ export default function SpellingInput({
           >
             {showKeyboard ? (
               /* iOS 系统键盘规格（iPhone 标准）：
-                 - 字母键 42×flex-1 / 字号 22pt
-                 - 第 4 行键 47pt
+                 - 字母键高 44px（iOS 规格 42px 上浮 5%）/ 字号 22pt
+                 - 第 4 行（空格）键高 49px（iOS 规格 47px 上浮 5%）
                  - 键间距 5pt，行间距 10pt
                  - 容器左右 padding 5px
-                 - 容器上下 padding 27px = 6px 基础内边距
-                   + 21px（≈ 一行键高 42px 的一半）的留白，
+                 - 容器上下 padding 28px = 6px 基础内边距
+                   + 22px（= 字母键高 44px 的一半）的留白，
                    键盘上下各留出半行高度，不贴顶也不贴底。
                  - 上文 LearningCard 已按 --dkb-h 实测高度自动避让。
-                   实测高度 = 3×42 + 3×10 + 47 + 27×2 + 1px 边框 ≈ 258px，
+                   实测高度 = 3×44 + 3×10 + 49 + 28×2 + 1px 边框 ≈ 268px，
                    再加底部安全区；改 padding 后 --dkb-h 自动跟随。 */
-              <div className="mx-auto w-full max-w-[420px] px-[5px] py-[27px]">
+              <div className="mx-auto w-full max-w-[420px] px-[5px] py-[28px]">
                 {KB_ROWS.map((row, ri) => (
                   <div
                     key={ri}
@@ -447,7 +447,7 @@ export default function SpellingInput({
                         onMouseDown={(e) => e.preventDefault()}
                         onContextMenu={(e) => e.preventDefault()}
                         onClick={() => handlersRef.current.push(ch)}
-                        className="flex h-[42px] flex-1 basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-[22px] font-medium leading-none text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
+                        className="flex h-[44px] flex-1 basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-[22px] font-medium leading-none text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
                       >
                         {ch}
                       </button>
@@ -466,7 +466,7 @@ export default function SpellingInput({
                         onPointerLeave={stopBackspace}
                         /* 退格键：iOS 系统键盘退格宽度 = 1.5 letter
                            SVG 固定 22px 不随键缩放，与字母键同色（text-text） */
-                        className="flex h-[42px] flex-[1.5] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
+                        className="flex h-[44px] flex-[1.5] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white text-text shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-primary-light"
                       >
                         {/* iOS 删除键：上/下/右三边直线带圆角，左边 V 形尖 + 内部 X */}
                         <svg
@@ -514,7 +514,7 @@ export default function SpellingInput({
                     onMouseDown={(e) => e.preventDefault()}
                     onContextMenu={(e) => e.preventDefault()}
                     onClick={() => onSpaceKey?.()}
-                    className="flex h-[47px] flex-[5.5] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.98] active:bg-primary-light"
+                    className="flex h-[49px] flex-[5.5] basis-0 touch-manipulation select-none items-center justify-center rounded-lg bg-white shadow-[0_1px_0_rgba(83,74,183,0.10)] transition-[transform,background-color] duration-75 active:scale-[0.98] active:bg-primary-light"
                   />
                   {/* 原「return」+「隐藏键盘」位置：合并留空 2.0，与左侧对称 */}
                   <span className="basis-0 flex-[2]" aria-hidden="true" />
