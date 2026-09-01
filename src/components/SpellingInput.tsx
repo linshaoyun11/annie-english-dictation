@@ -430,11 +430,15 @@ export default function SpellingInput({
                     key={ri}
                     className={`flex gap-[5px] ${ri === 0 ? "" : "mt-[10px]"}`}
                   >
-                    {/* 第 2 行 = 0.5 + 9 + 0.5 = 10；第 3 行 = 0.5 + 7 + 1.5 + 1.5 + 0.5 = 10。
-                       删除键宽 1.5 letter（与 iOS 系统键盘退格一致），两侧各 0.5 留白。 */}
-                    {(ri === 1 || ri === 2) && (
-                      <span className="basis-0 flex-[0.5]" />
-                    )}
+                    {/* 三行 flex 配比总和均为 10，键宽才一致：
+                          第 1 行 = 10（两端撑满）
+                          第 2 行 = 0.5 + 9 + 0.5
+                          第 3 行 = 1.0 + 7 + 1.5（删除）+ 0.5
+                        第 3 行左侧留空 1.0 而非 0.5：总和凑到 10，
+                        键宽与第 1/2 行一致；代价是字母块右移 0.5 键宽，
+                        这与 iOS 原生阶梯式排列（Q < A < Z 逐行右移）一致。 */}
+                    {ri === 1 && <span className="basis-0 flex-[0.5]" />}
+                    {ri === 2 && <span className="basis-0 flex-[1]" />}
                     {row.map((ch) => (
                       <button
                         key={ch}
