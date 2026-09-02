@@ -430,7 +430,7 @@ function RoundsBadge({ rounds }: { rounds: number }) {
       aria-label={`已完整学完 ${rounds} 轮：${suns} 个太阳、${stars} 颗星星`}
     >
       {Array.from({ length: suns }).map((_, i) => (
-        <SunIcon key={`sun-${i}`} size={14} />
+        <SunIcon key={`sun-${i}`} size={16} />
       ))}
       {Array.from({ length: stars }).map((_, i) => (
         <StarIcon key={`star-${i}`} size={12} />
