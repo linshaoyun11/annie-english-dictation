@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   getCurriculum,
   gradeLabel,
@@ -68,6 +68,39 @@ export default function HomePage({
   const [selUnitIndex, setSelUnitIndex] = useState<number>(
     firstUnitIdx >= 0 ? firstUnitIdx : 0
   );
+
+  /**
+   * 自绘 tap 判定（只用于年级卡片）。
+   *
+   * 背景：年级卡片原本是首页唯一带 :hover 样式的元素（hover 边框变色）。
+   * iOS Safari 对这类元素会先应用 hover 态、暂不合成 click，于是第一次
+   * 点按只"高亮"不跳转，必须点第二次才进得去——即反馈的"点两次才进"。
+   *
+   * 对策有两条，一起上：
+   * 1. 直接去掉卡片的 hover 样式（移动端本来就感知不到，留着只有坏处）；
+   * 2. 不依赖浏览器合成的 click，改用 pointerup 自行判定 tap。pointer 事件
+   *    是原生派发的，不受 iOS hover 模拟 / 300ms 延迟影响。
+   *
+   * 位移阈值保证：按下卡片后想滑动翻页时不会误触发，与 click 的手感一致。
+   * 不调 preventDefault，否则会连页面滚动一起禁掉。
+   */
+  const pressRef = useRef<{ x: number; y: number } | null>(null);
+  const TAP_SLOP = 12; // px，超过即视为滑动而非点按
+
+  const beginPress = (e: React.PointerEvent) => {
+    pressRef.current = { x: e.clientX, y: e.clientY };
+  };
+  const cancelPress = () => {
+    pressRef.current = null;
+  };
+  const finishPress = (e: React.PointerEvent, run: () => void) => {
+    const p = pressRef.current;
+    pressRef.current = null;
+    if (!p) return;
+    if (Math.abs(e.clientX - p.x) > TAP_SLOP) return;
+    if (Math.abs(e.clientY - p.y) > TAP_SLOP) return;
+    run();
+  };
 
   return (
     <div className="h-full overflow-y-auto px-5 pb-10">
@@ -191,14 +224,21 @@ export default function HomePage({
                 <button
                   key={g}
                   type="button"
-                  onClick={() => {
-                    primeSpeech();
-                    onStart(g);
-                  }}
+                  onPointerDown={beginPress}
+                  onPointerUp={(e) =>
+                    finishPress(e, () => {
+                      primeSpeech();
+                      onStart(g);
+                    })
+                  }
+                  onPointerCancel={cancelPress}
+                  /* 空 onTouchStart：iOS 只在元素挂了 touch 监听时才即时应用
+                     :active，加上它按下反馈才不迟到（同自绘键盘的处理） */
+                  onTouchStart={() => {}}
                   className={`group flex flex-col rounded-2xl border bg-surface p-4 text-left shadow-sm transition-all active:scale-[0.98] ${
                     isCurrent
                       ? "border-primary/30 bg-primary-lighter ring-1 ring-primary/20"
-                      : "border-border hover:border-primary/30"
+                      : "border-border"
                   }`}
                 >
                   <span className="flex items-center gap-1.5 text-sm font-semibold text-text">

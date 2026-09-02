@@ -118,6 +118,22 @@ export default function LearnPage({
 }: LearnPageProps) {
   const speech = useSpeechLoop(3000);
   const touchStartY = useRef<number | null>(null);
+  /**
+   * 上滑切题手势的「答题完成时点」与「本次手势起点时点」。
+   *
+   * 背景：自绘键盘字母键改成 pointerdown 出字后，最后一个字母在手指刚按下时
+   * 就已判定完成（离散事件 → React 同步刷新 → 键盘卸载、答对页出现），
+   * 同一次触摸的 touchstart / touchend 因此可能落到手指下方的新元素上，
+   * 让手势判定拿到一个本不该存在的起点，配合多指错位算出虚假的 dy < -60，
+   * 直接触发切题 —— 即「答对页闪一下就跳到下一题」。
+   *
+   * 对策：任何起点早于「答对时刻 + 反应窗口」的手势一律作废。
+   * SETTLE_MS 取 300：人看到"回答正确"再决定上滑，远慢于 300ms；
+   * 而按键尾巴上的事件与答对时刻的间隔在毫秒级，必然落在窗口内被拦下。
+   */
+  const answeredAtRef = useRef(0);
+  const touchStartAtRef = useRef(0);
+  const SETTLE_MS = 300;
   const [toast, setToast] = useState<string | null>(null);
   const [finishedAll, setFinishedAll] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -262,6 +278,8 @@ export default function LearnPage({
 
   const markComplete = useCallback(
     (id: string) => {
+      // 记下答对时刻：上滑切题手势据此作废「打完最后一个字母那次触摸的尾巴」
+      answeredAtRef.current = performance.now();
       // 记录最近处理词条的单元，供"单元完成"祝贺检测使用
       const src = difficultMode || practiceMode
         ? allEntriesMap.get(id)
@@ -486,6 +504,8 @@ export default function LearnPage({
   const goNext = useCallback(() => {
     if (busyRef.current) return;
     busyRef.current = true;
+    // 进入下一题：清掉答对时刻，让新一题的手势判定从干净状态开始
+    answeredAtRef.current = 0;
     const release = () => {
       // busyRef 解锁必须用 safeTimeout：iOS 后台挂起冻结定时器时，
       // 普通 setTimeout 永不触发 → busyRef 卡 true → 之后所有跳题失效
@@ -680,6 +700,7 @@ export default function LearnPage({
     }
     // 用 changedTouches[0]（本次刚按下的那根手指）而不是 touches[0]
     // （当前所有触点中的第一个）：多指时两者不是同一根手指，会算出错位的 dy。
+    touchStartAtRef.current = performance.now();
     touchStartY.current = t.clientY;
   };
 
@@ -690,6 +711,10 @@ export default function LearnPage({
     // 还有别的手指留在屏幕上（多指交替抬起）：此时 e.touches[0] 与
     // changedTouches[0] 不是同一根手指，dy 无意义，直接放弃本次判定。
     if (e.touches.length > 0) return;
+    // 手势起点落在「刚答对」的反应窗口内 → 这是打完最后一个字母那次触摸的
+    // 尾巴（键盘已在 pointerdown 阶段卸载，后续事件被重定向到手指下方的新
+    // 元素），不是用户看到答对页后的主动上滑，直接作废。
+    if (touchStartAtRef.current - answeredAtRef.current < SETTLE_MS) return;
     if (dy < -60) {
       // 祝贺页打开时禁止上滑切题（祝贺页内容滚动也会冒泡到这里）
       if (celebration) return;

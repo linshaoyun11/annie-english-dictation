@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { Capacitor } from "@capacitor/core";
+import { Keyboard } from "@capacitor/keyboard";
 import { avatarById, type User } from "../lib/users";
 import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "./AvatarImg";
@@ -22,6 +24,19 @@ export default function PasswordModal({ user, onSuccess, onClose }: PasswordModa
   const [inputKey, setInputKey] = useState(0);
   /** input onChange 是否正常工作（同 SpellingInput 的 inputAliveRef） */
   const inputAliveRef = useRef(false);
+
+  // 弹窗卸载时显式结束输入会话。
+  // 登录成功会直接切走整个页面树，聚焦中的 input 是被"移除"而不是 blur 的，
+  // iOS 上键盘会话不一定正常收起；残留的输入状态会让进入下一页后的第一次
+  // 点按被系统吃掉（表现为要点两次才有反应）。这里补一次显式收尾。
+  useEffect(
+    () => () => {
+      (document.activeElement as HTMLElement | null)?.blur();
+      if (Capacitor.isNativePlatform()) Keyboard.hide().catch(() => {});
+      document.documentElement.style.setProperty("--kb-h", "0px");
+    },
+    []
+  );
 
   useEffect(() => {
     inputRef.current?.focus();

@@ -442,15 +442,23 @@ export default function SpellingInput({
                   <div
                     key={ri}
                     className={`flex gap-[6px] ${ri === 0 ? "" : "mt-[6px]"}`}
+                    /* 第 2 行（a-l）改用 padding 而非 span 做左右缩进：
+                       flex container 每多 1 个 span 就多 1 个 gap，
+                       让每份从 (W-9g)/10 压缩到 (W-10g)/10，letter 宽损失 0.6px。
+                       现改用 calc((100%+g)/20) 的行 padding，让 letter 占比严格相等。
+                       三行项目数 = 10 = 9 gap，每份 (W-9g)/10，Q=A=Z 严格相等。 */
+                    style={ri === 1 ? {
+                      paddingLeft: 'calc((100% + 6px) / 20)',
+                      paddingRight: 'calc((100% + 6px) / 20)',
+                    } : undefined}
                   >
-                    {/* 三行 flex 配比总和均为 10，键宽才一致：
-                          第 1 行 = 10（两端撑满）
-                          第 2 行 = 0.5 + 9 + 0.5
-                          第 3 行 = 1.0 + 7 + 1.5（删除）+ 0.5
-                        第 3 行左侧留空 1.0 而非 0.5：总和凑到 10，
-                        键宽与第 1/2 行一致；代价是字母块右移 0.5 键宽，
-                        这与 iOS 原生阶梯式排列（Q < A < Z 逐行右移）一致。 */}
-                    {ri === 1 && <span className="basis-0 flex-[0.5]" />}
+                    {/* 三行 flex 份总和 = 10，列宽一致：
+                          第 1 行 = 10 letter（两端贴边、无缩进）
+                          第 2 行 = 9 letter（行 padding 缩进，不增 gap）
+                          第 3 行 = 1.0 缩进 + 7 letter + 1.5 删除 + 0.5 缩进
+                        第 3 行左侧留空 1.0 而非 0.5：总和才能凑到 10，使三行
+                        列宽严格相等；效果是 z 块比 a 块右移约 0.5 键宽，
+                        与 iOS 原生阶梯式排列（Q → A → Z 逐行右移）方向一致。 */}
                     {ri === 2 && <span className="basis-0 flex-[1]" />}
                     {row.map((ch) => (
                       <button
@@ -511,7 +519,7 @@ export default function SpellingInput({
                         </svg>
                       </button>
                     )}
-                    {(ri === 1 || ri === 2) && (
+                    {ri === 2 && (
                       <span className="basis-0 flex-[0.5]" />
                     )}
                   </div>

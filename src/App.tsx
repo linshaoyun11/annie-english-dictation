@@ -205,6 +205,14 @@ export default function App() {
 
   /** 登录：加载该用户独立的学习进度（按教材版本隔离） */
   const handleLogin = useCallback((user: User) => {
+    // 登录由密码弹窗触发，成功后整个用户选择页连同聚焦中的 input 一起卸载。
+    // iOS 上这种"被移除而不是 blur"不一定会正常结束键盘会话，残留的输入
+    // 状态会吞掉进首页后的第一次点按（表现就是要点两次才进得去）。
+    // 这里先显式收尾再切页面；PasswordModal 卸载侧也有一份同样清理，双保险。
+    (document.activeElement as HTMLElement | null)?.blur();
+    if (Capacitor.isNativePlatform()) Keyboard.hide().catch(() => {});
+    document.documentElement.style.setProperty("--kb-h", "0px");
+
     setCurrentUser(user);
     setProgressState(loadProgress(user.id, user.config.curriculum));
     setView("home");

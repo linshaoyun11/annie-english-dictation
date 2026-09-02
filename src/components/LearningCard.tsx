@@ -58,6 +58,23 @@ export default function LearningCard({
   const [revealSignal, setRevealSignal] = useState(0);
   const autoNextTimer = useRef<number | null>(null);
   const skipBtnRef = useRef<HTMLButtonElement>(null);
+  /**
+   * 幽灵点击防护（答对页 / 揭示页按钮专用）。
+   *
+   * 起因：自绘键盘的字母键改为 pointerdown 出字后（build 52 提速改动），
+   * 最后一个字母是在**手指刚按下时**就判定完成的，此时手指还压在屏幕上。
+   * onComplete 走的是离散事件 → React 18 同步刷新渲染 → 键盘整块卸载、
+   * 答对页立刻替代它出现在屏幕上。于是同一次触摸的后续事件（touchstart /
+   * touchend / click）全部落到**手指下方的新元素**上，浏览器照常合成的那记
+   * click 就可能直接砸在"下一题"按钮上 —— 表现就是「答对页闪一下就跳走」。
+   *
+   * 判定方式：只认**本按钮自己收到过 pointerdown** 的 click。
+   * 幽灵点击的 pointerdown 落在当时还不存在的按钮上，按钮不可能收到，
+   * 因此 ref 保持 false 被拦下；真实点击必然先有 pointerdown，一定放行。
+   * 用布尔量而不是时间窗，避免时间阈值带来的误杀与漏网。
+   */
+  const nextPressRef = useRef(false);
+  const difficultPressRef = useRef(false);
 
   useEffect(() => {
     setShowHint(false);
@@ -154,7 +171,13 @@ export default function LearningCard({
     <button
       type="button"
       onMouseDown={(e) => e.preventDefault()}
+      onPointerDown={() => {
+        nextPressRef.current = true;
+      }}
       onClick={() => {
+        // 幽灵点击：没经过本按钮的 pointerdown，是上一次按键尾巴上的合成 click
+        if (!nextPressRef.current) return;
+        nextPressRef.current = false;
         if (autoNextTimer.current) {
           safeClearTimeout(autoNextTimer.current);
           autoNextTimer.current = null;
@@ -190,7 +213,13 @@ export default function LearningCard({
     <button
       type="button"
       onMouseDown={(e) => e.preventDefault()}
+      onPointerDown={() => {
+        difficultPressRef.current = true;
+      }}
       onClick={() => {
+        // 同 nextBtn：拦下按键尾巴上的幽灵点击，避免静默加入重点记忆
+        if (!difficultPressRef.current) return;
+        difficultPressRef.current = false;
         if (alreadyInDifficult) return;
         onAddToDifficult(entry.id);
       }}

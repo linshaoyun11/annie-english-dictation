@@ -47,9 +47,61 @@ iOS App，Capacitor + React + TypeScript + Vite。Windows 开发、Codemagic 云
   冒泡到 LearnPage 根容器的 `onTouchStart/onTouchEnd`（上滑切题手势）。
   已用 `data-dictation-keyboard` 标记 + `e.target.closest(...)` 排除（2026-09-02 修）。
   新增任何 portal 浮层（弹窗/Toast/浮层键盘）时，同步确认上层手势是否需要排除它。
+
+- **⚠️ 输入时机 = pointerdown 出字，会让「答对判定」发生在手指仍按下时**（2026-09-02）。
+  字母键用 `onPointerDown` 出字（对齐 iOS 系统键盘手感），而 `pushLetter` 里的
+  `onComplete()` 是**同步**调用的；pointerdown 属离散事件，React 18 会**同步刷新渲染**
+  → 手指还压在屏幕上，键盘已卸载、答对页已出现。后果有两类：
+  ① 同一次触摸的 `touchstart`/`touchend`/`click` 被重定向到**手指下方的新元素**，
+     浏览器照常合成的那记 click 会砸到答对页的「下一题」（幽灵点击）；
+  ② touchend 时词条已完成，LearnPage 上滑手势的 `processedNow` 为 true，
+     多指错位算出虚假 `dy < -60` 就直接 `goNext()`。
+  这就是 build 52 之后「答对页闪一下就跳下一题」的根因。
+  **改动输入时机、或在答对/完成路径上增删任何东西前，先想清楚此刻手指是否还在屏幕上。**
+  现有两道防线（都是有意为之，勿删）：
+  - `LearningCard` 答对页按钮的 `onPointerDown` 置位 + `onClick` 校验 ref（拦幽灵点击，
+    用布尔量不用时间窗）；
+  - `LearnPage` 的 `answeredAtRef` / `touchStartAtRef` + `SETTLE_MS = 300` 反应窗口
+    （拦手势尾巴）。
 - **touch 手势起点必须用 `e.changedTouches[0]`，不能用 `e.touches[0]`**（后者是
   当前所有触点中的第一个，多指时与抬起的那根不是同一根）。并须检查
   `e.touches.length` 排除多指场景。
+
+## 构建与配置（推送前必读）
+
+- **本机 `npm run build` 必然失败于清空 dist**：沙箱 safe-delete 保护拦截
+  （dist 下 5200+ 个音频文件 > 阈值 50，报 SAFE_DELETE_BULK_CONFIRM_REQUIRED）。
+  **本地冒烟一律用 `npx vite build --emptyOutDir=false`**（不清空直接写入，约 3 分钟）。
+  CI 上无此保护，正常 `npm run build` 即可。
+- **`tsconfig.node.json` 已纳入 `capacitor.config.ts`**（2026-09-02 加）。
+  之前只 include `vite.config.ts`，导致配置文件里的废弃字段长期无人发现：
+  `ios.minVersion`（Capacitor 8 已移除）和 `bundledWebRuntime`（Cap 5 起移除）
+  在项目里躺了很久——`cap sync` **静默忽略未知字段**，只有 tsc 能发现。
+  改 Capacitor 配置后务必跑 `npx tsc -b --noEmit` 确认字段仍被支持。
+- **`ios.webContentsDebuggingEnabled: true`** 已开启。Capacitor 4.8.0+ 默认 false，
+  即 release/TestFlight 包默认**无法**被 Safari Web Inspector 连接。
+  开启后配合 `ios-webkit-debug-proxy` 可在 Windows 上远程调试 iPad 真机。
+  只影响可调试性，不改任何运行时行为。
+
+## 自绘键盘几何（SpellingInput.tsx 改动前必读）
+
+- **三行字母键列宽必须严格相等**，公式：(W − 9g)/10，g 是 row 的 gap（=6）。
+  Q 列宽 = A 列宽 = Z 列宽。这是与 iOS 系统键盘一致的目标。
+- **缩进只能用「行 padding」，不能用缩进 span**：span 会多占 1 个 gap，
+  把份从 (W−9g)/10 压成 (W−10g)/10，letter 宽损失 g/10 = 0.6px。
+  第 2 行（a-l）已改用 `paddingLeft/Right: calc((100% + 6px) / 20)`：
+  数学上 letter 宽 = (W − 2p − 8g) / 9 = (W − 9g) / 10，与第 1 行严格一致。
+  第 3 行左缩进仍是 span（`flex-[1]`）——它参与 sum=10 的份分配，不会额外
+  产生 gap 误差，所以可以留着；只有"额外插入、不占份"的缩进才必须改 padding。
+- **第 2 行（a-l）必须用行 padding 缩进，不用 span**：
+  `paddingLeft/Right: calc((100% + 6px) / 20)`
+  数学证明 letter 宽 = (W − 2p − 8g) / 9 = (W − 9g) / 10，与第 1 行严格一致。
+- 第 1 行：10 letter（两端贴边，无缩进）
+- 第 2 行：9 letter + 行 padding（左右各 (W+g)/20）
+- 第 3 行：1.0 缩进 + 7 letter + 1.5 backspace + 0.5 缩进（sum=10）
+- 第 4 行：2 + 5.5 + 2 = 9.5（user 暂接受"只有 space 键"的极简布局）
+- 当前键高 42px / gap 6px / 圆角 9px 是 build 52 起的决策，**不要"向 iOS 系统
+  看齐"主动降键高/缩间距/减小圆角**——这些是用户的有意为之。
 
 ## 视觉一致性优先（图标类改动必读）
 

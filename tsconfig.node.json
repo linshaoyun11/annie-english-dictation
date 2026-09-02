@@ -19,5 +19,9 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  /* capacitor.config.ts 必须纳入检查：Capacitor 升级后旧字段会被移除，
+     而 cap sync 不校验类型、静默忽略未知字段，配置错误只有靠 tsc 才能发现
+     （2026-09-02 实测：minVersion / bundledWebRuntime 两个已废弃字段
+     在本项目里躺了很久都没人发现） */
+  "include": ["vite.config.ts", "capacitor.config.ts"]
 }
