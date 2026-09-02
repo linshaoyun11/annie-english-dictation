@@ -42,6 +42,14 @@ iOS App，Capacitor + React + TypeScript + Vite。Windows 开发、Codemagic 云
 - **保温用 `loop=true` 持续播放静音**换取通路不冷，代价是功耗（占空比约 75%）。这是有意的取舍。
 - `safeTimeout` / `src/lib/timer.ts` 维护全局 pending Map（iOS 后台定时器冻结的补发机制）。
   不需要心跳补发的定时器（如保温）应直接用原生 `setTimeout`，避免污染 pending。
+- **`createPortal` 只改变 DOM 层级，不改变 React 合成事件的冒泡路径**。
+  自绘键盘 portal 到 `body`，DOM 上在 LearnPage 容器外，但触摸事件仍沿**组件树**
+  冒泡到 LearnPage 根容器的 `onTouchStart/onTouchEnd`（上滑切题手势）。
+  已用 `data-dictation-keyboard` 标记 + `e.target.closest(...)` 排除（2026-09-02 修）。
+  新增任何 portal 浮层（弹窗/Toast/浮层键盘）时，同步确认上层手势是否需要排除它。
+- **touch 手势起点必须用 `e.changedTouches[0]`，不能用 `e.touches[0]`**（后者是
+  当前所有触点中的第一个，多指时与抬起的那根不是同一根）。并须检查
+  `e.touches.length` 排除多指场景。
 
 ## 视觉一致性优先（图标类改动必读）
 

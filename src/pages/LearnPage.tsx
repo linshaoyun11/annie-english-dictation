@@ -655,14 +655,41 @@ export default function LearnPage({
     [setProgress]
   );
 
+  /**
+   * 上滑切题手势。三个排除条件缺一不可，否则会被误判成「无操作自动跳题」：
+   *
+   * 1) 起点在自绘键盘内 —— 键盘用 createPortal 挂到 body，DOM 上不在本容器内，
+   *    但 React 合成事件沿**组件树**冒泡（Portal 只改变 DOM 层级，不改变事件
+   *    传播路径），所以键盘上的 touchstart/touchend 照样会到达这里。
+   * 2) 多指 —— 见 handleTouchEnd 的 e.touches.length 检查。
+   * 3) 起点在按钮上 —— 点按钮时手指的微小位移不应被当成手势。
+   */
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    // 超过一指落在屏幕上：放弃本次手势，并清掉可能残留的旧起点
+    if (e.touches.length > 1) {
+      touchStartY.current = null;
+      return;
+    }
+    const el = e.target as HTMLElement | null;
+    // data-dictation-keyboard：SpellingInput 的自绘键盘根元素上的标记
+    if (el?.closest?.("[data-dictation-keyboard],button")) {
+      touchStartY.current = null;
+      return;
+    }
+    // 用 changedTouches[0]（本次刚按下的那根手指）而不是 touches[0]
+    // （当前所有触点中的第一个）：多指时两者不是同一根手指，会算出错位的 dy。
+    touchStartY.current = t.clientY;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartY.current === null) return;
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     touchStartY.current = null;
+    // 还有别的手指留在屏幕上（多指交替抬起）：此时 e.touches[0] 与
+    // changedTouches[0] 不是同一根手指，dy 无意义，直接放弃本次判定。
+    if (e.touches.length > 0) return;
     if (dy < -60) {
       // 祝贺页打开时禁止上滑切题（祝贺页内容滚动也会冒泡到这里）
       if (celebration) return;
