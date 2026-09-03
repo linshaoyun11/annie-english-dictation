@@ -42,12 +42,14 @@ function parseEntries() {
       });
     }
   }
-  // 外研/牛津：waiyanshe.ts + oxford.ts（prefix 独立 seq）
+  // 外研/牛津/仁爱：waiyanshe.ts + oxford.ts + renai.ts（prefix 独立 seq）
   const prefixSeqs = new Map();
-  for (const [file, prefix] of [
-    ["waiyanshe.ts", "wy"],
-    ["oxford.ts", "ox"],
-  ]) {
+  const PREFIX_FILES = [
+    ["waiyanshe.ts", "wy", "waiyanshe"],
+    ["oxford.ts", "ox", "oxford"],
+    ["renai.ts", "ra", "renai"],
+  ];
+  for (const [file, prefix, version] of PREFIX_FILES) {
     const src = readFileSync(join(ROOT, "src", "data", file), "utf8");
     MK7_RE.lastIndex = 0;
     let m;
@@ -59,7 +61,7 @@ function parseEntries() {
       const n = (prefixSeqs.get(prefix) ?? 0) + 1;
       prefixSeqs.set(prefix, n);
       entries.push({
-        version: prefix === "wy" ? "waiyanshe" : "oxford",
+        version,
         id: `${prefix}-g${m[2]}u${m[3]}e${String(n).padStart(4, "0")}`,
         type: m[4],
         english: m[5].replace(/\\"/g, '"').replace(/\\\\/g, "\\"),

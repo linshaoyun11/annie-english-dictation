@@ -53,9 +53,11 @@ async def main() -> None:
     if fail:
         print("失败清单:", fail)
 
+    # 与 manifest.json 保持同一格式：单行紧凑（等价 JS 的 JSON.stringify）。
+    # 早期这里用 indent=0，会让每个键值对各占一行——内容等价但 git diff
+    # 会凭空多出几千行，掩盖真正的改动。
     with open(UK_MANIFEST, "w", encoding="utf-8") as f:
-        json.dump(uk, f, ensure_ascii=False, indent=0)
-        f.write("\n")
+        json.dump(uk, f, ensure_ascii=False, separators=(",", ":"))
     print(f"manifest-uk.json 更新为 {len(uk)} 键")
 
 

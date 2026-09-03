@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>祝贺页 · 庆祝蛋糕图标 · 效果图 v3</title>
+<style>
+  :root{
+    --primary:#534AB7; --primary-2:#6C5CE7;
+    --bg:#F8F7FF; --surface:#FFFFFF;
+    --text:#1F1D2E; --text2:#6B6780; --text3:#9B98AD;
+    --success:#1D9E75; --error:#E24B4A; --gold:#F5B800;
+    --card-shadow:0 6px 24px rgba(83,74,183,.08);
+    --btn-shadow:0 8px 22px rgba(83,74,183,.32);
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{
+    margin:0;padding:32px 24px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:#F1EFFB;color:var(--text);
+  }
+  h1{font-size:22px;margin:0 0 6px}
+  .lead{color:var(--text2);font-size:14px;margin:0 0 26px;line-height:1.75;max-width:900px}
+  .lead b{color:var(--text)}
+  .sec-title{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--text3);margin:0 0 14px;text-transform:uppercase}
+
+  .cand-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:34px}
+  .cand{
+    width:250px;background:var(--surface);border:2px solid transparent;border-radius:22px;padding:16px 14px 14px;
+    box-shadow:var(--card-shadow);cursor:pointer;text-align:center;transition:.18s;
+  }
+  .cand:hover{transform:translateY(-2px)}
+  .cand.on{border-color:var(--primary);box-shadow:0 10px 28px rgba(83,74,183,.20)}
+  .cand .cv{width:132px;height:132px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+  .cand .cv svg{width:118px;height:118px;display:block}
+  .cand .cn{font-size:13.5px;font-weight:700}
+  .cand .cd{font-size:11.5px;color:var(--text3);line-height:1.7;margin-top:5px}
+
+  .stage{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+
+  .phone{
+    width:376px;height:790px;border-radius:44px;background:#12121A;padding:11px;
+    box-shadow:0 24px 60px rgba(31,29,46,.24);flex:0 0 auto;
+  }
+  .screen{
+    position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;
+    display:flex;flex-direction:column;
+    background:
+      radial-gradient(circle at 50% -6%,rgba(124,107,245,.16),rgba(124,107,245,0) 58%),
+      radial-gradient(circle at 92% 12%,rgba(245,184,0,.12),rgba(245,184,0,0) 46%),
+      linear-gradient(180deg,#F8F7FF 0%,#FDFCFF 38%,#FFFFFF 100%);
+  }
+  .status{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:600;flex:0 0 auto}
+  .content{flex:1 1 auto;overflow-y:auto;padding:8px 22px 20px}
+  .content::-webkit-scrollbar{width:0}
+
+  .badge{width:132px;height:132px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+  .badge svg{width:120px;height:120px;display:block;animation:cakeIn .85s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes cakeIn{0%{opacity:0;transform:scale(.62) translateY(8px)}60%{opacity:1;transform:scale(1.05) translateY(0)}100%{opacity:1;transform:scale(1) translateY(0)}}
+  .flick{animation:flick 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:bottom center}
+  @keyframes flick{0%,100%{transform:scaleY(1) scaleX(1)}30%{transform:scaleY(1.12) scaleX(.94)}60%{transform:scaleY(.94) scaleX(1.05)}}
+  .twinkle{animation:tw .5s ease both;transform-box:fill-box;transform-origin:center}
+  @keyframes tw{0%{opacity:0;transform:scale(0)}100%{opacity:1;transform:scale(1)}}
+
+  h2.title{text-align:center;font-size:20px;font-weight:700;margin:6px 0 0;letter-spacing:-.01em}
+  p.sub{text-align:center;font-size:13.5px;line-height:1.75;color:var(--text2);margin:8px 4px 0}
+  p.sub b{color:var(--text);font-weight:600}
+
+  .card{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:20px;box-shadow:var(--card-shadow);padding:18px 16px}
+  .reward{margin-top:16px;text-align:center;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.12s;
+    background:linear-gradient(160deg,#FFFFFF 0%,#FBF9FF 100%)}
+  .reward .row{display:flex;align-items:center;justify-content:center;gap:10px}
+  .reward .rt{font-size:14px;font-weight:700;margin-top:12px}
+  .reward .rs{font-size:11.5px;color:var(--text3);margin-top:5px}
+  .divider{height:1px;background:linear-gradient(90deg,rgba(83,74,183,0),rgba(83,74,183,.14),rgba(83,74,183,0));margin:14px 0 0}
+  @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .stat{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:14px;padding:11px 12px 12px;box-shadow:0 2px 10px rgba(83,74,183,.05)}
+  .stat .k{font-size:11px;color:var(--text3);font-weight:500}
+  .stat .v{font-size:14px;font-weight:700;margin-top:5px}
+  .v.gold{color:var(--gold)} .v.ok{color:var(--success)} .v.err{color:var(--error)}
+
+  .quote{margin-top:16px;padding:16px 16px 14px;border-radius:20px;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#FFFAEB 0%,#FFF4D6 100%);
+    border:1px solid rgba(245,184,0,.22);box-shadow:0 6px 20px rgba(245,184,0,.10);
+    animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .quote::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,#F5B800,#FFD75E)}
+  .quote .mark{position:absolute;right:14px;top:6px;font-size:40px;line-height:1;color:rgba(245,184,0,.20);font-family:Georgia,serif}
+  .quote .en{font-size:13.5px;font-style:italic;line-height:1.7;color:#8A5A0B}
+  .quote .cn{font-size:13.5px;font-weight:700;line-height:1.7;color:#7A4E08;margin-top:8px}
+  .quote .mv{font-size:11.5px;color:rgba(122,78,8,.62);margin-top:8px}
+
+  .actions{padding:14px 22px 22px;flex:0 0 auto;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#FFFFFF 34%)}
+  .btn-main{display:block;width:100%;padding:15px 0;border:none;border-radius:999px;
+    background:linear-gradient(135deg,#6C5CE7 0%,#534AB7 100%);color:#fff;font-size:15.5px;font-weight:700;box-shadow:var(--btn-shadow)}
+  .btn-ghost{display:block;width:100%;padding:13px 0;margin-top:10px;border-radius:999px;
+    background:var(--surface);border:1px solid rgba(83,74,183,.18);color:var(--primary);font-size:14px;font-weight:600}
+  .btn-line{display:block;width:100%;padding:8px 0;margin-top:6px;border:none;background:none;color:var(--text3);font-size:13px;font-weight:500}
+  .caption{text-align:center;font-size:12px;color:var(--text2);margin-top:12px}
+  .caption b{color:var(--text)}
+</style>
+</head>
+<body>
+
+<h1>祝贺页 · 庆祝蛋糕图标 v3</h1>
+<p class="lead">
+  放弃烟花路线，改画<b>庆祝蛋糕</b>：点燃的蜡烛 + 奶油 + 彩针 + 周围彩纸屑，庆祝语义更直白。
+  配色继续沿用<b>紫 → 洋红 → 橙金</b>渐变（蛋糕体 #8B5CF6 → #E1306C，火焰 #F56040 → #FFE08A），
+  与页面紫调同源。<b>点候选卡片可实时切换下方两台手机里的图标</b>；蜡烛火苗带轻微跳动动画。
+</p>
+
+<p class="sec-title">候选图标（点击切换）</p>
+<div class="cand-row" id="candRow">
+  <div class="cand on" data-k="A">
+    <div class="cv" id="cvA"></div>
+    <p class="cn">A · 庆祝蛋糕（完整版）</p>
+    <p class="cd">3 支点亮的蜡烛 + 双层奶油 + 彩针<br>+ 底盘 + 周围彩纸屑，庆祝感最强</p>
+  </div>
+  <div class="cand" data-k="B">
+    <div class="cv" id="cvB"></div>
+    <p class="cn">B · 极简蛋糕</p>
+    <p class="cd">单层 + 波浪奶油 + 3 根细蜡烛<br>去掉彩针与纸屑，干净克制</p>
+  </div>
+  <div class="cand" data-k="C">
+    <div class="cv" id="cvC"></div>
+    <p class="cn">C · 切片蛋糕</p>
+    <p class="cd">正面切片视角，能看到夹心层<br>更有"实心的奖励"感</p>
+  </div>
+</div>
+
+<p class="sec-title">真机效果</p>
+<div class="stage">
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge" data-badge></div>
+          <h2 class="title">恭喜完成四年级上册第 3 单元！</h2>
+          <p class="sub"><b>My Schoolbag</b> —— 通过努力学习，你完成了本单元的听写练习，太棒了！</p>
+          <div class="quote">
+            <span class="mark">”</span>
+            <p class="en">Carpe diem. Seize the day, boys.</p>
+            <p class="cn">及时行乐，孩子们，把握当下。</p>
+            <p class="mv">—— 电影《死亡诗社》</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-ghost">重新学习本单元</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 A · 单元完成</b></p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge" data-badge></div>
+          <h2 class="title">恭喜通关四年级上册！</h2>
+          <p class="sub"><b>8 个单元、126 个词条</b>全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！</p>
+
+          <div class="card reward">
+            <div class="row">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                <polygon points="10.5,5.8 13.5,5.8 12,1.4" fill="#F59E0B"/><polygon points="10.5,18.2 13.5,18.2 12,22.6" fill="#F59E0B"/>
+                <polygon points="5.8,10.5 5.8,13.5 1.4,12" fill="#F59E0B"/><polygon points="18.2,10.5 18.2,13.5 22.6,12" fill="#F59E0B"/>
+                <polygon points="15.32,17.45 17.45,15.32 19.5,19.5" fill="#F59E0B"/><polygon points="6.56,15.32 8.68,17.45 4.51,19.5" fill="#F59E0B"/>
+                <polygon points="8.68,6.56 6.56,8.68 4.51,4.51" fill="#F59E0B"/><polygon points="17.45,8.68 15.32,6.56 19.5,4.51" fill="#F59E0B"/>
+                <circle cx="12" cy="12" r="6.4" fill="#FFA726" stroke="#E8890B" stroke-width="1.2"/>
+                <circle cx="10.6" cy="10.6" r="1.9" fill="#FFCC66"/>
+              </svg>
+              <svg width="29" height="29" viewBox="0 0 24 24" fill="none">
+                <polygon points="12,2.5 14.47,9.1 21.51,9.41 15.99,13.8 17.88,20.59 12,16.7 6.12,20.59 8.01,13.8 2.49,9.41 9.53,9.1"
+                  fill="#F5B800" stroke="#D89A00" stroke-width="1.2" stroke-linejoin="round"/>
+                <polygon points="12,4.6 13.62,9.35 10.38,9.35" fill="#FFD75E"/>
+              </svg>
+            </div>
+            <p class="rt">本轮获得 1 颗星星</p>
+            <p class="rs">已完整学完本年级 3 轮 · 2 颗星星将合成 1 颗太阳</p>
+            <div class="divider"></div>
+            <p class="rs" style="margin-top:12px">累计 <b style="color:var(--text)">1 个太阳 · 1 颗星星</b></p>
+          </div>
+
+          <div class="grid">
+            <div class="stat"><p class="k">开始学习</p><p class="v">08-20 19:42</p></div>
+            <div class="stat"><p class="k">完成用时</p><p class="v">12 天 3 小时</p></div>
+            <div class="stat"><p class="k">拼错或不会</p><p class="v err">18 个</p></div>
+            <div class="stat"><p class="k">一次做对</p><p class="v ok">108 个</p></div>
+            <div class="stat"><p class="k">本轮积分</p><p class="v gold">+126</p></div>
+            <div class="stat"><p class="k">完成轮数</p><p class="v">第 3 轮</p></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 B · 年级通关</b></p>
+  </div>
+
+</div>
+
+<script>
+function defs(u){
+  return `
+  <defs>
+    <linearGradient id="cake${u}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#8B5CF6"/>
+      <stop offset="55%"  stop-color="#C13584"/>
+      <stop offset="100%" stop-color="#E1306C"/>
+    </linearGradient>
+    <linearGradient id="cream${u}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F4F0FF"/>
+    </linearGradient>
+    <linearGradient id="flame${u}" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%"   stop-color="#F56040"/>
+      <stop offset="52%"  stop-color="#FCAF45"/>
+      <stop offset="100%" stop-color="#FFE08A"/>
+    </linearGradient>
+    <linearGradient id="halo${u}" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#8B5CF6" stop-opacity=".16"/>
+      <stop offset="55%"  stop-color="#E1306C" stop-opacity=".10"/>
+      <stop offset="100%" stop-color="#FCAF45" stop-opacity=".07"/>
+    </linearGradient>
+  </defs>`;
+}
+function spark(cx,cy,s,fill,delay){
+  return `<path class="twinkle" style="animation-delay:${delay}s"
+    d="M${cx} ${cy-s} Q${cx+s*0.12} ${cy-s*0.12} ${cx+s} ${cy} Q${cx+s*0.12} ${cy+s*0.12} ${cx} ${cy+s} Q${cx-s*0.12} ${cy+s*0.12} ${cx-s} ${cy} Q${cx-s*0.12} ${cy-s*0.12} ${cx} ${cy-s} Z"
+    fill="${fill}"/>`;
+}
+/* 火苗：底部中心 (cx,by)，高 h，宽 w */
+function flame(cx,by,h,w,u,delay){
+  return `<g class="flick" style="animation-delay:${delay}s">
+    <path d="M${cx} ${by-h} C${cx+w*0.56} ${by-h*0.5} ${cx+w*0.5} ${by-0.6} ${cx} ${by} C${cx-w*0.5} ${by-0.6} ${cx-w*0.56} ${by-h*0.5} ${cx} ${by-h} Z" fill="url(#flame${u})"/>
+    <path d="M${cx} ${by-h*0.62} C${cx+w*0.26} ${by-h*0.38} ${cx+w*0.24} ${by-1} ${cx} ${by-0.8} C${cx-w*0.24} ${by-1} ${cx-w*0.26} ${by-h*0.38} ${cx} ${by-h*0.62} Z" fill="#FFF6D8" opacity=".9"/>
+  </g>`;
+}
+
+/* ── A：完整版庆祝蛋糕 ── */
+function iconA(u){
+  // 彩针：小斜线
+  const sprinkles=[[19,34.5],[25,37.5],[31,34],[37,37],[43,34.5],[22,44],[28,46.5],[34,44],[40,46],[46,44]];
+  const cols=["#FFFFFF","#FFD75E","#FFC2E4","#FFFFFF","#C9B6FF","#FFD75E","#FFFFFF","#FFC2E4","#FFD75E","#FFFFFF"];
+  const sp=sprinkles.map(([x,y],i)=>
+    `<path d="M${x} ${y} l3 -1.9" stroke="${cols[i]}" stroke-width="1.7" stroke-linecap="round" opacity=".95"/>`).join("");
+  return `<svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    ${defs(u)}
+    <circle cx="32" cy="33" r="29" fill="url(#halo${u})"/>
+
+    <!-- 彩纸屑 -->
+    <circle cx="8"  cy="20" r="2.1" fill="#FCAF45"/>
+    <circle cx="57" cy="24" r="2.3" fill="#E1306C"/>
+    <circle cx="6"  cy="40" r="1.7" fill="#8B5CF6"/>
+    <circle cx="58" cy="43" r="1.6" fill="#F56040"/>
+    <path d="M6 28 l3.4 -2.6" stroke="#A855E8" stroke-width="1.9" stroke-linecap="round"/>
+    <path d="M58 33 l-3.2 2.4" stroke="#FCAF45" stroke-width="1.9" stroke-linecap="round"/>
+    ${spark(10,53,3.4,"#FCAF45",.5)}
+    ${spark(55,55,3.0,"#A855E8",.66)}
+    ${spark(50,10,2.8,"#E1306C",.78)}
+
+    <!-- 盘子 -->
+    <path d="M15 52.5 H49" stroke="#E4DDF7" stroke-width="4" stroke-linecap="round"/>
+    <path d="M27 56 H37" stroke="#D9D0F2" stroke-width="3.2" stroke-linecap="round"/>
+
+    <!-- 蛋糕体 -->
+    <path d="M14 30 H50 V45 A6 6 0 0 1 44 51 H20 A6 6 0 0 1 14 45 Z" fill="url(#cake${u})"/>
+    ${sp}
+    <!-- 中间奶油夹层 -->
+    <path d="M14 39.5 q4.5 -3.4 9 0 t9 0 t9 0 t9 0" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".95"/>
+    <!-- 底层奶油裙 -->
+    <g fill="url(#cream${u})">
+      <circle cx="17.5" cy="50" r="3.6"/><circle cx="24.5" cy="51" r="3.4"/>
+      <circle cx="32" cy="51.5" r="3.6"/><circle cx="39.5" cy="51" r="3.4"/><circle cx="46.5" cy="50" r="3.6"/>
+    </g>
+
+    <!-- 顶部奶油 -->
+    <g fill="url(#cream${u})">
+      <rect x="13" y="26" width="38" height="7.5" rx="3.7"/>
+      <circle cx="18"   cy="25.5" r="5.4"/>
+      <circle cx="26.5" cy="23.6" r="6.1"/>
+      <circle cx="35"   cy="25.2" r="5.5"/>
+      <circle cx="43"   cy="23.8" r="5.9"/>
+      <circle cx="49.5" cy="26.4" r="4.8"/>
+    </g>
+
+    <!-- 蜡烛 -->
+    <rect x="20.3" y="14" width="3.6" height="12" rx="1.8" fill="#8B5CF6"/>
+    <rect x="30.2" y="10.5" width="3.6" height="15.5" rx="1.8" fill="#E1306C"/>
+    <rect x="40.1" y="14" width="3.6" height="12" rx="1.8" fill="#FCAF45"/>
+    <!-- 蜡烛斜纹 -->
+    <path d="M20.3 18.5 l3.6 -1.6" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+    <path d="M30.2 16 l3.6 -1.6" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+    <path d="M30.2 21 l3.6 -1.6" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+    <path d="M40.1 18.5 l3.6 -1.6" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+
+    <!-- 火苗 -->
+    ${flame(22.1,14.2,6.8,4.6,u,0)}
+    ${flame(32,10.7,7.6,5.1,u,.35)}
+    ${flame(41.9,14.2,6.8,4.6,u,.7)}
+  </svg>`;
+}
+
+/* ── B：极简蛋糕 ── */
+function iconB(u){
+  return `<svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    ${defs(u)}
+    <circle cx="32" cy="33" r="29" fill="url(#halo${u})"/>
+    <circle cx="9" cy="24" r="2.0" fill="#FCAF45"/>
+    <circle cx="56" cy="27" r="2.1" fill="#E1306C"/>
+    ${spark(11,48,3.2,"#A855E8",.55)}
+    ${spark(54,45,2.8,"#FCAF45",.72)}
+
+    <path d="M18 51 H46" stroke="#E4DDF7" stroke-width="3.6" stroke-linecap="round"/>
+    <path d="M15 34 H49 V44 A5 5 0 0 1 44 49 H20 A5 5 0 0 1 15 44 Z" fill="url(#cake${u})"/>
+    <path d="M15 30.5 q4.25 -3.6 8.5 0 t8.5 0 t8.5 0 t8.5 0" stroke="url(#cream${u})" stroke-width="5.4" stroke-linecap="round" fill="none"/>
+    <path d="M15 30.5 q4.25 -3.6 8.5 0 t8.5 0 t8.5 0 t8.5 0" stroke="#FFFFFF" stroke-width="4.2" stroke-linecap="round" fill="none"/>
+
+    <rect x="23" y="16" width="3.2" height="11" rx="1.6" fill="#8B5CF6"/>
+    <rect x="30.4" y="13" width="3.2" height="14" rx="1.6" fill="#E1306C"/>
+    <rect x="37.8" y="16" width="3.2" height="11" rx="1.6" fill="#FCAF45"/>
+    ${flame(24.6,16.2,6.0,4.1,u,0)}
+    ${flame(32,13.2,6.6,4.4,u,.35)}
+    ${flame(39.4,16.2,6.0,4.1,u,.7)}
+  </svg>`;
+}
+
+/* ── C：切片蛋糕（正面看得到夹心） ── */
+function iconC(u){
+  return `<svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    ${defs(u)}
+    <circle cx="32" cy="33" r="29" fill="url(#halo${u})"/>
+    <circle cx="7" cy="26" r="2.0" fill="#FCAF45"/>
+    <circle cx="57" cy="22" r="2.2" fill="#E1306C"/>
+    <circle cx="58" cy="44" r="1.7" fill="#8B5CF6"/>
+    ${spark(9,44,3.2,"#E1306C",.55)}
+    ${spark(55,55,3.0,"#FCAF45",.72)}
+
+    <path d="M14 52.5 H50" stroke="#E4DDF7" stroke-width="4" stroke-linecap="round"/>
+    <path d="M26.5 56 H37.5" stroke="#D9D0F2" stroke-width="3.2" stroke-linecap="round"/>
+
+    <!-- 蛋糕胚（三层夹心） -->
+    <path d="M15 34 H49 V46 A5 5 0 0 1 44 51 H20 A5 5 0 0 1 15 46 Z" fill="#F6C56B"/>
+    <rect x="15" y="38.5" width="34" height="4.6" fill="url(#cake${u})"/>
+    <rect x="15" y="45" width="34" height="4.2" fill="#F3E3C0"/>
+    <path d="M15 34 H49 V37 H15 Z" fill="#FFF4DC"/>
+
+    <!-- 顶部奶油 -->
+    <g fill="url(#cream${u})">
+      <rect x="14" y="29" width="36" height="6.5" rx="3.2"/>
+      <circle cx="19" cy="28.6" r="4.8"/>
+      <circle cx="27" cy="27" r="5.4"/>
+      <circle cx="35" cy="28.4" r="4.9"/>
+      <circle cx="43" cy="27.2" r="5.2"/>
+      <circle cx="48.5" cy="29.4" r="4.3"/>
+    </g>
+    <!-- 顶部一颗樱桃 -->
+    <circle cx="32" cy="22.4" r="3.4" fill="#E1306C"/>
+    <path d="M32 19.2 q1.4 -2.6 3.4 -3.2" stroke="#1D9E75" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+
+    <!-- 蜡烛（2 根，避让樱桃） -->
+    <rect x="22.5" y="15" width="3.4" height="13" rx="1.7" fill="#8B5CF6"/>
+    <rect x="38.1" y="15" width="3.4" height="13" rx="1.7" fill="#FCAF45"/>
+    ${flame(24.2,15.2,6.4,4.4,u,.1)}
+    ${flame(39.8,15.2,6.4,4.4,u,.5)}
+  </svg>`;
+}
+
+const MAKE={A:iconA,B:iconB,C:iconC};
+let uid=0;
+function render(key){
+  uid++;
+  document.querySelectorAll("[data-badge]").forEach(el=>{
+    el.innerHTML=MAKE[key]("g"+uid+Math.random().toString(36).slice(2,6));
+  });
+}
+["A","B","C"].forEach(k=>{document.getElementById("cv"+k).innerHTML=MAKE[k]("c"+k);});
+document.querySelectorAll(".cand").forEach(el=>{
+  el.addEventListener("click",()=>{
+    document.querySelectorAll(".cand").forEach(x=>x.classList.remove("on"));
+    el.classList.add("on");
+    render(el.dataset.k);
+  });
+});
+render("A");
+</script>
+
+</body>
+</html>

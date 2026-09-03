@@ -32,6 +32,7 @@ import {
   sunsOf,
   starsOf,
 } from "../components/RoundsStars";
+import { TrophyIcon } from "../components/TrophyIcon";
 
 interface LearnPageProps {
   onExit: () => void;
@@ -992,8 +993,8 @@ export default function LearnPage({
       {celebration && (
         <div className="absolute inset-0 z-40 overflow-y-auto bg-primary-lighter px-8 py-12">
           <div className="mx-auto flex h-full max-w-sm flex-col items-center text-center">
-            <div className="text-5xl animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)]">
-              🎉
+            <div className="animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)]">
+              <TrophyIcon size={120} variant="A" />
             </div>
             {celebration.level === "unit" ? (
               (() => {

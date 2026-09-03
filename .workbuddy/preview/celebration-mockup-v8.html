@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>祝贺页 · 奖杯图标 · 效果图 v8（抽象线条版）</title>
+<style>
+  :root{
+    --primary:#534AB7; --primary-2:#6C5CE7;
+    --bg:#F8F7FF; --surface:#FFFFFF;
+    --text:#1F1D2E; --text2:#6B6780; --text3:#9B98AD;
+    --success:#1D9E75; --error:#E24B4A; --gold:#F5B800;
+    --card-shadow:0 6px 24px rgba(83,74,183,.08);
+    --btn-shadow:0 8px 22px rgba(83,74,183,.32);
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{
+    margin:0;padding:32px 24px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:#F1EFFB;color:var(--text);
+  }
+  h1{font-size:22px;margin:0 0 6px}
+  .lead{color:var(--text2);font-size:14px;margin:0 0 26px;line-height:1.75;max-width:900px}
+  .lead b{color:var(--text)}
+  .sec-title{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--text3);margin:0 0 14px;text-transform:uppercase}
+
+  .cand-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:34px}
+  .cand{
+    width:250px;background:var(--surface);border:2px solid transparent;border-radius:22px;padding:16px 14px 14px;
+    box-shadow:var(--card-shadow);cursor:pointer;text-align:center;transition:.18s;
+  }
+  .cand:hover{transform:translateY(-2px)}
+  .cand.on{border-color:var(--primary);box-shadow:0 10px 28px rgba(83,74,183,.20)}
+  .cand .cv{width:132px;height:128px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+  .cand .cv svg{width:118px;height:114px;display:block}
+  .cand .cn{font-size:13.5px;font-weight:700}
+  .cand .cd{font-size:11.5px;color:var(--text3);line-height:1.7;margin-top:5px}
+
+  .sizes{display:flex;align-items:flex-end;gap:22px;background:var(--surface);border-radius:18px;
+    padding:16px 22px;box-shadow:var(--card-shadow);margin-bottom:34px;flex-wrap:wrap}
+  .sizes .s{text-align:center}
+  .sizes .s span{display:block;font-size:11px;color:var(--text3);margin-top:8px}
+  .sizes .lb{font-size:11.5px;color:var(--text2);line-height:1.7;margin-right:6px;max-width:150px}
+
+  .stage{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+  .phone{
+    width:376px;height:790px;border-radius:44px;background:#12121A;padding:11px;
+    box-shadow:0 24px 60px rgba(31,29,46,.24);flex:0 0 auto;
+  }
+  .screen{
+    position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;
+    display:flex;flex-direction:column;
+    background:
+      radial-gradient(circle at 50% -6%,rgba(124,107,245,.16),rgba(124,107,245,0) 58%),
+      radial-gradient(circle at 92% 12%,rgba(245,184,0,.12),rgba(245,184,0,0) 46%),
+      linear-gradient(180deg,#F8F7FF 0%,#FDFCFF 38%,#FFFFFF 100%);
+  }
+  .status{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:600;flex:0 0 auto}
+  .content{flex:1 1 auto;overflow-y:auto;padding:8px 22px 20px}
+  .content::-webkit-scrollbar{width:0}
+
+  .badge{width:150px;height:150px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+  .badge svg{width:140px;height:140px;display:block;animation:trophyIn .85s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes trophyIn{0%{opacity:0;transform:scale(.7) translateY(14px)}60%{opacity:1;transform:scale(1.05) translateY(0)}100%{opacity:1;transform:scale(1) translateY(0)}}
+  .twinkle{animation:tw .5s ease both;transform-box:fill-box;transform-origin:center}
+  @keyframes tw{0%{opacity:0;transform:scale(0)}100%{opacity:1;transform:scale(1)}}
+  .sparkle{animation:sparkle 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  @keyframes sparkle{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.18);opacity:1}}
+  .bowSway{animation:bow 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center top}
+  @keyframes bow{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+
+  h2.title{text-align:center;font-size:20px;font-weight:700;margin:6px 0 0;letter-spacing:-.01em}
+  p.sub{text-align:center;font-size:13.5px;line-height:1.75;color:var(--text2);margin:8px 4px 0}
+  p.sub b{color:var(--text);font-weight:600}
+
+  .card{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:20px;box-shadow:var(--card-shadow);padding:18px 16px}
+  .reward{margin-top:16px;text-align:center;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.12s;
+    background:linear-gradient(160deg,#FFFFFF 0%,#FBF9FF 100%)}
+  .reward .row{display:flex;align-items:center;justify-content:center;gap:10px}
+  .reward .rt{font-size:14px;font-weight:700;margin-top:12px}
+  .reward .rs{font-size:11.5px;color:var(--text3);margin-top:5px}
+  .divider{height:1px;background:linear-gradient(90deg,rgba(83,74,183,0),rgba(83,74,183,.14),rgba(83,74,183,0));margin:14px 0 0}
+  @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .stat{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:14px;padding:11px 12px 12px;box-shadow:0 2px 10px rgba(83,74,183,.05)}
+  .stat .k{font-size:11px;color:var(--text3);font-weight:500}
+  .stat .v{font-size:14px;font-weight:700;margin-top:5px}
+  .v.gold{color:var(--gold)} .v.ok{color:var(--success)} .v.err{color:var(--error)}
+
+  .quote{margin-top:16px;padding:16px 16px 14px;border-radius:20px;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#FFFAEB 0%,#FFF4D6 100%);
+    border:1px solid rgba(245,184,0,.22);box-shadow:0 6px 20px rgba(245,184,0,.10);
+    animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .quote::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,#F5B800,#FFD75E)}
+  .quote .mark{position:absolute;right:14px;top:6px;font-size:40px;line-height:1;color:rgba(245,184,0,.20);font-family:Georgia,serif}
+  .quote .en{font-size:13.5px;font-style:italic;line-height:1.7;color:#8A5A0B}
+  .quote .cn{font-size:13.5px;font-weight:700;line-height:1.7;color:#7A4E08;margin-top:8px}
+  .quote .mv{font-size:11.5px;color:rgba(122,78,8,.62);margin-top:8px}
+
+  .actions{padding:14px 22px 22px;flex:0 0 auto;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#FFFFFF 34%)}
+  .btn-main{display:block;width:100%;padding:15px 0;border:none;border-radius:999px;
+    background:linear-gradient(135deg,#6C5CE7 0%,#534AB7 100%);color:#fff;font-size:15.5px;font-weight:700;box-shadow:var(--btn-shadow)}
+  .btn-ghost{display:block;width:100%;padding:13px 0;margin-top:10px;border-radius:999px;
+    background:var(--surface);border:1px solid rgba(83,74,183,.18);color:var(--primary);font-size:14px;font-weight:600}
+  .btn-line{display:block;width:100%;padding:8px 0;margin-top:6px;border:none;background:none;color:var(--text3);font-size:13px;font-weight:500}
+  .caption{text-align:center;font-size:12px;color:var(--text2);margin-top:12px}
+  .caption b{color:var(--text)}
+</style>
+</head>
+<body>
+
+<h1>祝贺页 · 奖杯图标 v8（抽象线条版）</h1>
+<p class="lead">
+    按你说的<b>不还原原图</b>，只提取参考图 3 的灵魂元素（<b>奖杯 + 大蝴蝶结 + 星</b>），
+    抽象成<b>单色线条勾勒</b>：<b>零渐变、零高光块、零阴影</b>，
+    全部是 <code>stroke</code> 圆头线条，描边宽度统一 <code>2.8</code>，round cap / linejoin。
+    只保留 <b>紫 + 金</b> 两色：杯体用 App 主色紫 <code>#534AB7</code>，
+    蝴蝶结与星用金 <code>#F5B800</code>（跟页面紫调同源 + 奖杯金点缀）。
+  </p>
+
+<p class="sec-title">候选图标（点击切换）</p>
+<div class="cand-row" id="candRow">
+  <div class="cand on" data-k="A">
+    <div class="cv" id="cvA"></div>
+    <p class="cn">A · 最简（12 笔）</p>
+    <p class="cd">杯口 + 杯身 + 双耳 + 杯柱 + 底座<br>+ 金色蝴蝶结，无星</p>
+  </div>
+  <div class="cand" data-k="B">
+    <div class="cv" id="cvB"></div>
+    <p class="cn">B · 加中央星徽</p>
+    <p class="cd">A + 杯身中央一颗金星<br>成就语义更明确</p>
+  </div>
+  <div class="cand" data-k="C">
+    <div class="cv" id="cvC"></div>
+    <p class="cn">C · 加星屑</p>
+    <p class="cd">B + 3 颗小金星屑<br>庆祝感更强，笔画仍很少</p>
+  </div>
+</div>
+
+<p class="sec-title">小尺寸可辨识度</p>
+<div class="sizes">
+  <p class="lb">同一套形状，不做分档简化</p>
+  <div class="s" id="s1"><span>24px</span></div>
+  <div class="s" id="s2"><span>40px</span></div>
+  <div class="s" id="s3"><span>64px</span></div>
+</div>
+
+<p class="sec-title">真机效果</p>
+<div class="stage">
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge" data-badge></div>
+          <h2 class="title">恭喜完成四年级上册第 3 单元！</h2>
+          <p class="sub"><b>My Schoolbag</b> —— 通过努力学习，你完成了本单元的听写练习，太棒了！</p>
+          <div class="quote">
+            <span class="mark">”</span>
+            <p class="en">Carpe diem. Seize the day, boys.</p>
+            <p class="cn">及时行乐，孩子们，把握当下。</p>
+            <p class="mv">—— 电影《死亡诗社》</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-ghost">重新学习本单元</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 A · 单元完成</b></p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge" data-badge></div>
+          <h2 class="title">恭喜通关四年级上册！</h2>
+          <p class="sub"><b>8 个单元、126 个词条</b>全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！</p>
+
+          <div class="card reward">
+            <div class="row">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                <polygon points="10.5,5.8 13.5,5.8 12,1.4" fill="#F59E0B"/><polygon points="10.5,18.2 13.5,18.2 12,22.6" fill="#F59E0B"/>
+                <polygon points="5.8,10.5 5.8,13.5 1.4,12" fill="#F59E0B"/><polygon points="18.2,10.5 18.2,13.5 22.6,12" fill="#F59E0B"/>
+                <polygon points="15.32,17.45 17.45,15.32 19.5,19.5" fill="#F59E0B"/><polygon points="6.56,15.32 8.68,17.45 4.51,19.5" fill="#F59E0B"/>
+                <polygon points="8.68,6.56 6.56,8.68 4.51,4.51" fill="#F59E0B"/><polygon points="17.45,8.68 15.32,6.56 19.5,4.51" fill="#F59E0B"/>
+                <circle cx="12" cy="12" r="6.4" fill="#FFA726" stroke="#E8890B" stroke-width="1.2"/>
+                <circle cx="10.6" cy="10.6" r="1.9" fill="#FFCC66"/>
+              </svg>
+              <svg width="29" height="29" viewBox="0 0 24 24" fill="none">
+                <polygon points="12,2.5 14.47,9.1 21.51,9.41 15.99,13.8 17.88,20.59 12,16.7 6.12,20.59 8.01,13.8 2.49,9.41 9.53,9.1"
+                  fill="#F5B800" stroke="#D89A00" stroke-width="1.2" stroke-linejoin="round"/>
+                <polygon points="12,4.6 13.62,9.35 10.38,9.35" fill="#FFD75E"/>
+              </svg>
+            </div>
+            <p class="rt">本轮获得 1 颗星星</p>
+            <p class="rs">已完整学完本年级 3 轮 · 2 颗星星将合成 1 颗太阳</p>
+            <div class="divider"></div>
+            <p class="rs" style="margin-top:12px">累计 <b style="color:var(--text)">1 个太阳 · 1 颗星星</b></p>
+          </div>
+
+          <div class="grid">
+            <div class="stat"><p class="k">开始学习</p><p class="v">08-20 19:42</p></div>
+            <div class="stat"><p class="k">完成用时</p><p class="v">12 天 3 小时</p></div>
+            <div class="stat"><p class="k">拼错或不会</p><p class="v err">18 个</p></div>
+            <div class="stat"><p class="k">一次做对</p><p class="v ok">108 个</p></div>
+            <div class="stat"><p class="k">本轮积分</p><p class="v gold">+126</p></div>
+            <div class="stat"><p class="k">完成轮数</p><p class="v">第 3 轮</p></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 B · 年级通关</b></p>
+  </div>
+
+</div>
+
+<script>
+/* ── 只有两色：主色紫（杯体）+ 金（蝴蝶结/星） ── */
+const V = "#534AB7";   // 紫：杯体线条
+const G = "#F5B800";   // 金：蝴蝶结 + 星
+
+/* 五角星（纯填充，无描边） */
+function star(cx,cy,r,fill){
+  const pts=[];
+  for(let i=0;i<10;i++){
+    const a=(-90+i*36)*Math.PI/180;
+    const rr=(i%2===0)?r:r*0.42;
+    pts.push((cx+rr*Math.cos(a)).toFixed(2)+","+(cy+rr*Math.sin(a)).toFixed(2));
+  }
+  return `<polygon points="${pts.join(" ")}" fill="${fill}"/>`;
+}
+
+/* ── 蝴蝶结：4 笔（左环 / 右环 / 中央结 / 两条飘带） ── */
+function bow(){
+  return `
+  <g class="bowSway">
+    <!-- 左飘带 -->
+    <path d="M29.5 39 L22 48" stroke="${G}" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+    <!-- 右飘带 -->
+    <path d="M34.5 39 L42 48" stroke="${G}" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+    <!-- 左环 -->
+    <path d="M31 36.5 Q21.5 31.5 19 37.5 Q23.5 42 31 36.5 Z" stroke="${G}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 右环 -->
+    <path d="M33 36.5 Q42.5 31.5 45 37.5 Q40.5 42 33 36.5 Z" stroke="${G}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 中央结 -->
+    <circle cx="32" cy="36.8" r="2.4" fill="${G}"/>
+  </g>`;
+}
+
+/* ── 杯体：8 笔 ── */
+function cup(){
+  return `
+  <!-- 杯口沿（一条粗横线） -->
+  <path d="M14 10 H50" stroke="${V}" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+
+  <!-- 杯身（碗形，一条闭合线） -->
+  <path d="M18 12.5 H46 L41.5 30 Q32 36 22.5 30 Z" stroke="${V}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- 双耳把手（两条 C 弧） -->
+  <path d="M18 15 C8.5 16 8.5 25.5 20.5 29.5" stroke="${V}" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+  <path d="M46 15 C55.5 16 55.5 25.5 43.5 29.5" stroke="${V}" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+
+  <!-- 杯柱（一条竖线） -->
+  <path d="M32 33 V42" stroke="${V}" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+
+  <!-- 底座（两条横线：上短下长） -->
+  <path d="M25.5 44 H38.5" stroke="${V}" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+  <path d="M20.5 49.5 H43.5" stroke="${V}" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+  `;
+}
+
+/* ── A：最简（杯体 8 笔 + 蝴蝶结 4 笔 = 12 笔） ── */
+function iconA(){
+  return `<svg viewBox="0 0 64 58" fill="none" aria-hidden="true">
+    ${cup()}
+    ${bow()}
+  </svg>`;
+}
+
+/* ── B：+ 杯身中央金星徽 ── */
+function iconB(){
+  return `<svg viewBox="0 0 64 58" fill="none" aria-hidden="true">
+    ${cup()}
+    ${star(32,21,4.6,G)}
+    ${bow()}
+  </svg>`;
+}
+
+/* ── C：+ 3 颗小金星屑 ── */
+function iconC(){
+  return `<svg viewBox="0 0 64 58" fill="none" aria-hidden="true">
+    ${cup()}
+    ${star(32,21,4.6,G)}
+    ${bow()}
+    <g class="sparkle">
+      ${star(6,17,2.4,G)}
+      ${star(58,20,2.1,G)}
+      ${star(8,52,1.9,G)}
+    </g>
+  </svg>`;
+}
+
+const MAKE={A:iconA,B:iconB,C:iconC};
+function render(key){
+  document.querySelectorAll("[data-badge]").forEach(el=>{el.innerHTML=MAKE[key]();});
+  const w=[24,40,64], h=[22,36,58];
+  ["s1","s2","s3"].forEach((id,i)=>{
+    document.getElementById(id).innerHTML=`<div style="width:${w[i]}px;height:${h[i]}px">${MAKE[key]()}</div><span>${w[i]}px</span>`;
+  });
+  document.querySelectorAll("#s1 svg,#s2 svg,#s3 svg").forEach(s=>{
+    s.style.width="100%";s.style.height="100%";s.style.animation="none";
+  });
+}
+["A","B","C"].forEach(k=>{document.getElementById("cv"+k).innerHTML=MAKE[k]();});
+document.querySelectorAll(".cand").forEach(el=>{
+  el.addEventListener("click",()=>{
+    document.querySelectorAll(".cand").forEach(x=>x.classList.remove("on"));
+    el.classList.add("on");
+    render(el.dataset.k);
+  });
+});
+render("A");
+</script>
+
+</body>
+</html>

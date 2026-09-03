@@ -25,6 +25,7 @@ const CURRICULUM_DESC: Record<CurriculumVersion, string> = {
   waiyanshe: "外研社 · 一年级起点（1-9 年级，三年级起自动跳过已学词）",
   waiyanshe3: "外研社 · 三年级起点（3-9 年级，按教材原样）",
   oxford: "沪教牛津 · 1-6 年级起始 + 初中牛津上海版",
+  renai: "仁爱版 · Project English（初中 7-9 年级，每个 Topic 一单元）",
 };
 
 const VERSIONS: CurriculumVersion[] = [
@@ -33,6 +34,7 @@ const VERSIONS: CurriculumVersion[] = [
   "waiyanshe",
   "waiyanshe3",
   "oxford",
+  "renai",
 ];
 
 const ACCENTS: { id: Accent; label: string; desc: string }[] = [

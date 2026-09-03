@@ -1670,6 +1670,22 @@ export const makeWaiyansheEntry: EntryFactory = (g, u, t, en, ph, cn) =>
 export const makeOxfordEntry: EntryFactory = (g, u, t, en, ph, cn) =>
   mkWithPrefix("ox", g, u, t, en, ph, cn);
 
+/**
+ * 仁爱版词条工厂。
+ *
+ * ⚠️ 仁爱版只有 7-9 年级，调用 applyKebiaoTo 时 **elemGrades 与 midGrades
+ * 的年级必须不相交**（本项目用 elemGrades=[7]、midGrades=[8,9]）。
+ * 两个原因：
+ *  1. applyKebiaoTo 的 lastUnitOfGrade 是一次性预先算好的，insertKebiaoUnits
+ *     只 splice 不重编号——两段都含 7 年级的话，小学词与初中词会都从 unit 25
+ *     开始，单元号撞车。
+ *  2. elemGrades 传空数组时，buildKebiaoUnits 的 `if (elemGrades.length)`
+ *     会让 band=2 小学词被**静默丢弃**，看起来"补了"实际没补。
+ * 其余教材是 1-9 年级（elem 3-6 / mid 7-9 天然不相交），不受此限制。
+ */
+export const makeRenaiEntry: EntryFactory = (g, u, t, en, ph, cn) =>
+  mkWithPrefix("ra", g, u, t, en, ph, cn);
+
 function normText(s: string): string {
   return s.trim().toLowerCase();
 }

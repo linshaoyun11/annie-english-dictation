@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>祝贺页改版 · 效果图</title>
+<style>
+  :root{
+    --primary:#534AB7; --primary-2:#6C5CE7; --primary-light:#EDEBFF; --primary-lighter:#F4F2FF;
+    --bg:#F8F7FF; --surface:#FFFFFF;
+    --text:#1F1D2E; --text2:#6B6780; --text3:#9B98AD;
+    --success:#1D9E75; --error:#E24B4A; --gold:#F5B800;
+    --card-shadow:0 6px 24px rgba(83,74,183,.08);
+    --btn-shadow:0 8px 22px rgba(83,74,183,.32);
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{
+    margin:0;padding:32px 24px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:#F1EFFB;color:var(--text);
+  }
+  h1{font-size:22px;margin:0 0 6px}
+  .lead{color:var(--text2);font-size:14px;margin:0 0 28px;line-height:1.7}
+  .sec-title{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--text3);margin:0 0 14px;text-transform:uppercase}
+
+  .stage{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+
+  /* ── 图标设计区 ── */
+  .icon-panel{
+    flex:0 0 300px;background:var(--surface);border-radius:24px;padding:22px;
+    box-shadow:var(--card-shadow);border:1px solid rgba(83,74,183,.07);
+  }
+  .glow{
+    width:132px;height:132px;margin:6px auto 4px;border-radius:50%;
+    background:radial-gradient(circle at 50% 50%,rgba(124,107,245,.20),rgba(124,107,245,.05) 55%,rgba(255,255,255,0) 72%);
+    display:flex;align-items:center;justify-content:center;
+    animation:breathe 3.4s ease-in-out infinite;
+  }
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+  .glow svg{width:96px;height:96px;animation:burst 1.1s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes burst{0%{opacity:0;transform:scale(.55) rotate(-14deg)}60%{opacity:1;transform:scale(1.07) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+  .spark{animation:sparkIn .5s ease both;transform-origin:center;transform-box:fill-box}
+  @keyframes sparkIn{0%{opacity:0;transform:scale(0)}100%{opacity:1;transform:scale(1)}}
+  .size-row{display:flex;align-items:center;justify-content:space-around;margin:18px 0 4px;padding-top:16px;border-top:1px solid rgba(83,74,183,.08)}
+  .size-row div{text-align:center;color:var(--text3);font-size:11px}
+  .size-row svg{display:block;margin:0 auto 6px}
+  .note{font-size:12px;line-height:1.8;color:var(--text2);margin-top:16px;padding-top:14px;border-top:1px solid rgba(83,74,183,.08)}
+  .note b{color:var(--text)}
+
+  /* ── 手机 ── */
+  .phone-wrap{display:flex;flex-wrap:wrap;gap:26px}
+  .phone{
+    width:376px;height:790px;border-radius:44px;background:#12121A;padding:11px;
+    box-shadow:0 24px 60px rgba(31,29,46,.24);flex:0 0 auto;
+  }
+  .screen{
+    position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;
+    display:flex;flex-direction:column;
+    background:
+      radial-gradient(circle at 50% -6%,rgba(124,107,245,.16),rgba(124,107,245,0) 58%),
+      radial-gradient(circle at 92% 12%,rgba(245,184,0,.12),rgba(245,184,0,0) 46%),
+      linear-gradient(180deg,#F8F7FF 0%,#FDFCFF 38%,#FFFFFF 100%);
+  }
+  .status{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:600;color:var(--text);flex:0 0 auto}
+  .content{flex:1 1 auto;overflow-y:auto;padding:8px 22px 20px}
+  .content::-webkit-scrollbar{width:0}
+
+  .badge{width:112px;height:112px;margin:6px auto 0;border-radius:50%;
+    background:radial-gradient(circle at 50% 50%,rgba(124,107,245,.18),rgba(124,107,245,.04) 56%,rgba(255,255,255,0) 74%);
+    display:flex;align-items:center;justify-content:center;animation:breathe 3.4s ease-in-out infinite}
+  .badge svg{width:82px;height:82px}
+
+  h2.title{text-align:center;font-size:20px;font-weight:700;margin:10px 0 0;letter-spacing:-.01em}
+  p.sub{text-align:center;font-size:13.5px;line-height:1.75;color:var(--text2);margin:8px 4px 0}
+  p.sub b{color:var(--text);font-weight:600}
+
+  .card{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:20px;box-shadow:var(--card-shadow);padding:18px 16px}
+
+  /* 奖励卡 */
+  .reward{margin-top:18px;text-align:center;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.12s;
+    background:linear-gradient(160deg,#FFFFFF 0%,#FBF9FF 100%)}
+  .reward .row{display:flex;align-items:center;justify-content:center;gap:10px}
+  .reward .rt{font-size:14px;font-weight:700;margin-top:12px}
+  .reward .rs{font-size:11.5px;color:var(--text3);margin-top:5px}
+  .divider{height:1px;background:linear-gradient(90deg,rgba(83,74,183,0),rgba(83,74,183,.14),rgba(83,74,183,0));margin:14px 0 0}
+
+  /* 统计网格 */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .stat{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:14px;padding:11px 12px 12px;box-shadow:0 2px 10px rgba(83,74,183,.05)}
+  .stat .k{font-size:11px;color:var(--text3);font-weight:500}
+  .stat .v{font-size:14px;font-weight:700;margin-top:5px;letter-spacing:-.01em}
+  .v.gold{color:var(--gold)} .v.ok{color:var(--success)} .v.err{color:var(--error)}
+  @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* 台词卡 */
+  .quote{margin-top:16px;padding:16px 16px 14px;border-radius:20px;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#FFFAEB 0%,#FFF4D6 100%);
+    border:1px solid rgba(245,184,0,.22);box-shadow:0 6px 20px rgba(245,184,0,.10);
+    animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .quote::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,#F5B800,#FFD75E)}
+  .quote .mark{position:absolute;right:14px;top:6px;font-size:40px;line-height:1;color:rgba(245,184,0,.20);font-family:Georgia,serif}
+  .quote .en{font-size:13.5px;font-style:italic;line-height:1.7;color:#8A5A0B}
+  .quote .cn{font-size:13.5px;font-weight:700;line-height:1.7;color:#7A4E08;margin-top:8px}
+  .quote .mv{font-size:11.5px;color:rgba(122,78,8,.62);margin-top:8px}
+
+  /* 按钮 */
+  .actions{padding:14px 22px 22px;flex:0 0 auto;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#FFFFFF 34%)}
+  .btn-main{display:block;width:100%;padding:15px 0;border:none;border-radius:999px;
+    background:linear-gradient(135deg,#6C5CE7 0%,#534AB7 100%);color:#fff;font-size:15.5px;font-weight:700;
+    box-shadow:var(--btn-shadow);letter-spacing:.01em}
+  .btn-ghost{display:block;width:100%;padding:13px 0;margin-top:10px;border-radius:999px;
+    background:var(--surface);border:1px solid rgba(83,74,183,.18);color:var(--primary);font-size:14px;font-weight:600}
+  .btn-line{display:block;width:100%;padding:8px 0;margin-top:6px;border:none;background:none;color:var(--text3);font-size:13px;font-weight:500}
+
+  .caption{text-align:center;font-size:12px;color:var(--text2);margin-top:12px}
+  .caption b{color:var(--text)}
+</style>
+</head>
+<body>
+
+<h1>祝贺页改版 · 效果图（未改代码，仅供确认）</h1>
+<p class="lead">
+  两处核心变化：<b>① 烟花图标改为自绘 SVG</b>（不再用系统 emoji 🎉，各机型/系统版本观感一致）；
+  <b>② 整页配色与卡片层级重做</b>——沿用主色 #534AB7，改为「浅紫渐变底 + 顶部柔光 + 白卡 + 大圆角 + 紫调投影」，
+  去掉原来的纯色平铺背景与硬边小卡。下方两个状态分别是<b>单元完成</b>与<b>年级通关</b>。
+</p>
+
+<div class="stage">
+
+  <!-- 图标设计 -->
+  <div class="icon-panel">
+    <p class="sec-title">自绘烟花图标</p>
+    <div class="glow">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ray" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#7C6BF5"/><stop offset="55%" stop-color="#9B7BF0"/><stop offset="100%" stop-color="#F5B800"/>
+          </linearGradient>
+          <linearGradient id="ray2" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#A79BF7"/><stop offset="100%" stop-color="#FFC94D"/>
+          </linearGradient>
+        </defs>
+        <!-- 主束：12 条放射线，长短交替 -->
+        <g stroke="url(#ray)" stroke-width="2.4" stroke-linecap="round">
+          <path d="M38 28 L38 7"/><path d="M38 28 L44.5 16.7"/><path d="M38 28 L56.2 17.5"/>
+          <path d="M38 28 L51 28"/><path d="M38 28 L56.2 38.5"/><path d="M38 28 L44.5 39.3"/>
+          <path d="M38 28 L38 49"/><path d="M38 28 L31.5 39.3"/><path d="M38 28 L19.8 38.5"/>
+          <path d="M38 28 L25 28"/><path d="M38 28 L19.8 17.5"/><path d="M38 28 L31.5 16.7"/>
+        </g>
+        <!-- 主束端点：长端金色、短端紫色 -->
+        <g>
+          <circle cx="38" cy="7" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+          <circle cx="56.2" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="51" cy="28" r="1.9" fill="#7C6BF5"/>
+          <circle cx="56.2" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+          <circle cx="38" cy="49" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+          <circle cx="19.8" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="25" cy="28" r="1.9" fill="#7C6BF5"/>
+          <circle cx="19.8" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+        </g>
+        <!-- 主束中心 -->
+        <circle cx="38" cy="28" r="3" fill="#fff" stroke="#6C5CE7" stroke-width="1.6"/>
+
+        <!-- 副束：更细更小，压低存在感 -->
+        <g stroke="url(#ray2)" stroke-width="1.7" stroke-linecap="round" opacity=".9">
+          <path d="M16 48 L16 35"/><path d="M16 48 L21.7 42.3"/><path d="M16 48 L29 48"/><path d="M16 48 L21.7 53.7"/>
+          <path d="M16 48 L16 61"/><path d="M16 48 L10.3 53.7"/><path d="M16 48 L3 48"/><path d="M16 48 L10.3 42.3"/>
+        </g>
+        <circle cx="16" cy="35" r="1.9" fill="#F5B800"/><circle cx="29" cy="48" r="1.9" fill="#F5B800"/>
+        <circle cx="16" cy="61" r="1.9" fill="#F5B800"/><circle cx="3" cy="48" r="1.9" fill="#F5B800"/>
+        <circle cx="16" cy="48" r="2.3" fill="#fff" stroke="#A79BF7" stroke-width="1.4"/>
+
+        <!-- 星芒点缀 -->
+        <path class="spark" style="animation-delay:.45s" d="M55 48 Q55.9 47.1 59 47 Q55.9 46.1 55 42 Q54.1 46.1 51 47 Q54.1 47.1 55 48 Z" fill="#F5B800"/>
+        <path class="spark" style="animation-delay:.6s" d="M8 15 Q8.7 14.3 11 14 Q8.7 13.3 8 10 Q7.3 13.3 5 14 Q7.3 14.3 8 15 Z" fill="#A79BF7"/>
+        <path class="spark" style="animation-delay:.72s" d="M46 60 Q46.5 59.5 48 59 Q46.5 58.5 46 57 Q45.5 58.5 44 59 Q45.5 59.5 46 60 Z" fill="#FFC94D"/>
+      </svg>
+    </div>
+
+    <div class="size-row">
+      <div><svg viewBox="0 0 64 64" width="26" height="26" fill="none">
+        <g stroke="url(#ray)" stroke-width="3" stroke-linecap="round">
+          <path d="M38 28 L38 7"/><path d="M38 28 L56.2 17.5"/><path d="M38 28 L51 28"/><path d="M38 28 L56.2 38.5"/>
+          <path d="M38 28 L38 49"/><path d="M38 28 L19.8 38.5"/><path d="M38 28 L25 28"/><path d="M38 28 L19.8 17.5"/>
+        </g><circle cx="38" cy="7" r="3" fill="#F5B800"/><circle cx="38" cy="49" r="3" fill="#F5B800"/>
+        <circle cx="56.2" cy="17.5" r="3" fill="#F5B800"/><circle cx="19.8" cy="38.5" r="3" fill="#F5B800"/>
+        <circle cx="38" cy="28" r="3.4" fill="#fff" stroke="#6C5CE7" stroke-width="2"/></svg>26px</div>
+      <div><svg viewBox="0 0 64 64" width="40" height="40" fill="none">
+        <g stroke="url(#ray)" stroke-width="2.6" stroke-linecap="round">
+          <path d="M38 28 L38 7"/><path d="M38 28 L44.5 16.7"/><path d="M38 28 L56.2 17.5"/><path d="M38 28 L51 28"/>
+          <path d="M38 28 L56.2 38.5"/><path d="M38 28 L44.5 39.3"/><path d="M38 28 L38 49"/><path d="M38 28 L31.5 39.3"/>
+          <path d="M38 28 L19.8 38.5"/><path d="M38 28 L25 28"/><path d="M38 28 L19.8 17.5"/><path d="M38 28 L31.5 16.7"/>
+        </g><circle cx="38" cy="7" r="2.5" fill="#F5B800"/><circle cx="56.2" cy="17.5" r="2.5" fill="#F5B800"/>
+        <circle cx="56.2" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="38" cy="49" r="2.5" fill="#F5B800"/>
+        <circle cx="19.8" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="19.8" cy="17.5" r="2.5" fill="#F5B800"/>
+        <circle cx="38" cy="28" r="3" fill="#fff" stroke="#6C5CE7" stroke-width="1.6"/></svg>40px</div>
+      <div><svg viewBox="0 0 64 64" width="56" height="56" fill="none">
+        <use href="#full"/></svg>56px</div>
+    </div>
+
+    <p class="note">
+      <b>造型</b>：主烟花 12 条放射线长短交替，长端金色圆点、短端紫色圆点，中心留白圆芯；<br>
+      <b>副烟花</b>：左下角 8 条细线，小一号、低饱和，避免两束抢戏；<br>
+      <b>星芒</b>：3 颗四角星错峰淡入，营造"炸开"的余韵；<br>
+      <b>底盘</b>：紫色 radial 柔光 + 3.4s 呼吸缩放，替代 emoji 的扁平感。<br>
+      <b>入场</b>：整体 scale .55→1 带轻微回弹（沿用现有 badgePop 曲线）。
+    </p>
+  </div>
+
+  <!-- 手机：单元完成 -->
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <g stroke="url(#ray)" stroke-width="2.4" stroke-linecap="round">
+                <path d="M38 28 L38 7"/><path d="M38 28 L44.5 16.7"/><path d="M38 28 L56.2 17.5"/>
+                <path d="M38 28 L51 28"/><path d="M38 28 L56.2 38.5"/><path d="M38 28 L44.5 39.3"/>
+                <path d="M38 28 L38 49"/><path d="M38 28 L31.5 39.3"/><path d="M38 28 L19.8 38.5"/>
+                <path d="M38 28 L25 28"/><path d="M38 28 L19.8 17.5"/><path d="M38 28 L31.5 16.7"/>
+              </g>
+              <circle cx="38" cy="7" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+              <circle cx="56.2" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="51" cy="28" r="1.9" fill="#7C6BF5"/>
+              <circle cx="56.2" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+              <circle cx="38" cy="49" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+              <circle cx="19.8" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="25" cy="28" r="1.9" fill="#7C6BF5"/>
+              <circle cx="19.8" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+              <circle cx="38" cy="28" r="3" fill="#fff" stroke="#6C5CE7" stroke-width="1.6"/>
+              <g stroke="url(#ray2)" stroke-width="1.7" stroke-linecap="round" opacity=".9">
+                <path d="M16 48 L16 35"/><path d="M16 48 L21.7 42.3"/><path d="M16 48 L29 48"/><path d="M16 48 L21.7 53.7"/>
+                <path d="M16 48 L16 61"/><path d="M16 48 L10.3 53.7"/><path d="M16 48 L3 48"/><path d="M16 48 L10.3 42.3"/>
+              </g>
+              <circle cx="16" cy="35" r="1.9" fill="#F5B800"/><circle cx="29" cy="48" r="1.9" fill="#F5B800"/>
+              <circle cx="16" cy="61" r="1.9" fill="#F5B800"/><circle cx="3" cy="48" r="1.9" fill="#F5B800"/>
+              <circle cx="16" cy="48" r="2.3" fill="#fff" stroke="#A79BF7" stroke-width="1.4"/>
+              <path d="M55 48 Q55.9 47.1 59 47 Q55.9 46.1 55 42 Q54.1 46.1 51 47 Q54.1 47.1 55 48 Z" fill="#F5B800"/>
+              <path d="M8 15 Q8.7 14.3 11 14 Q8.7 13.3 8 10 Q7.3 13.3 5 14 Q7.3 14.3 8 15 Z" fill="#A79BF7"/>
+              <path d="M46 60 Q46.5 59.5 48 59 Q46.5 58.5 46 57 Q45.5 58.5 44 59 Q45.5 59.5 46 60 Z" fill="#FFC94D"/>
+            </svg>
+          </div>
+
+          <h2 class="title">恭喜完成四年级上册第 3 单元！</h2>
+          <p class="sub"><b>My Schoolbag</b> —— 通过努力学习，你完成了本单元的听写练习，太棒了！</p>
+
+          <div class="quote">
+            <span class="mark">”</span>
+            <p class="en">Carpe diem. Seize the day, boys.</p>
+            <p class="cn">及时行乐，孩子们，把握当下。</p>
+            <p class="mv">—— 电影《死亡诗社》</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-ghost">重新学习本单元</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 A · 单元完成</b>　台词卡改为金调渐变 + 左侧金色竖条</p>
+  </div>
+
+  <!-- 手机：年级通关 -->
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge">
+            <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <g stroke="url(#ray)" stroke-width="2.4" stroke-linecap="round">
+                <path d="M38 28 L38 7"/><path d="M38 28 L44.5 16.7"/><path d="M38 28 L56.2 17.5"/>
+                <path d="M38 28 L51 28"/><path d="M38 28 L56.2 38.5"/><path d="M38 28 L44.5 39.3"/>
+                <path d="M38 28 L38 49"/><path d="M38 28 L31.5 39.3"/><path d="M38 28 L19.8 38.5"/>
+                <path d="M38 28 L25 28"/><path d="M38 28 L19.8 17.5"/><path d="M38 28 L31.5 16.7"/>
+              </g>
+              <circle cx="38" cy="7" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+              <circle cx="56.2" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="51" cy="28" r="1.9" fill="#7C6BF5"/>
+              <circle cx="56.2" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+              <circle cx="38" cy="49" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+              <circle cx="19.8" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="25" cy="28" r="1.9" fill="#7C6BF5"/>
+              <circle cx="19.8" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+              <circle cx="38" cy="28" r="3" fill="#fff" stroke="#6C5CE7" stroke-width="1.6"/>
+              <g stroke="url(#ray2)" stroke-width="1.7" stroke-linecap="round" opacity=".9">
+                <path d="M16 48 L16 35"/><path d="M16 48 L21.7 42.3"/><path d="M16 48 L29 48"/><path d="M16 48 L21.7 53.7"/>
+                <path d="M16 48 L16 61"/><path d="M16 48 L10.3 53.7"/><path d="M16 48 L3 48"/><path d="M16 48 L10.3 42.3"/>
+              </g>
+              <circle cx="16" cy="35" r="1.9" fill="#F5B800"/><circle cx="29" cy="48" r="1.9" fill="#F5B800"/>
+              <circle cx="16" cy="61" r="1.9" fill="#F5B800"/><circle cx="3" cy="48" r="1.9" fill="#F5B800"/>
+              <circle cx="16" cy="48" r="2.3" fill="#fff" stroke="#A79BF7" stroke-width="1.4"/>
+              <path d="M55 48 Q55.9 47.1 59 47 Q55.9 46.1 55 42 Q54.1 46.1 51 47 Q54.1 47.1 55 48 Z" fill="#F5B800"/>
+              <path d="M8 15 Q8.7 14.3 11 14 Q8.7 13.3 8 10 Q7.3 13.3 5 14 Q7.3 14.3 8 15 Z" fill="#A79BF7"/>
+              <path d="M46 60 Q46.5 59.5 48 59 Q46.5 58.5 46 57 Q45.5 58.5 44 59 Q45.5 59.5 46 60 Z" fill="#FFC94D"/>
+            </svg>
+          </div>
+
+          <h2 class="title">恭喜通关四年级上册！</h2>
+          <p class="sub"><b>8 个单元、126 个词条</b>全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！</p>
+
+          <div class="card reward">
+            <div class="row">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                <polygon points="10.5,5.8 13.5,5.8 12,1.4" fill="#F59E0B"/><polygon points="10.5,18.2 13.5,18.2 12,22.6" fill="#F59E0B"/>
+                <polygon points="5.8,10.5 5.8,13.5 1.4,12" fill="#F59E0B"/><polygon points="18.2,10.5 18.2,13.5 22.6,12" fill="#F59E0B"/>
+                <polygon points="15.32,17.45 17.45,15.32 19.5,19.5" fill="#F59E0B"/><polygon points="6.56,15.32 8.68,17.45 4.51,19.5" fill="#F59E0B"/>
+                <polygon points="8.68,6.56 6.56,8.68 4.51,4.51" fill="#F59E0B"/><polygon points="17.45,8.68 15.32,6.56 19.5,4.51" fill="#F59E0B"/>
+                <circle cx="12" cy="12" r="6.4" fill="#FFA726" stroke="#E8890B" stroke-width="1.2"/>
+                <circle cx="10.6" cy="10.6" r="1.9" fill="#FFCC66"/>
+              </svg>
+              <svg width="29" height="29" viewBox="0 0 24 24" fill="none">
+                <polygon points="12,2.5 14.47,9.1 21.51,9.41 15.99,13.8 17.88,20.59 12,16.7 6.12,20.59 8.01,13.8 2.49,9.41 9.53,9.1"
+                  fill="#F5B800" stroke="#D89A00" stroke-width="1.2" stroke-linejoin="round"/>
+                <polygon points="12,4.6 13.62,9.35 10.38,9.35" fill="#FFD75E"/>
+              </svg>
+            </div>
+            <p class="rt">本轮获得 1 颗星星</p>
+            <p class="rs">已完整学完本年级 3 轮 · 2 颗星星将合成 1 颗太阳</p>
+            <div class="divider"></div>
+            <p class="rs" style="margin-top:12px">累计 <b style="color:var(--text)">1 个太阳 · 1 颗星星</b></p>
+          </div>
+
+          <div class="grid">
+            <div class="stat"><p class="k">开始学习</p><p class="v">08-20 19:42</p></div>
+            <div class="stat"><p class="k">完成用时</p><p class="v">12 天 3 小时</p></div>
+            <div class="stat"><p class="k">拼错或不会</p><p class="v err">18 个</p></div>
+            <div class="stat"><p class="k">一次做对</p><p class="v ok">108 个</p></div>
+            <div class="stat"><p class="k">本轮积分</p><p class="v gold">+126</p></div>
+            <div class="stat"><p class="k">完成轮数</p><p class="v">第 3 轮</p></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 B · 年级通关</b>　奖励卡 + 统计卡，主按钮紫渐变</p>
+  </div>
+
+</div>
+
+<!-- 隐藏的完整图标定义，供 size-row 的 56px use 引用 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="full">
+      <g stroke="url(#ray)" stroke-width="2.4" stroke-linecap="round">
+        <path d="M38 28 L38 7"/><path d="M38 28 L44.5 16.7"/><path d="M38 28 L56.2 17.5"/>
+        <path d="M38 28 L51 28"/><path d="M38 28 L56.2 38.5"/><path d="M38 28 L44.5 39.3"/>
+        <path d="M38 28 L38 49"/><path d="M38 28 L31.5 39.3"/><path d="M38 28 L19.8 38.5"/>
+        <path d="M38 28 L25 28"/><path d="M38 28 L19.8 17.5"/><path d="M38 28 L31.5 16.7"/>
+      </g>
+      <circle cx="38" cy="7" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+      <circle cx="56.2" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="51" cy="28" r="1.9" fill="#7C6BF5"/>
+      <circle cx="56.2" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="44.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+      <circle cx="38" cy="49" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="39.3" r="1.9" fill="#7C6BF5"/>
+      <circle cx="19.8" cy="38.5" r="2.5" fill="#F5B800"/><circle cx="25" cy="28" r="1.9" fill="#7C6BF5"/>
+      <circle cx="19.8" cy="17.5" r="2.5" fill="#F5B800"/><circle cx="31.5" cy="16.7" r="1.9" fill="#7C6BF5"/>
+      <circle cx="38" cy="28" r="3" fill="#fff" stroke="#6C5CE7" stroke-width="1.6"/>
+    </g>
+  </defs>
+</svg>
+
+</body>
+</html>

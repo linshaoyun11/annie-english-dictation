@@ -431,12 +431,12 @@ export default function SpellingInput({
                  布局与交互沿用既有实现）：
                  - 面板 #1C1C1E（近黑）、字母键 #3A3A3C、功能键 #2C2C2E
                  - 字母纯白 #FFFFFF，删除键图标 #E5E5EA（略暗于字母）
-                 - 字母键高 44px（原 42px，+5%）/ 字号 20px（保持）
-                 - 第 4 行空格键高 48px（原 46px，+5%），键内小字 "space" #8E8E93
-                 - 键圆角 9px，键间距 6px（保持），行间距 12px（原 6px，加倍）
+                 - 字母键高 46px（原 44px，+2px）/ 字号 21px（原 20px，+1 档）
+                 - 第 4 行空格键高 50px（原 48px，+2px），键内小字 "space" #8E8E93
+                 - 键圆角 7px（原 9px，收敛），键间距 6px（保持），行间距 12px（保持）
                  - 容器左右 padding 5px，上下 padding 28px（用户上一版明确要求）
-                 - 实测高度 = 3×44 + 3×12 + 48 + 28×2 ≈ 272px + 底部安全区
-                   （上一版 246px，+26px：键高 +6、行距 +18、空格键 +2）。 */
+                 - 实测高度 = 3×46 + 3×12 + 50 + 28×2 ≈ 280px + 底部安全区
+                   （上一版 272px，+8px：三行字母/删除各 +2 = +6，空格键 +2）。 */
               <div className="mx-auto w-full max-w-[420px] px-[5px] py-[28px]">
                 {KB_ROWS.map((row, ri) => (
                   <div
@@ -479,7 +479,7 @@ export default function SpellingInput({
                           handlersRef.current.push(ch);
                         }}
                         onContextMenu={(e) => e.preventDefault()}
-                        className="flex h-[44px] flex-1 basis-0 touch-manipulation select-none items-center justify-center rounded-[9px] bg-[#3A3A3C] text-[20px] font-medium leading-none text-white shadow-[0_1px_0_rgba(0,0,0,0.30)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-[#5A5A5E]"
+                        className="flex h-[46px] flex-1 basis-0 touch-manipulation select-none items-center justify-center rounded-[7px] bg-[#3A3A3C] text-[21px] font-medium leading-none text-white shadow-[0_1px_0_rgba(0,0,0,0.30)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-[#5A5A5E]"
                       >
                         {ch}
                       </button>
@@ -500,7 +500,7 @@ export default function SpellingInput({
                            SVG 固定 22px 不随键缩放（用户要求"标志大小不变"）。
                            键面用功能键色 #2C2C2E（比字母键 #3A3A3C 暗一档，
                            iOS 原生即如此），图标 #E5E5EA 略暗于字母纯白。 */
-                        className="flex h-[44px] flex-[1.5] basis-0 touch-manipulation select-none items-center justify-center rounded-[9px] bg-[#2C2C2E] text-[#E5E5EA] shadow-[0_1px_0_rgba(0,0,0,0.30)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-[#5A5A5E]"
+                        className="flex h-[46px] flex-[1.5] basis-0 touch-manipulation select-none items-center justify-center rounded-[7px] bg-[#2C2C2E] text-[#E5E5EA] shadow-[0_1px_0_rgba(0,0,0,0.30)] transition-[transform,background-color] duration-75 active:scale-[0.94] active:bg-[#5A5A5E]"
                       >
                         {/* iOS 删除键：上/下/右三边直线带圆角，左边 V 形尖 + 内部 X */}
                         <svg
@@ -552,7 +552,7 @@ export default function SpellingInput({
                       onSpaceKey?.();
                     }}
                     onContextMenu={(e) => e.preventDefault()}
-                    className="flex h-[48px] flex-[5.5] basis-0 touch-manipulation select-none items-center justify-center rounded-[9px] bg-[#3A3A3C] text-[13px] font-medium leading-none tracking-wide text-[#8E8E93] shadow-[0_1px_0_rgba(0,0,0,0.30)] transition-[transform,background-color] duration-75 active:scale-[0.98] active:bg-[#5A5A5E]"
+                    className="flex h-[50px] flex-[5.5] basis-0 touch-manipulation select-none items-center justify-center rounded-[7px] bg-[#3A3A3C] text-[13px] font-medium leading-none tracking-wide text-[#8E8E93] shadow-[0_1px_0_rgba(0,0,0,0.30)] transition-[transform,background-color] duration-75 active:scale-[0.98] active:bg-[#5A5A5E]"
                   >
                     space
                   </button>

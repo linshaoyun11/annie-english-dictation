@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>祝贺页 · 奖杯图标 · 效果图 v7（参考图 3 · 蝴蝶结奖杯）</title>
+<style>
+  :root{
+    --primary:#534AB7; --primary-2:#6C5CE7;
+    --bg:#F8F7FF; --surface:#FFFFFF;
+    --text:#1F1D2E; --text2:#6B6780; --text3:#9B98AD;
+    --success:#1D9E75; --error:#E24B4A; --gold:#F5B800;
+    --card-shadow:0 6px 24px rgba(83,74,183,.08);
+    --btn-shadow:0 8px 22px rgba(83,74,183,.32);
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{
+    margin:0;padding:32px 24px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:#F1EFFB;color:var(--text);
+  }
+  h1{font-size:22px;margin:0 0 6px}
+  .lead{color:var(--text2);font-size:14px;margin:0 0 26px;line-height:1.75;max-width:900px}
+  .lead b{color:var(--text)}
+  .sec-title{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--text3);margin:0 0 14px;text-transform:uppercase}
+
+  .cand-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:34px}
+  .cand{
+    width:250px;background:var(--surface);border:2px solid transparent;border-radius:22px;padding:16px 14px 14px;
+    box-shadow:var(--card-shadow);cursor:pointer;text-align:center;transition:.18s;
+  }
+  .cand:hover{transform:translateY(-2px)}
+  .cand.on{border-color:var(--primary);box-shadow:0 10px 28px rgba(83,74,183,.20)}
+  .cand .cv{width:148px;height:188px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+  .cand .cv svg{width:138px;height:174px;display:block}
+  .cand .cn{font-size:13.5px;font-weight:700}
+  .cand .cd{font-size:11.5px;color:var(--text3);line-height:1.7;margin-top:5px}
+
+  .sizes{display:flex;align-items:flex-end;gap:22px;background:var(--surface);border-radius:18px;
+    padding:16px 22px;box-shadow:var(--card-shadow);margin-bottom:34px;flex-wrap:wrap}
+  .sizes .s{text-align:center}
+  .sizes .s span{display:block;font-size:11px;color:var(--text3);margin-top:8px}
+  .sizes .lb{font-size:11.5px;color:var(--text2);line-height:1.7;margin-right:6px;max-width:150px}
+
+  .stage{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+  .phone{
+    width:376px;height:790px;border-radius:44px;background:#12121A;padding:11px;
+    box-shadow:0 24px 60px rgba(31,29,46,.24);flex:0 0 auto;
+  }
+  .screen{
+    position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;
+    display:flex;flex-direction:column;
+    background:
+      radial-gradient(circle at 50% -6%,rgba(124,107,245,.16),rgba(124,107,245,0) 58%),
+      radial-gradient(circle at 92% 12%,rgba(245,184,0,.12),rgba(245,184,0,0) 46%),
+      linear-gradient(180deg,#F8F7FF 0%,#FDFCFF 38%,#FFFFFF 100%);
+  }
+  .status{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:600;flex:0 0 auto}
+  .content{flex:1 1 auto;overflow-y:auto;padding:8px 22px 20px}
+  .content::-webkit-scrollbar{width:0}
+
+  .badge{width:180px;height:222px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+  .badge svg{width:170px;height:210px;display:block;animation:trophyIn .85s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes trophyIn{0%{opacity:0;transform:scale(.68) translateY(14px)}60%{opacity:1;transform:scale(1.05) translateY(0)}100%{opacity:1;transform:scale(1) translateY(0)}}
+  .twinkle{animation:tw .5s ease both;transform-box:fill-box;transform-origin:center}
+  @keyframes tw{0%{opacity:0;transform:scale(0)}100%{opacity:1;transform:scale(1)}}
+  .sparkle{animation:sparkle 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  @keyframes sparkle{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.16);opacity:1}}
+  .bowSway{animation:bow 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center top}
+  @keyframes bow{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg)}}
+
+  h2.title{text-align:center;font-size:20px;font-weight:700;margin:6px 0 0;letter-spacing:-.01em}
+  p.sub{text-align:center;font-size:13.5px;line-height:1.75;color:var(--text2);margin:8px 4px 0}
+  p.sub b{color:var(--text);font-weight:600}
+
+  .card{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:20px;box-shadow:var(--card-shadow);padding:18px 16px}
+  .reward{margin-top:16px;text-align:center;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.12s;
+    background:linear-gradient(160deg,#FFFFFF 0%,#FBF9FF 100%)}
+  .reward .row{display:flex;align-items:center;justify-content:center;gap:10px}
+  .reward .rt{font-size:14px;font-weight:700;margin-top:12px}
+  .reward .rs{font-size:11.5px;color:var(--text3);margin-top:5px}
+  .divider{height:1px;background:linear-gradient(90deg,rgba(83,74,183,0),rgba(83,74,183,.14),rgba(83,74,183,0));margin:14px 0 0}
+  @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .stat{background:var(--surface);border:1px solid rgba(83,74,183,.08);border-radius:14px;padding:11px 12px 12px;box-shadow:0 2px 10px rgba(83,74,183,.05)}
+  .stat .k{font-size:11px;color:var(--text3);font-weight:500}
+  .stat .v{font-size:14px;font-weight:700;margin-top:5px}
+  .v.gold{color:var(--gold)} .v.ok{color:var(--success)} .v.err{color:var(--error)}
+
+  .quote{margin-top:16px;padding:16px 16px 14px;border-radius:20px;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#FFFAEB 0%,#FFF4D6 100%);
+    border:1px solid rgba(245,184,0,.22);box-shadow:0 6px 20px rgba(245,184,0,.10);
+    animation:slideUp .5s cubic-bezier(.22,1,.36,1) both;animation-delay:.2s}
+  .quote::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,#F5B800,#FFD75E)}
+  .quote .mark{position:absolute;right:14px;top:6px;font-size:40px;line-height:1;color:rgba(245,184,0,.20);font-family:Georgia,serif}
+  .quote .en{font-size:13.5px;font-style:italic;line-height:1.7;color:#8A5A0B}
+  .quote .cn{font-size:13.5px;font-weight:700;line-height:1.7;color:#7A4E08;margin-top:8px}
+  .quote .mv{font-size:11.5px;color:rgba(122,78,8,.62);margin-top:8px}
+
+  .actions{padding:14px 22px 22px;flex:0 0 auto;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#FFFFFF 34%)}
+  .btn-main{display:block;width:100%;padding:15px 0;border:none;border-radius:999px;
+    background:linear-gradient(135deg,#6C5CE7 0%,#534AB7 100%);color:#fff;font-size:15.5px;font-weight:700;box-shadow:var(--btn-shadow)}
+  .btn-ghost{display:block;width:100%;padding:13px 0;margin-top:10px;border-radius:999px;
+    background:var(--surface);border:1px solid rgba(83,74,183,.18);color:var(--primary);font-size:14px;font-weight:600}
+  .btn-line{display:block;width:100%;padding:8px 0;margin-top:6px;border:none;background:none;color:var(--text3);font-size:13px;font-weight:500}
+  .caption{text-align:center;font-size:12px;color:var(--text2);margin-top:12px}
+  .caption b{color:var(--text)}
+</style>
+</head>
+<body>
+
+<h1>祝贺页 · 奖杯图标 v7（按参考图 3 重做）</h1>
+<p class="lead">
+    参考图 3 的关键变化是<b>大金色蝴蝶结</b>绑在杯身中部 + <b>圆形多层底座</b>（不再是矩形）
+    + 杯口<b>能看进去深棕内壁</b> + 周围 <b>bokeh 模糊光斑</b>。
+    风格回到<b>金属写实</b>（高光/暗部对比强），但继续走"单色 + 描边分隔"语言（描边色
+    <code>#6E4800</code>，比 v5/v6 的深紫蓝更暖，与金色同色系）。
+    描边非常淡（宽 0.6–0.8），主要靠明暗对比做轮廓。
+  </p>
+
+<p class="sec-title">候选图标（点击切换）</p>
+<div class="cand-row" id="candRow">
+  <div class="cand on" data-k="A">
+    <div class="cv" id="cvA"></div>
+    <p class="cn">A · 严格还原参考图 3</p>
+    <p class="cd">大蝴蝶结 + 圆形多层底座 + 深棕杯内壁<br>+ 9 颗金星屑 + 4 团 bokeh 光斑</p>
+  </div>
+  <div class="cand" data-k="B">
+    <div class="cv" id="cvB"></div>
+    <p class="cn">B · 蝴蝶结换成紫色</p>
+    <p class="cd">杯体不变，蝴蝶结/飘带换紫渐变<br>与 App 主色同源，金紫撞色</p>
+  </div>
+  <div class="cand" data-k="C">
+    <div class="cv" id="cvC"></div>
+    <p class="cn">C · 简化版</p>
+    <p class="cd">去掉蝴蝶结 + 减少星屑，只保留奖杯本体<br>干净克制</p>
+  </div>
+</div>
+
+<p class="sec-title">小尺寸可辨识度</p>
+<div class="sizes">
+  <p class="lb">同一套形状，不做分档简化</p>
+  <div class="s" id="s1"><span>36px</span></div>
+  <div class="s" id="s2"><span>64px</span></div>
+  <div class="s" id="s3"><span>96px</span></div>
+</div>
+
+<p class="sec-title">真机效果</p>
+<div class="stage">
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge" data-badge></div>
+          <h2 class="title">恭喜完成四年级上册第 3 单元！</h2>
+          <p class="sub"><b>My Schoolbag</b> —— 通过努力学习，你完成了本单元的听写练习，太棒了！</p>
+          <div class="quote">
+            <span class="mark">”</span>
+            <p class="en">Carpe diem. Seize the day, boys.</p>
+            <p class="cn">及时行乐，孩子们，把握当下。</p>
+            <p class="mv">—— 电影《死亡诗社》</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-ghost">重新学习本单元</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 A · 单元完成</b></p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●  ▮</span></div>
+        <div class="content">
+          <div class="badge" data-badge></div>
+          <h2 class="title">恭喜通关四年级上册！</h2>
+          <p class="sub"><b>8 个单元、126 个词条</b>全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！</p>
+
+          <div class="card reward">
+            <div class="row">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                <polygon points="10.5,5.8 13.5,5.8 12,1.4" fill="#F59E0B"/><polygon points="10.5,18.2 13.5,18.2 12,22.6" fill="#F59E0B"/>
+                <polygon points="5.8,10.5 5.8,13.5 1.4,12" fill="#F59E0B"/><polygon points="18.2,10.5 18.2,13.5 22.6,12" fill="#F59E0B"/>
+                <polygon points="15.32,17.45 17.45,15.32 19.5,19.5" fill="#F59E0B"/><polygon points="6.56,15.32 8.68,17.45 4.51,19.5" fill="#F59E0B"/>
+                <polygon points="8.68,6.56 6.56,8.68 4.51,4.51" fill="#F59E0B"/><polygon points="17.45,8.68 15.32,6.56 19.5,4.51" fill="#F59E0B"/>
+                <circle cx="12" cy="12" r="6.4" fill="#FFA726" stroke="#E8890B" stroke-width="1.2"/>
+                <circle cx="10.6" cy="10.6" r="1.9" fill="#FFCC66"/>
+              </svg>
+              <svg width="29" height="29" viewBox="0 0 24 24" fill="none">
+                <polygon points="12,2.5 14.47,9.1 21.51,9.41 15.99,13.8 17.88,20.59 12,16.7 6.12,20.59 8.01,13.8 2.49,9.41 9.53,9.1"
+                  fill="#F5B800" stroke="#D89A00" stroke-width="1.2" stroke-linejoin="round"/>
+                <polygon points="12,4.6 13.62,9.35 10.38,9.35" fill="#FFD75E"/>
+              </svg>
+            </div>
+            <p class="rt">本轮获得 1 颗星星</p>
+            <p class="rs">已完整学完本年级 3 轮 · 2 颗星星将合成 1 颗太阳</p>
+            <div class="divider"></div>
+            <p class="rs" style="margin-top:12px">累计 <b style="color:var(--text)">1 个太阳 · 1 颗星星</b></p>
+          </div>
+
+          <div class="grid">
+            <div class="stat"><p class="k">开始学习</p><p class="v">08-20 19:42</p></div>
+            <div class="stat"><p class="k">完成用时</p><p class="v">12 天 3 小时</p></div>
+            <div class="stat"><p class="k">拼错或不会</p><p class="v err">18 个</p></div>
+            <div class="stat"><p class="k">一次做对</p><p class="v ok">108 个</p></div>
+            <div class="stat"><p class="k">本轮积分</p><p class="v gold">+126</p></div>
+            <div class="stat"><p class="k">完成轮数</p><p class="v">第 3 轮</p></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-main">继续学习</button>
+          <button class="btn-line">返回首页</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption"><b>状态 B · 年级通关</b></p>
+  </div>
+
+</div>
+
+<script>
+/* ── 配色（按参考图 3：金属写实 + 暖金描边） ── */
+const INK_DARK = "#6E4800";   // 描边/暗部（金色同色系深棕）
+const INK_MID  = "#A06820";   // 中间暗
+const GOLD_HI  = "#FFE08A";   // 高光
+const GOLD_LT  = "#F5C244";   // 亮金
+const GOLD     = "#E5A23A";   // 主金
+const GOLD_DK  = "#B57A14";   // 暗金
+const VIOLET_LT= "#8B5CF6";
+const VIOLET   = "#534AB7";
+
+function defs(u){
+  return `
+  <defs>
+    <!-- 杯身圆柱感：左右暗中间亮 -->
+    <linearGradient id="cup${u}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="${INK_MID}"/>
+      <stop offset="18%"  stop-color="${GOLD_DK}"/>
+      <stop offset="40%"  stop-color="${GOLD_LT}"/>
+      <stop offset="60%"  stop-color="${GOLD_HI}"/>
+      <stop offset="80%"  stop-color="${GOLD_DK}"/>
+      <stop offset="100%" stop-color="${INK_MID}"/>
+    </linearGradient>
+    <!-- 杯口沿渐变 -->
+    <linearGradient id="rim${u}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="${GOLD_DK}"/>
+      <stop offset="50%"  stop-color="${GOLD_HI}"/>
+      <stop offset="100%" stop-color="${GOLD_DK}"/>
+    </linearGradient>
+    <!-- 杯柱/底座渐变 -->
+    <linearGradient id="base${u}" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="${INK_MID}"/>
+      <stop offset="35%"  stop-color="${GOLD}"/>
+      <stop offset="65%"  stop-color="${GOLD_HI}"/>
+      <stop offset="100%" stop-color="${INK_MID}"/>
+    </linearGradient>
+    <!-- 蝴蝶结渐变 -->
+    <linearGradient id="bow${u}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="${GOLD_LT}"/>
+      <stop offset="50%"  stop-color="${GOLD}"/>
+      <stop offset="100%" stop-color="${GOLD_DK}"/>
+    </linearGradient>
+    <!-- 紫蝴蝶结（B 用） -->
+    <linearGradient id="bowV${u}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="${VIOLET_LT}"/>
+      <stop offset="100%" stop-color="${VIOLET}"/>
+    </linearGradient>
+    <!-- 杯内壁（深棕） -->
+    <linearGradient id="inside${u}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#A06820"/>
+      <stop offset="100%" stop-color="#5C3A00"/>
+    </linearGradient>
+  </defs>`;
+}
+
+function star(cx,cy,r,fill,stroke,sw){
+  const pts=[];
+  for(let i=0;i<10;i++){
+    const a=(-90+i*36)*Math.PI/180;
+    const rr=(i%2===0)?r:r*0.42;
+    pts.push((cx+rr*Math.cos(a)).toFixed(2)+","+(cy+rr*Math.sin(a)).toFixed(2));
+  }
+  return `<polygon points="${pts.join(" ")}" fill="${fill}"${stroke?` stroke="${stroke}" stroke-width="${sw||1}" stroke-linejoin="round"`:""}/>`;
+}
+
+/* 9 颗金星屑（周围撒落） */
+const SPARKS=[
+  [ 6, 18, 2.2], [74, 22, 2.0], [ 2, 56, 2.2], [78, 60, 1.8],
+  [12,  6, 1.6], [68,  8, 1.8], [10, 80, 1.6], [70, 84, 1.4],
+  [40, 88, 1.4]
+];
+const DELAYS=[.2,.32,.44,.55,.66,.78,.9,.42,.58];
+
+function sparkSet(u, exclude){
+  return SPARKS.map((p,i)=>{
+    if(exclude && exclude.has(i)) return "";
+    return star(p[0],p[1],p[2],GOLD,"none",0)
+      .replace('<polygon ',`<polygon class="sparkle" style="animation-delay:${DELAYS[i]}s" `);
+  }).join("");
+}
+
+/* 4 团 bokeh 光斑（淡黄模糊圆） */
+const BOKEHS=[[6,32,7],[74,36,6],[16,12,6],[64,14,5]];
+function bokehSet(){
+  return BOKEHS.map(([cx,cy,r])=>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#FFE9A8" opacity=".35"/>`
+  ).join("");
+}
+
+/* ── 蝴蝶结（左环 + 右环 + 中央结 + 上下飘带） ── */
+function bow(u, bowGrad, noSway){
+  const bowG=`url(#${bowGrad}${u})`;
+  return `
+  <g${noSway?'':' class="bowSway"'}>
+    <!-- 左飘带 -->
+    <path d="M34 56 L18 84 L27 86 L40 60 Z" fill="${bowG}" stroke="${INK_DARK}" stroke-width="0.8" stroke-linejoin="round"/>
+    <path d="M21 76 L36 66" stroke="#FFE9A8" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+    <!-- 右飘带 -->
+    <path d="M46 56 L62 84 L53 86 L40 60 Z" fill="${bowG}" stroke="${INK_DARK}" stroke-width="0.8" stroke-linejoin="round"/>
+    <path d="M59 76 L44 66" stroke="#FFE9A8" stroke-width="1.2" stroke-linecap="round" opacity=".5"/>
+    <!-- 左环 -->
+    <path d="M34 50 Q12 44 10 58 Q22 68 36 58 Z" fill="${bowG}" stroke="${INK_DARK}" stroke-width="0.8" stroke-linejoin="round"/>
+    <path d="M14 50 Q20 56 30 58" stroke="#FFE9A8" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+    <!-- 右环 -->
+    <path d="M46 50 Q68 44 70 58 Q58 68 44 58 Z" fill="${bowG}" stroke="${INK_DARK}" stroke-width="0.8" stroke-linejoin="round"/>
+    <path d="M66 50 Q60 56 50 58" stroke="#FFE9A8" stroke-width="1.2" stroke-linecap="round" opacity=".5"/>
+    <!-- 中央结 -->
+    <path d="M34 48 L46 48 L48 58 L32 58 Z" fill="${bowG}" stroke="${INK_DARK}" stroke-width="0.8" stroke-linejoin="round"/>
+    <path d="M40 50 V56" stroke="#FFE9A8" stroke-width="1" opacity=".8"/>
+    <!-- 中央结顶部折叠三角 -->
+    <path d="M36 48 L40 44 L44 48 Z" fill="${bowG}" stroke="${INK_DARK}" stroke-width="0.8" stroke-linejoin="round"/>
+  </g>`;
+}
+
+/* ── 杯子本体（带圆形多层底座 + 深棕杯内壁） ── */
+function cup(u){
+  return `
+  <!-- 把手（粗描边成耳形） -->
+  <path d="M22 26 C8 24 4 44 12 56 C16 62 22 64 28 60" fill="none" stroke="url(#base${u})" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M22 26 C8 24 4 44 12 56 C16 62 22 64 28 60" fill="none" stroke="${INK_DARK}" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M58 26 C72 24 76 44 68 56 C64 62 58 64 52 60" fill="none" stroke="url(#base${u})" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M58 26 C72 24 76 44 68 56 C64 62 58 64 52 60" fill="none" stroke="${INK_DARK}" stroke-width="0.8" stroke-linecap="round"/>
+
+  <!-- 杯内壁（深棕） -->
+  <path d="M20 22 A20 4 0 0 0 60 22 L60 22 A20 4 0 0 1 20 22 Z" fill="url(#inside${u})"/>
+
+  <!-- 杯口沿（椭圆薄边） -->
+  <ellipse cx="40" cy="22" rx="20" ry="4" fill="url(#rim${u})" stroke="${INK_DARK}" stroke-width="0.8"/>
+
+  <!-- 杯身（上宽下窄，外凸弧） -->
+  <path d="M20 22 C20 36 24 50 32 56 L48 56 C56 50 60 36 60 22 Z" fill="url(#cup${u})" stroke="${INK_DARK}" stroke-width="0.8" stroke-linejoin="round"/>
+
+  <!-- 杯身中部高光（白色细弧） -->
+  <path d="M30 30 Q32 44 38 52" stroke="#FFF8DC" stroke-width="1.6" stroke-linecap="round" opacity=".7" fill="none"/>
+  <path d="M26 26 Q28 28 29 32" stroke="#FFF8DC" stroke-width="1.2" stroke-linecap="round" opacity=".85" fill="none"/>
+
+  <!-- 杯身居中实心星徽（深色描边） -->
+  ${star(40,36,6.0,GOLD_DK,INK_DARK,1.2)}
+  <path d="M40 32 L40.5 35 L40 35 Z" fill="#FFE9A8" opacity=".8"/>
+  `;
+}
+
+/* ── 圆形多层底座（5 层圆盘堆叠） ── */
+function base(u){
+  return `
+  <!-- 杯柱（4 个圆盘由小到大堆叠） -->
+  <ellipse cx="40" cy="60" rx="6" ry="2.4" fill="url(#base${u})" stroke="${INK_DARK}" stroke-width="0.6"/>
+  <ellipse cx="40" cy="63" rx="7.4" ry="2.6" fill="url(#base${u})" stroke="${INK_DARK}" stroke-width="0.6"/>
+  <ellipse cx="40" cy="66" rx="9" ry="3" fill="url(#base${u})" stroke="${INK_DARK}" stroke-width="0.6"/>
+  <ellipse cx="40" cy="69" rx="10.6" ry="3.2" fill="url(#base${u})" stroke="${INK_DARK}" stroke-width="0.6"/>
+
+  <!-- 底座主体（最大圆盘 + 凸缘） -->
+  <ellipse cx="40" cy="76" rx="14" ry="3.6" fill="url(#base${u})" stroke="${INK_DARK}" stroke-width="0.6"/>
+  <ellipse cx="40" cy="79" rx="15.6" ry="3.4" fill="url(#base${u})" stroke="${INK_DARK}" stroke-width="0.6"/>
+
+  <!-- 底座高光（左上弧线） -->
+  <path d="M30 74 Q35 71 41 70" stroke="#FFF8DC" stroke-width="1.2" stroke-linecap="round" opacity=".7" fill="none"/>
+
+  <!-- 地面阴影 -->
+  <ellipse cx="40" cy="89" rx="26" ry="2.8" fill="#000" opacity=".10"/>
+  `;
+}
+
+/* ── A：严格还原（大蝴蝶结 + 圆形底座 + 9 星 + 4 光斑） ── */
+function iconA(u){
+  return `<svg viewBox="0 0 80 96" fill="none" aria-hidden="true">
+    ${defs(u)}
+    ${bokehSet()}
+    ${sparkSet(u)}
+    ${cup(u)}
+    ${bow(u,'bow')}
+    ${base(u)}
+  </svg>`;
+}
+
+/* ── B：蝴蝶结换紫色 ── */
+function iconB(u){
+  return `<svg viewBox="0 0 80 96" fill="none" aria-hidden="true">
+    ${defs(u)}
+    ${bokehSet()}
+    ${sparkSet(u)}
+    ${cup(u)}
+    ${bow(u,'bowV')}
+    ${base(u)}
+  </svg>`;
+}
+
+/* ── C：简化版（去蝴蝶结 + 星屑减半） ── */
+function iconC(u){
+  const keep = new Set([1,3,6,8]); // 仅保留 4 颗
+  return `<svg viewBox="0 0 80 96" fill="none" aria-hidden="true">
+    ${defs(u)}
+    ${sparkSet(u, keep)}
+    ${cup(u)}
+    ${base(u)}
+  </svg>`;
+}
+
+const MAKE={A:iconA,B:iconB,C:iconC};
+let uid=0;
+function render(key){
+  uid++;
+  const u="g"+uid+Math.random().toString(36).slice(2,6);
+  document.querySelectorAll("[data-badge]").forEach(el=>{el.innerHTML=MAKE[key](u);});
+  const w=[36,64,96], h=[43,77,115];
+  ["s1","s2","s3"].forEach((id,i)=>{
+    document.getElementById(id).innerHTML=`<div style="width:${w[i]}px;height:${h[i]}px">${MAKE[key](id+uid)}</div><span>${w[i]}px</span>`;
+  });
+  document.querySelectorAll("#s1 svg,#s2 svg,#s3 svg").forEach(s=>{
+    s.style.width="100%";s.style.height="100%";s.style.animation="none";
+  });
+}
+["A","B","C"].forEach(k=>{document.getElementById("cv"+k).innerHTML=MAKE[k]("c"+k);});
+document.querySelectorAll(".cand").forEach(el=>{
+  el.addEventListener("click",()=>{
+    document.querySelectorAll(".cand").forEach(x=>x.classList.remove("on"));
+    el.classList.add("on");
+    render(el.dataset.k);
+  });
+});
+render("A");
+</script>
+
+</body>
+</html>

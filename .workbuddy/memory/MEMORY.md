@@ -3,6 +3,49 @@
 iOS App，Capacitor + React + TypeScript + Vite。Windows 开发、Codemagic 云端 CI 构建、TestFlight 分发。
 构建号在 `codemagic.yaml` 的 `APP_BUILD`。
 
+## 教材线（curriculum）· 多教材架构
+
+`src/data/curriculum.ts` 是唯一入口：`CurriculumVersion` 联合类型 + `CURRICULA` 索引 +
+`CURRICULUM_LABELS`。现有 6 条线：renjiao / renjiao3 / waiyanshe / waiyanshe3 / oxford /
+**renai（仁爱版，2026-09-03 加）**。新增一条线只需改 3 处（import、类型+LABELS、CURRICULA）
++ `SettingsPage.tsx` 的 `CURRICULUM_DESC` 与 `VERSIONS` 各加一项；首页年级标签由
+`cur.map(u => u.grade)` 动态推导，无需改 UI。
+
+**id 规则（`src/data/mk.ts`）**：`mk()` 用全局 seq（人教专用，必须保持 id 稳定，
+否则预生成的 1061 个按人教 id 命名的本地音频会失配）；`mkWithPrefix(prefix, ...)` 各前缀
+独立计数（`wy-` / `ox-` / `ra-`）。
+
+**`CURRICULUM_VERSION` 只在"既有教材的 id/顺序变化、旧进度会错位"时才升。**
+新增教材线不动任何既有 id，**不升版本号**（当前 7，仁爱版加入时特意保持）。
+
+**音频 manifest 是「文本 → id」映射**（不是「词条 id → 音频」），所以新教材复用同文本词时
+音频**零成本复用**（仁爱版实测复用率 72.4%，welcome → `ox-g6u4e0540`）。
+manifest 写出必须是单行紧凑（等价 `JSON.stringify`），用 `indent=0` 会让 git diff 爆炸。
+
+**仁爱版专属事实**：一个 Topic = 一个单元；**九下只有 Unit 5、6 共 6 个 Topic**
+⇒ 7:24 + 8:24 + 9:18 = **66 单元（不是 72）**。`title` 字段是教材 Topic 的原句标题
+（如 `"When was it invented? ..."`），Unit 主题名（`"Amazing Science"`）只在源码注释里。
+
+**课标补全（`kebiaoBank.ts`）**：各教材在文件末尾调
+`applyKebiaoTo(CURRICULUM, makeXxxEntry, elemGrades, midGrades)`。
+⚠️ 两个陷阱：① `if (elemGrades.length)` —— **elemGrades 传 `[]` 时 band=2 小学词被静默丢弃**；
+② `lastUnitOfGrade` 是一次性预计算、`insertKebiaoUnits` 只 splice 不重编号 ⇒
+**elemGrades 与 midGrades 的年级必须不相交**。1-9 年级教材用 `[3,4,5,6]`/`[7,8,9]`
+天然安全；**仁爱版只有 7-9 年级，用 `[7]` / `[8,9]`**（小学词放七年级，初中词分八九年级）。
+补课后仁爱版 = 141 单元 / 1982 词条 / 课标覆盖 100%。
+
+**课标词条是运行时生成的，不是源码字面量** —— `applyKebiaoTo` 从已打包的
+`KEBIAO_BANK` 现场造 entry，所以给某教材补课标**几乎不增加包体**（实测 +65 B），
+只增加运行时对象数。估算"新增数据"的体积前先分清是字面量还是运行时生成。
+
+**打包器是 rolldown（Vite 8），不是 esbuild**。差异点：
+`esbuild` 不在 package.json（`npx esbuild` 会临时联网拉）；rolldown 的
+`logLevel` 不接受 `"error"`（只收 debug|info|warn|silent）；
+**压缩后字符串字面量用反引号**（`` `ability` ``），不是双引号也不是单引号。
+
+**仁爱版课标覆盖率仅 32.2%（522/1619）**，其余教材 95-100%。补齐 1097 个缺失课标词
+零音频成本（全部已有 mp3），但会从 885 条膨胀到约 1982 条。**用户未拍板，未实施。**
+
 ## 已知问题 · 暂不修复（有意为之，非遗漏）
 
 以下条目均已定位到根因、确认影响可控，用户决定暂缓。动手前先确认是否已改变主意。
@@ -82,6 +125,16 @@ iOS App，Capacitor + React + TypeScript + Vite。Windows 开发、Codemagic 云
   即 release/TestFlight 包默认**无法**被 Safari Web Inspector 连接。
   开启后配合 `ios-webkit-debug-proxy` 可在 Windows 上远程调试 iPad 真机。
   只影响可调试性，不改任何运行时行为。
+- **推送后不要再单独 commit+push 文档补记**（2026-09-03 踩到）。
+  `codemagic.yaml` 无 `triggering`，**任何 push 都会触发一次构建**，而 `APP_BUILD`
+  没变 → 第二个包因 **build 号重复被 App Store Connect 拒绝上传**，表现为一次
+  红色构建失败，容易被误判成代码问题。
+  ⇒ **memory 补记必须在推送前写完，与代码改动一起提交**；已推完才发现漏写的，
+  留在工作区（未暂存）攒到下次代码改动一起推。
+- **`git reset --soft HEAD~1` 在"该 commit 已推送"时会把已推送内容一起撤掉**
+  （HEAD~1 指向远程已有的上一个 commit，本地瞬间落后远程一个 commit）。
+  恢复：`git reset --soft <已推送的那个 commit>`，再用
+  `git restore --staged <文件>` 把不想提交的文件撤出暂存区（内容仍留在工作区）。
 
 ## 自绘键盘几何（SpellingInput.tsx 改动前必读）
 
@@ -105,8 +158,9 @@ iOS App，Capacitor + React + TypeScript + Vite。Windows 开发、Codemagic 云
   - build 51：键高 +5%
   - build 52：深色翻新，gap 4→6、行距 8→6、圆角 9
   - build 55：键高再 +5%（字母/删除 42→44、空格 46→48），行距 6→**12**（加倍）
-  ⇒ 现行值：**字母键/删除键 44px、空格键 48px、键间距 6px、行间距 12px、
-  圆角 9px、上下留白 28px**，键盘条实测高约 272px（上一版 246px）。
+  - build 55 后微调：键高 +2px（46/50）、字母字号 20→21、圆角 9→**7**（嫌圆角太大）
+  ⇒ 现行值：**字母键/删除键 46px、空格键 50px、键间距 6px、行间距 12px、
+  圆角 7px、字母字号 21px、上下留白 28px**，键盘条实测高约 280px。
 
 ## 视觉一致性优先（图标类改动必读）
 
@@ -117,6 +171,12 @@ iOS App，Capacitor + React + TypeScript + Vite。Windows 开发、Codemagic 云
   - 星星 A：`fill #F5B800` / `stroke #D89A00` 1.2 / 高光 `#FFD75E`
   - 太阳 C：8 个**实心**尖三角 `#F59E0B` + 盘 `#FFA726`（r6.4，`stroke #E8890B` 1.2）+ 高光 `#FFCC66`
   - 合成基数：**2 星 = 1 太阳**，`MAX_ROUNDS = 10`（5 太阳满级）
+  - 奖杯 `TrophyIcon`（`src/components/TrophyIcon.tsx`，祝贺页专用）：
+    **抽象线条版**（v8，2026-09-03）。零渐变/零高光/零阴影，全部 stroke 圆头线条，
+    描边宽度统一 2.8（杯口沿 3.4、底座下沿 3.4），round cap/linejoin。
+    仅两色：紫 `#534AB7`（杯体 = App 主色）+ 金 `#F5B800`（蝴蝶结 + 星徽/星屑）。
+    viewBox `0 0 64 58`，三个变体 A（最简 12 笔）/ B（+ 中央星）/ C（+ 3 星屑）。
+    默认 size 120，等比缩放（width = size, height = size × 58/64）。
 
 ## 用户协作偏好
 

@@ -2,6 +2,7 @@ import { mk } from "./mk";
 import { GRADES_4_TO_9 } from "./grades4to9";
 import { WAIYANSHE_CURRICULUM } from "./waiyanshe";
 import { OXFORD_CURRICULUM } from "./oxford";
+import { RENAI_CURRICULUM } from "./renai";
 import { applyKebiaoTo, makeRenjiaoEntry } from "./kebiaoBank";
 
 export type EntryType = "word" | "phrase" | "sentence";
@@ -16,6 +17,12 @@ export type EntryType = "word" | "phrase" | "sentence";
  *  外研社：1-2 一年级起点 + 3-6 三年级起点 + 7-9 初中新标准
  *  沪教牛津：1-6 一年级起始 + 7-9 初中
  *  每个用户的教材/口音配置独立（user.config）
+ *
+ * 注：v8 新增「仁爱版」教材线（初中 7-9 年级），但**不升 CURRICULUM_VERSION**。
+ * 版本号只在"既有教材的词条 id / 顺序发生变化、旧进度会错位"时才升；
+ * 新增一条教材线不会动 renjiao/waiyanshe/oxford 的任何 id，
+ * 老用户的进度不应被重置。仁爱版对老用户而言是一套从未学过的教材，
+ * 首次切过去天然走 freshProgress，无需版本号参与。
  */
 export const CURRICULUM_VERSION = 7;
 
@@ -24,7 +31,8 @@ export type CurriculumVersion =
   | "renjiao3"
   | "waiyanshe"
   | "waiyanshe3"
-  | "oxford";
+  | "oxford"
+  | "renai";
 
 export const CURRICULUM_LABELS: Record<CurriculumVersion, string> = {
   renjiao: "人教版·一年级起点",
@@ -32,6 +40,7 @@ export const CURRICULUM_LABELS: Record<CurriculumVersion, string> = {
   waiyanshe: "外研社·一年级起点",
   waiyanshe3: "外研社·三年级起点",
   oxford: "沪教牛津",
+  renai: "仁爱版·初中",
 };
 
 export interface WordEntry {
@@ -777,6 +786,7 @@ export const CURRICULA: Record<CurriculumVersion, UnitInfo[]> = {
   waiyanshe: WAIYANSHE_G1_START,
   waiyanshe3: WAIYANSHE_G3_START,
   oxford: OXFORD_CURRICULUM,
+  renai: RENAI_CURRICULUM,
 };
 
 export function getCurriculum(v: CurriculumVersion = "renjiao"): UnitInfo[] {
