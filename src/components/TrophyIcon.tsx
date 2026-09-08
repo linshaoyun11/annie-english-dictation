@@ -1,0 +1,40 @@
+import type { ImgHTMLAttributes } from "react";
+import trophyImg from "../assets/trophy-celebration-transparent.png";
+
+/**
+ * TrophyIcon — 祝贺页奖杯图标
+ *
+ * 2026-09-05 改为外部参考图（卡通 3D 风格）：与 SunIcon/StarIcon 风格
+ * 不一致（它们是 App 风格的扁平 2D），但用户明确选择「完全照搬嵌入 PNG」。
+ * ⚠️ 注意：祝贺页奖杯**正下方**就是 `SunIcon/StarIcon size={56}`，
+ * 两者风格差异会在同屏显现——如需协调后续单独处理。
+ *
+ * 2026-09-06 米黄方形背景 → 透明：
+ *   资源 `src/assets/trophy-celebration-transparent.png`（1024×1024 RGBA，
+ *   67.4% 像素 alpha=0，原图来源豆包 AI，已抠图 + alpha Blur 0.6 抗锯齿）。
+ *   文件名加 `-transparent` 后缀是为了让 iPad Safari 等强缓存场景下，
+ *   旧 URL `trophy-celebration.png` 完全失效，强制重下载。
+ *
+ * 接口保持与 SVG 版一致：`size` 控制宽度（正方形），`className` 等透传。
+ */
+
+interface TrophyIconProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "width" | "height"> {
+  size?: number;
+}
+
+export function TrophyIcon({ size = 120, className, ...rest }: TrophyIconProps) {
+  return (
+    <img
+      src={trophyImg}
+      width={size}
+      height={size}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      className={className}
+      {...rest}
+    />
+  );
+}
+
+export default TrophyIcon;

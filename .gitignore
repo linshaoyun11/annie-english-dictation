@@ -1,0 +1,67 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Capacitor native platforms (generated on macOS/Android build machines)
+ios
+android
+
+# Capacitor config overrides (local-only)
+capacitor.config.json
+capacitor.config.local.ts
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local npm cache (used for registry access through mirrors)
+.workbuddy/npm-cache/
+
+# iOS signing private key (stored in Codemagic env vars, never in repo)
+.workbuddy/ios-cert-private-key
+
+# Local-only working data (never commit)
+.workbuddy/tmp/
+.workbuddy/sfx-samples/
+.workbuddy/tts-samples/
+.workbuddy/avatar-test.png
+.workbuddy/ios-cert-private-key.pub
+
+# Male-voice fix working data (originals backup + F0 scan reports)
+scripts/male_voice_backup/
+scripts/male_voice_report.tsv
+scripts/male_candidates.json
+
+# 会话中生成的临时效果预览图（仅用于本地核对，不入库）
+.workbuddy/preview-*.png
+
+# rolldown/dump 脚本的转译临时产物（脚本退出时自删，异常时会残留）
+.tmp-*.mjs
+
+# 本地生成的校对文档 / 预览页（生成物，不入库）
+.workbuddy/proofread/
+.workbuddy/preview/
+
+# 教材重建过程中的临时 dump 与待办清单
+.workbuddy/tmp-*
+.workbuddy/audio-todo/
+
+# 存量音频优化前的原文件备份（本地回滚用，48 MB，不入库）
+.workbuddy/audio-backup/

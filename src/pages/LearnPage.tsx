@@ -1,0 +1,1193 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { Keyboard } from "@capacitor/keyboard";
+import {
+  getAllEntries,
+  getCurriculum,
+  gradeLabel,
+  type CurriculumVersion,
+} from "../data/curriculum";
+import {
+  type GradeState,
+  type Progress,
+  findResumePosition,
+  freshGradeState,
+  freshProgress,
+  gradeStartIndex,
+  makeUnitOrder,
+  processedOf,
+  saveProgress,
+} from "../lib/progress";
+import { pointsForEntry, type User } from "../lib/users";
+import { randomMovieQuote, type MovieQuote } from "../data/movieQuotes";
+import { useSpeechLoop, primeSpeech } from "../hooks/useSpeechLoop";
+import { prefetchAudio } from "../lib/audio";
+import { safeTimeout } from "../lib/timer";
+import { playCelebrationJingle } from "../lib/celebration";
+import LearningCard from "../components/LearningCard";
+import {
+  MAX_ROUNDS,
+  StarIcon,
+  SunIcon,
+  sunsOf,
+  starsOf,
+} from "../components/RoundsStars";
+import { TrophyIcon } from "../components/TrophyIcon";
+
+interface LearnPageProps {
+  onExit: () => void;
+  progress: Progress;
+  setProgress: React.Dispatch<React.SetStateAction<Progress>>;
+  user: User;
+  version: CurriculumVersion;
+  addPoints: (userId: string, points: number, learnedDelta: number) => void;
+  onRestart: () => void;
+  /** 重点记忆学习模式：difficultOrder 为打乱后的难词条目 id 列表 */
+  difficultMode?: boolean;
+  difficultOrder?: string[];
+  /** 单元练习模式：选定单元学习，只加积分、不计入年级整体进度 */
+  practiceMode?: boolean;
+  practiceOrder?: string[];
+  practiceUnitIndex?: number;
+  /** DEV 预览：挂载后直接弹通关页（示例数据，仅开发模式使用） */
+  previewCelebration?: boolean;
+}
+
+/** 年级完成（一轮通关）祝贺页的统计快照（在轮次清零前计算） */
+interface GradeStatsSnapshot {
+  grade: number;
+  unitCount: number;
+  doneCount: number;
+  mistakeCount: number;
+  onceRight: number;
+  gradePoints: number;
+  startAt?: number;
+  durationMs: number;
+  /** 完成本轮后的轮次数（原 rounds + 1） */
+  rounds: number;
+}
+
+function formatDateTime(ts?: number): string {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${String(
+    d.getHours()
+  ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+function formatDuration(ms: number): string {
+  if (ms <= 0) return "—";
+  const mins = Math.max(Math.round(ms / 60000), 1);
+  if (mins < 60) return `${mins} 分钟`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} 小时 ${mins % 60} 分钟`;
+  const days = Math.floor(hours / 24);
+  return `${days} 天 ${hours % 24} 小时`;
+}
+
+function StatCard({
+  label,
+  value,
+  valueColor = "text-text",
+}: {
+  label: string;
+  value: string;
+  valueColor?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border-light bg-surface px-3.5 py-3">
+      <p className="text-[11px] font-medium text-text3">{label}</p>
+      <p className={`mt-1 text-[13px] font-semibold ${valueColor}`}>{value}</p>
+    </div>
+  );
+}
+
+export default function LearnPage({
+  onExit,
+  progress,
+  setProgress,
+  user,
+  version,
+  addPoints,
+  onRestart,
+  difficultMode = false,
+  difficultOrder = [],
+  practiceMode = false,
+  practiceOrder = [],
+  practiceUnitIndex = 0,
+  previewCelebration = false,
+}: LearnPageProps) {
+  const speech = useSpeechLoop(3000);
+  const touchStartY = useRef<number | null>(null);
+  /**
+   * 上滑切题手势的「答题完成时点」与「本次手势起点时点」。
+   *
+   * 背景：自绘键盘字母键改成 pointerdown 出字后，最后一个字母在手指刚按下时
+   * 就已判定完成（离散事件 → React 同步刷新 → 键盘卸载、答对页出现），
+   * 同一次触摸的 touchstart / touchend 因此可能落到手指下方的新元素上，
+   * 让手势判定拿到一个本不该存在的起点，配合多指错位算出虚假的 dy < -60，
+   * 直接触发切题 —— 即「答对页闪一下就跳到下一题」。
+   *
+   * 对策：任何起点早于「答对时刻 + 反应窗口」的手势一律作废。
+   * SETTLE_MS 取 300：人看到"回答正确"再决定上滑，远慢于 300ms；
+   * 而按键尾巴上的事件与答对时刻的间隔在毫秒级，必然落在窗口内被拦下。
+   */
+  const answeredAtRef = useRef(0);
+  const touchStartAtRef = useRef(0);
+  const SETTLE_MS = 300;
+  const [toast, setToast] = useState<string | null>(null);
+  const [finishedAll, setFinishedAll] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  // 重点记忆模式：独立的当前索引 + 全部学完提示
+  const [difficultIndex, setDifficultIndex] = useState(0);
+  const [difficultDone, setDifficultDone] = useState(false);
+  // 单元练习模式：独立的当前索引 + 全部学完提示
+  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [practiceDone, setPracticeDone] = useState(false);
+  // 双保险：记录本次会话已加分的题目，防止同一题 onComplete 被多次调用导致重复加分
+  const awardedRef = useRef<Set<string>>(new Set());
+  // 最近处理（答对 / 我不会）的词条所属单元（单元完成祝贺检测用，避免切题竞态）
+  const lastProcessedUnitRef = useRef<string | null>(null);
+  // 最新进度引用：goNext 会被 LearningCard 答对后的自动跳题定时器以旧闭包调用，
+  // 该闭包里的 progress 不包含刚答对的最后一题（setProgress 尚未提交），
+  // 单元完成判定会永远读到旧数据导致祝贺页不弹，故用 ref 读取最新值。
+  const progressRef = useRef(progress);
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
+  // 防止 goNext / 祝贺页继续 被快速重复触发导致进度回退或重复弹窗
+  const busyRef = useRef(false);
+  // 单元/年级完成祝贺弹窗（unitKey: `${grade}-${unit}`；grade 快照在轮次清零前计算）
+  const [celebration, setCelebration] = useState<{
+    unitKey: string;
+    level: "unit" | "grade";
+    quote: MovieQuote;
+    grade?: GradeStatsSnapshot;
+  } | null>(null);
+
+  const cur = getCurriculum(version);
+  const accent = user.config.accent;
+
+  const allEntriesMap = useMemo(
+    () => new Map(getAllEntries(version).map((e) => [e.id, e])),
+    [version]
+  );
+
+  // ── 年级独立进度：当前学习状态来自 activeGrade（重点记忆模式不使用） ──
+  const gs: GradeState =
+    progress.grades[String(progress.activeGrade)] ??
+    freshGradeState(version, progress.activeGrade);
+  const unit = cur[gs.unitIndex] ?? cur[0];
+  // 重点记忆模式：从打乱的难词列表取当前条目，并解析其所在单元
+  const difficultEntry = difficultMode
+    ? allEntriesMap.get(difficultOrder[difficultIndex] ?? "")
+    : undefined;
+  const difficultUnit = difficultEntry
+    ? cur.find(
+        (u) => u.grade === difficultEntry.grade && u.unit === difficultEntry.unit
+      )
+    : undefined;
+
+  // 单元练习模式：从打乱的单元词条列表取当前条目
+  const practiceEntry = practiceMode
+    ? allEntriesMap.get(practiceOrder[practiceIndex] ?? "")
+    : undefined;
+  const practiceUnit = practiceMode ? cur[practiceUnitIndex] : undefined;
+
+  const entry = difficultMode
+    ? difficultEntry
+    : practiceMode
+      ? practiceEntry
+      : (unit.entries.find((e) => e.id === (gs.unitOrder[gs.entryIndex] ?? "")) ??
+        unit.entries[0]);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    safeTimeout(() => setToast(null), 1600);
+  };
+
+  // DEV 预览通关页：挂载后直接弹年级通关祝贺（示例数据，不进生产构建）
+  useEffect(() => {
+    if (!previewCelebration) return;
+    speech.stop(); // 预览不需要背后播题
+    const grade = progress.activeGrade;
+    const gradeUnits = cur.filter((u) => u.grade === grade);
+    const doneCount = gradeUnits.reduce((s, u) => s + u.entries.length, 0);
+    const previewSnapshot: GradeStatsSnapshot = {
+      grade,
+      unitCount: gradeUnits.length,
+      doneCount,
+      mistakeCount: 8,
+      onceRight: Math.max(doneCount - 8, 0),
+      gradePoints: 620,
+        startAt: Date.now() - 3 * 86400000,
+        durationMs: 3 * 86400000,
+        rounds: 7,
+    };
+    setCelebration({
+      unitKey: `${grade}-1`,
+      level: "grade",
+      quote: randomMovieQuote(),
+      grade: previewSnapshot,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewCelebration]);
+
+  // 预加载后续几题的音频：切题时真人录音已在缓存，零等待直放。
+  useEffect(() => {
+    // 重点记忆模式：预取难词列表后续 3 题
+    if (difficultMode) {
+      const texts: string[] = [];
+      for (let i = difficultIndex + 1; i <= difficultIndex + 3; i++) {
+        const e = difficultOrder[i]
+          ? allEntriesMap.get(difficultOrder[i])
+          : undefined;
+        if (e) texts.push(e.english);
+      }
+      texts.forEach((t) => prefetchAudio(t, accent));
+      return;
+    }
+    const texts: string[] = [];
+    const order = gs.unitOrder;
+    // 当前单元后续 3 题
+    for (let i = gs.entryIndex + 1; i <= gs.entryIndex + 3; i++) {
+      const id = order[i];
+      if (!id) break;
+      const e = unit.entries.find((x) => x.id === id);
+      if (e) texts.push(e.english);
+    }
+    // 当前单元最后一题时，预取同年级下一单元第 1 题
+    if (gs.entryIndex + 1 >= order.length) {
+      const nextUnit = cur[gs.unitIndex + 1];
+      if (nextUnit && nextUnit.grade === unit.grade && nextUnit.entries[0]) {
+        texts.push(nextUnit.entries[0].english);
+      }
+    }
+    texts.forEach((t) => prefetchAudio(t, accent));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    difficultMode,
+    difficultIndex,
+    difficultOrder,
+    allEntriesMap,
+    accent,
+    gs.unitIndex,
+    gs.entryIndex,
+    gs.unitOrder,
+    unit,
+  ]);
+
+  const markComplete = useCallback(
+    (id: string) => {
+      // 记下答对时刻：上滑切题手势据此作废「打完最后一个字母那次触摸的尾巴」
+      answeredAtRef.current = performance.now();
+      // 记录最近处理词条的单元，供"单元完成"祝贺检测使用
+      const src = difficultMode || practiceMode
+        ? allEntriesMap.get(id)
+        : unit.entries.find((e) => e.id === id);
+      if (src) lastProcessedUnitRef.current = `${src.grade}-${src.unit}`;
+
+      if (difficultMode) {
+        // 拼对一次即视为"学习过"，之后才允许从重点记忆列表移除
+        setProgress((prev) =>
+          prev.difficultStudiedIds?.includes(id)
+            ? prev
+            : {
+                ...prev,
+                difficultStudiedIds: [...(prev.difficultStudiedIds ?? []), id],
+              }
+        );
+        // 重点记忆学习：积分只加一次（持久化 difficultAwardedIds 去重），
+        // 重复学习不再加分；不写年级进度（重点记忆不参与进度推进）
+        if (!awardedRef.current.has(id)) {
+          awardedRef.current.add(id);
+          const awarded = progressRef.current.difficultAwardedIds ?? [];
+          if (!awarded.includes(id)) {
+            const pts = src ? pointsForEntry(src.type) : 5;
+            addPoints(user.id, pts, 1);
+            setProgress((prev) => ({
+              ...prev,
+              difficultAwardedIds: [...(prev.difficultAwardedIds ?? []), id],
+            }));
+          }
+        }
+        return;
+      }
+
+      // 单元练习模式：只加积分，不写年级整体进度（练习不计进度）
+      if (practiceMode) {
+        if (!awardedRef.current.has(id)) {
+          awardedRef.current.add(id);
+          const pts = src ? pointsForEntry(src.type) : 5;
+          addPoints(user.id, pts, 1);
+        }
+        return;
+      }
+
+      // 普通模式：积分规则不变 —— 每轮学习照常加分。
+      // awardedRef 防同一题并发重复加分；轮次清零后重学（completed 已清空）可再次加分。
+      const gsNow = progressRef.current.grades[
+        String(progressRef.current.activeGrade)
+      ];
+      const alreadyCompleted = gsNow?.completedEntryIds.includes(id) ?? false;
+      if (!alreadyCompleted || !awardedRef.current.has(id)) {
+        awardedRef.current.add(id);
+        const pts = src ? pointsForEntry(src.type) : 5;
+        addPoints(user.id, pts, 1);
+      }
+      // 记入当前年级本轮完成集合
+      setProgress((prev) => {
+        const gk = String(prev.activeGrade);
+        const g = prev.grades[gk];
+        if (!g || g.completedEntryIds.includes(id)) return prev;
+        return {
+          ...prev,
+          grades: {
+            ...prev.grades,
+            [gk]: { ...g, completedEntryIds: [...g.completedEntryIds, id] },
+          },
+        };
+      });
+    },
+    [setProgress, unit, allEntriesMap, addPoints, user.id, difficultMode, practiceMode]
+  );
+
+  /**
+   * 当前词条离开后的推进位置（普通模式，限制在当前年级内）：
+   * - 单元内 → 下一个未处理词条（跳过本轮已处理词条）
+   * - 单元结束 → 年级内向后找第一个含未处理词条的单元
+   * - 年级内全部处理完 → "grade-complete"（一轮完成：清零 + 轮数 +1）
+   */
+  const nextPositionAfter = useCallback(
+    (p: Progress):
+      | "grade-complete"
+      | { unitIndex: number; entryIndex: number; unitOrder: string[] } => {
+      const g = p.grades[String(p.activeGrade)];
+      if (!g) return "grade-complete";
+      const grade = cur[g.unitIndex]?.grade ?? p.activeGrade;
+      const processed = processedOf(g);
+
+      // 当前单元内下一个未处理词条
+      let ei = g.entryIndex + 1;
+      while (ei < g.unitOrder.length && processed.has(g.unitOrder[ei])) ei += 1;
+      if (ei < g.unitOrder.length) {
+        return { unitIndex: g.unitIndex, entryIndex: ei, unitOrder: g.unitOrder };
+      }
+
+      // 年级内向后找
+      for (
+        let ui = g.unitIndex + 1;
+        ui < cur.length && cur[ui].grade === grade;
+        ui += 1
+      ) {
+        const order = makeUnitOrder(ui, version);
+        let e = 0;
+        while (e < order.length && processed.has(order[e])) e += 1;
+        if (e < order.length) {
+          return { unitIndex: ui, entryIndex: e, unitOrder: order };
+        }
+      }
+      // 边角：保存位置之前还有未处理单元（中途跳学）→ 回到年级开头找
+      const gradeStart = gradeStartIndex(version, grade);
+      for (let ui = gradeStart; ui < g.unitIndex; ui += 1) {
+        const order = makeUnitOrder(ui, version);
+        let e = 0;
+        while (e < order.length && processed.has(order[e])) e += 1;
+        if (e < order.length) {
+          return { unitIndex: ui, entryIndex: e, unitOrder: order };
+        }
+      }
+      return "grade-complete";
+    },
+    [cur, version]
+  );
+
+  /** 年级完成统计快照（在轮次清零前基于当前数据计算） */
+  const computeGradeSnapshot = useCallback(
+    (p: Progress, grade: number): GradeStatsSnapshot => {
+      const g = p.grades[String(grade)];
+      const gradeUnits = cur.filter((u) => u.grade === grade);
+      const gradeEntries = gradeUnits.flatMap((u) => u.entries);
+      const gradeIds = new Set(gradeEntries.map((e) => e.id));
+      const doneCount = gradeEntries.length;
+      const unitCount = gradeUnits.length;
+      const mistakeCount = (p.mistakeEntryIds ?? []).filter((id) =>
+        gradeIds.has(id)
+      ).length;
+      const onceRight = Math.max(doneCount - mistakeCount, 0);
+      const gradePoints = (g?.completedEntryIds ?? []).reduce((s, id) => {
+        if (!gradeIds.has(id)) return s;
+        const e = allEntriesMap.get(id);
+        return s + (e ? pointsForEntry(e.type) : 5);
+      }, 0);
+      // 年级开始时间 = 该年级各单元开始时间的最早值
+      const starts = gradeUnits
+        .map((u) => p.unitStartedAt?.[`${u.grade}-${u.unit}`])
+        .filter((t): t is number => typeof t === "number");
+      const startAt = starts.length ? Math.min(...starts) : undefined;
+      return {
+        grade,
+        unitCount,
+        doneCount,
+        mistakeCount,
+        onceRight,
+        gradePoints,
+        startAt,
+        durationMs: startAt ? Date.now() - startAt : 0,
+        // 5 个太阳（10 轮）封顶，之后不再累计
+        rounds: Math.min((g?.rounds ?? 0) + 1, MAX_ROUNDS),
+      };
+    },
+    [cur, allEntriesMap]
+  );
+
+  /**
+   * 年级一轮完成：轮数 +1、本轮进度清零、位置回到年级第一单元第一词；
+   * 同时清掉该年级的单元祝贺标记 / 开始时间 / 错词记录（新一轮重新统计）。
+   * 返回清零后的新 Progress（不修改原对象）。
+   */
+  const completeGradeRound = useCallback(
+    (p: Progress, grade: number): Progress => {
+      const gradeStart = gradeStartIndex(version, grade);
+      const g = p.grades[String(grade)];
+      const newGs: GradeState = {
+        unitIndex: gradeStart,
+        entryIndex: 0,
+        unitOrder: makeUnitOrder(gradeStart, version),
+        completedEntryIds: [],
+        skippedEntryIds: [],
+        // 5 个太阳（10 轮）封顶，之后不再累计
+        rounds: Math.min((g?.rounds ?? 0) + 1, MAX_ROUNDS),
+      };
+      const gradeIds = new Set(
+        cur
+          .filter((u) => u.grade === grade)
+          .flatMap((u) => u.entries.map((e) => e.id))
+      );
+      const prefix = `${grade}-`;
+      const unitStartedAt = Object.fromEntries(
+        Object.entries(p.unitStartedAt ?? {}).filter(
+          ([k]) => !k.startsWith(prefix)
+        )
+      );
+      return {
+        ...p,
+        grades: { ...p.grades, [String(grade)]: newGs },
+        celebratedUnits: (p.celebratedUnits ?? []).filter(
+          (k) => !k.startsWith(prefix)
+        ),
+        unitStartedAt,
+        mistakeEntryIds: (p.mistakeEntryIds ?? []).filter(
+          (id) => !gradeIds.has(id)
+        ),
+      };
+    },
+    [cur, version]
+  );
+
+  /** 触发年级（一轮通关）祝贺：先算统计快照，再清零轮次，最后弹祝贺页 */
+  const triggerGradeCelebration = useCallback(
+    (p: Progress, grade: number, unitKey: string) => {
+      const snapshot = computeGradeSnapshot(p, grade);
+      speech.stop();
+      playCelebrationJingle();
+      setCelebration({
+        unitKey,
+        level: "grade",
+        quote: randomMovieQuote(),
+        grade: snapshot,
+      });
+      setProgress((prev) => completeGradeRound(prev, grade));
+    },
+    [computeGradeSnapshot, completeGradeRound, setProgress, speech]
+  );
+
+  const goNext = useCallback(() => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    // 进入下一题：清掉答对时刻，让新一题的手势判定从干净状态开始
+    answeredAtRef.current = 0;
+    const release = () => {
+      // busyRef 解锁必须用 safeTimeout：iOS 后台挂起冻结定时器时，
+      // 普通 setTimeout 永不触发 → busyRef 卡 true → 之后所有跳题失效
+      safeTimeout(() => {
+        busyRef.current = false;
+      }, 50);
+    };
+
+    // 重点记忆模式：遍历难词列表，全部学完弹完成提示
+    if (difficultMode) {
+      const nextIndex = difficultIndex + 1;
+      if (nextIndex < difficultOrder.length) {
+        setDifficultIndex(nextIndex);
+        setAnimKey((k) => k + 1);
+      } else {
+        setDifficultDone(true);
+      }
+      release();
+      return;
+    }
+
+    // 单元练习模式：遍历打乱后的单元词条，全部学完弹完成提示
+    if (practiceMode) {
+      const nextIndex = practiceIndex + 1;
+      if (nextIndex < practiceOrder.length) {
+        setPracticeIndex(nextIndex);
+        setAnimKey((k) => k + 1);
+      } else {
+        setPracticeDone(true);
+      }
+      release();
+      return;
+    }
+
+    // 单元完成检测：最近处理的词条所属单元，若全部词条都已处理过（答对 或 点过"我不会"）
+    // 则弹出祝贺页并停在这里，等用户点"继续学习"再真正切题。
+    // 每次学完该单元都弹（不限第一次）；lastProcessedUnitRef 在继续学习/重学时清空，防重复触发。
+    // 注意：必须读 progressRef（最新值），因为本函数可能被 1.8s 定时器以旧闭包调用。
+    const p = progressRef.current;
+    const g = p.grades[String(p.activeGrade)];
+    const processed = g ? processedOf(g) : new Set<string>();
+    const lastKey = lastProcessedUnitRef.current;
+    if (lastKey) {
+      const lastUnit = cur.find((u) => `${u.grade}-${u.unit}` === lastKey);
+      if (lastUnit) {
+        const allProcessed = lastUnit.entries.every((e) => processed.has(e.id));
+        if (allProcessed) {
+          // 年级是否也全部处理完（该年级所有单元的词条都处理过）
+          // → 一轮通关：轮数 +1、进度清零、年级祝贺（带统计）
+          const gradeAllDone = cur
+            .filter((u) => u.grade === lastUnit.grade)
+            .every((uu) => uu.entries.every((e) => processed.has(e.id)));
+          if (gradeAllDone) {
+            triggerGradeCelebration(p, lastUnit.grade, lastKey);
+          } else {
+            speech.stop(); // 停掉后台朗读，避免祝贺页背后响着下一题的音频
+            playCelebrationJingle(); // 播放简短庆祝音效
+            setCelebration({
+              unitKey: lastKey,
+              level: "unit",
+              quote: randomMovieQuote(),
+            });
+          }
+          release();
+          return;
+        }
+      }
+    }
+
+    const next = nextPositionAfter(p);
+    if (next === "grade-complete") {
+      // 年级刚学完（如重新学习本单元后再通关）→ 年级祝贺
+      const grade = cur[g?.unitIndex ?? 0]?.grade ?? p.activeGrade;
+      const unitKey =
+        lastKey ?? `${grade}-${cur[g?.unitIndex ?? 0]?.unit ?? 1}`;
+      triggerGradeCelebration(p, grade, unitKey);
+      release();
+      return;
+    }
+    setProgress((prev) => {
+      const gk = String(prev.activeGrade);
+      const gsNow = prev.grades[gk];
+      if (!gsNow) return prev;
+      return {
+        ...prev,
+        grades: { ...prev.grades, [gk]: { ...gsNow, ...next } },
+      };
+    });
+    setAnimKey((k) => k + 1);
+    release();
+  }, [
+    difficultMode,
+    difficultIndex,
+    difficultOrder.length,
+    practiceMode,
+    practiceIndex,
+    practiceOrder.length,
+    setProgress,
+    cur,
+    setCelebration,
+    speech,
+    nextPositionAfter,
+    triggerGradeCelebration,
+  ]);
+
+  /** 记录"曾经拼错或不会"的词条（去重），供年级完成页统计 */
+  const addMistake = useCallback(
+    (id: string) => {
+      setProgress((prev) =>
+        prev.mistakeEntryIds?.includes(id)
+          ? prev
+          : {
+              ...prev,
+              mistakeEntryIds: [...(prev.mistakeEntryIds ?? []), id],
+            }
+      );
+    },
+    [setProgress]
+  );
+
+  /**
+   * "我不会"：不影响学习进度（进度继续往后走），只把词条加入重点记忆列表；
+   * 记入年级本轮 skipped 集合（推进进度但不计分）。
+   */
+  const markDontKnow = useCallback(
+    (id: string) => {
+      const src = difficultMode
+        ? allEntriesMap.get(id)
+        : unit.entries.find((e) => e.id === id);
+      if (src) lastProcessedUnitRef.current = `${src.grade}-${src.unit}`;
+      setProgress((prev) => {
+        const difficult = prev.difficultEntryIds.includes(id)
+          ? prev.difficultEntryIds
+          : [...prev.difficultEntryIds, id];
+        let grades = prev.grades;
+        // 普通模式才写年级进度；重点记忆与单元练习都不计入整体进度
+        if (!difficultMode && !practiceMode) {
+          const gk = String(prev.activeGrade);
+          const g = prev.grades[gk];
+          if (g && !g.skippedEntryIds.includes(id)) {
+            grades = {
+              ...prev.grades,
+              [gk]: { ...g, skippedEntryIds: [...g.skippedEntryIds, id] },
+            };
+          }
+        }
+        return { ...prev, difficultEntryIds: difficult, grades };
+      });
+      addMistake(id); // "我不会"也计入拼错/不会统计
+      showToast("📝 已加入重点记忆列表");
+    },
+    [setProgress, addMistake, unit, allEntriesMap, difficultMode, practiceMode]
+  );
+
+  /**
+   * 加入重点记忆：把词条加入重点记忆列表（不影响学习进度、不计错、不计分）。
+   * 与"我不会"不同：不推进进度，也不计入拼错/不会统计，适合"答对了但还想巩固"的场景。
+   */
+  const addToDifficult = useCallback(
+    (id: string) => {
+      setProgress((prev) => {
+        if (prev.difficultEntryIds.includes(id)) return prev;
+        return { ...prev, difficultEntryIds: [...prev.difficultEntryIds, id] };
+      });
+      showToast("📝 已加入重点记忆列表");
+    },
+    [setProgress]
+  );
+
+  /**
+   * 上滑切题手势。三个排除条件缺一不可，否则会被误判成「无操作自动跳题」：
+   *
+   * 1) 起点在自绘键盘内 —— 键盘用 createPortal 挂到 body，DOM 上不在本容器内，
+   *    但 React 合成事件沿**组件树**冒泡（Portal 只改变 DOM 层级，不改变事件
+   *    传播路径），所以键盘上的 touchstart/touchend 照样会到达这里。
+   * 2) 多指 —— 见 handleTouchEnd 的 e.touches.length 检查。
+   * 3) 起点在按钮上 —— 点按钮时手指的微小位移不应被当成手势。
+   */
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const t = e.changedTouches[0];
+    if (!t) return;
+    // 超过一指落在屏幕上：放弃本次手势，并清掉可能残留的旧起点
+    if (e.touches.length > 1) {
+      touchStartY.current = null;
+      return;
+    }
+    const el = e.target as HTMLElement | null;
+    // data-dictation-keyboard：SpellingInput 的自绘键盘根元素上的标记
+    if (el?.closest?.("[data-dictation-keyboard],button")) {
+      touchStartY.current = null;
+      return;
+    }
+    // 用 changedTouches[0]（本次刚按下的那根手指）而不是 touches[0]
+    // （当前所有触点中的第一个）：多指时两者不是同一根手指，会算出错位的 dy。
+    touchStartAtRef.current = performance.now();
+    touchStartY.current = t.clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartY.current = null;
+    // 还有别的手指留在屏幕上（多指交替抬起）：此时 e.touches[0] 与
+    // changedTouches[0] 不是同一根手指，dy 无意义，直接放弃本次判定。
+    if (e.touches.length > 0) return;
+    // 手势起点落在「刚答对」的反应窗口内 → 这是打完最后一个字母那次触摸的
+    // 尾巴（键盘已在 pointerdown 阶段卸载，后续事件被重定向到手指下方的新
+    // 元素），不是用户看到答对页后的主动上滑，直接作废。
+    if (touchStartAtRef.current - answeredAtRef.current < SETTLE_MS) return;
+    if (dy < -60) {
+      // 祝贺页打开时禁止上滑切题（祝贺页内容滚动也会冒泡到这里）
+      if (celebration) return;
+      if (finishedAll || difficultDone || practiceDone) return;
+      if (!entry) return;
+      const processedNow =
+        difficultMode ||
+        gs.completedEntryIds.includes(entry.id) ||
+        gs.skippedEntryIds.includes(entry.id);
+      if (!processedNow) {
+        showToast("请先完成当前拼写");
+        return;
+      }
+      goNext();
+    }
+  };
+
+  /**
+   * 祝贺页"继续学习"：
+   * - 单元级：在当前年级内推进到下一个未处理词条；
+   * - 年级级（一轮通关，进度已清零）：进入下一个年级（恢复其进度），
+   *   没有下一个年级 → 全部学完页面。
+   */
+  const continueFromCelebration = useCallback(() => {
+    if (busyRef.current || !celebration) return;
+    busyRef.current = true;
+    setCelebration(null);
+
+    if (celebration.level === "grade") {
+      const grade = celebration.grade?.grade ?? progressRef.current.activeGrade;
+      const gradesList = Array.from(new Set(cur.map((u) => u.grade))).sort(
+        (a, b) => a - b
+      );
+      const nextGrade = gradesList.find((g) => g > grade);
+      if (nextGrade === undefined) {
+        setFinishedAll(true);
+      } else {
+        setProgress((prev) => {
+          const pos = findResumePosition(prev, nextGrade, version);
+          const gsNext =
+            prev.grades[String(nextGrade)] ??
+            freshGradeState(version, nextGrade);
+          return {
+            ...prev,
+            activeGrade: nextGrade,
+            grades: {
+              ...prev.grades,
+              [String(nextGrade)]: { ...gsNext, ...pos },
+            },
+          };
+        });
+        setAnimKey((k) => k + 1);
+      }
+    } else {
+      // 单元级：年级内推进（显式推进进度，不依赖 progressRef 避免竞态）
+      setProgress((prev) => {
+        const next = nextPositionAfter(prev);
+        if (next === "grade-complete") {
+          // 防御：单元庆祝时年级刚好也完成 → 直接完成轮次
+          const gk = String(prev.activeGrade);
+          const grade = cur[prev.grades[gk]?.unitIndex ?? 0]?.grade ?? prev.activeGrade;
+          return completeGradeRound(prev, grade);
+        }
+        const gk = String(prev.activeGrade);
+        const g = prev.grades[gk];
+        if (!g) return prev;
+        return { ...prev, grades: { ...prev.grades, [gk]: { ...g, ...next } } };
+      });
+      setAnimKey((k) => k + 1);
+    }
+    lastProcessedUnitRef.current = null;
+    safeTimeout(() => {
+      busyRef.current = false;
+    }, 80);
+  }, [
+    celebration,
+    cur,
+    version,
+    setProgress,
+    nextPositionAfter,
+    completeGradeRound,
+  ]);
+
+  /**
+   * 祝贺页"重新学习本单元"：进度回滚到本单元第 1 个词条
+   * （该单元词条从本轮完成/跳过集合移除，重学完成可再次获得积分与祝贺；
+   * 已得积分不回收）。仅单元祝贺页展示该按钮，年级通关页不显示。
+   */
+  const restartUnitFromCelebration = useCallback(() => {
+    if (busyRef.current || !celebration) return;
+    busyRef.current = true;
+    const unitKey = celebration.unitKey;
+    const unitInfo = cur.find((u) => `${u.grade}-${u.unit}` === unitKey);
+    setCelebration(null);
+    if (unitInfo) {
+      const grade = unitInfo.grade;
+      const unitIndex = cur.indexOf(unitInfo);
+      setProgress((prev) => {
+        const gk = String(grade);
+        const g = prev.grades[gk] ?? freshGradeState(version, grade);
+        const unitIds = new Set(unitInfo.entries.map((e) => e.id));
+        const orderIsTarget =
+          g.unitOrder.length > 0 && g.unitOrder.every((id) => unitIds.has(id));
+        const nextGs: GradeState = {
+          ...g,
+          unitIndex,
+          entryIndex: 0,
+          unitOrder: orderIsTarget
+            ? g.unitOrder
+            : makeUnitOrder(unitIndex, version),
+          completedEntryIds: g.completedEntryIds.filter(
+            (id) => !unitIds.has(id)
+          ),
+          skippedEntryIds: g.skippedEntryIds.filter((id) => !unitIds.has(id)),
+        };
+        return {
+          ...prev,
+          activeGrade: grade,
+          grades: { ...prev.grades, [gk]: nextGs },
+          celebratedUnits: (prev.celebratedUnits ?? []).filter(
+            (k) => k !== unitKey
+          ),
+        };
+      });
+      setAnimKey((k) => k + 1);
+    }
+    lastProcessedUnitRef.current = null;
+    safeTimeout(() => {
+      busyRef.current = false;
+    }, 80);
+  }, [celebration, cur, version, setProgress]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // 祝贺页打开时不响应（避免误触切题或返回首页播放音频）
+      if (celebration) return;
+      // 注意：不响应 Enter（拼写输入时按回车不应跳题）
+      if (e.key === "Escape") onExit();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onExit, celebration]);
+
+  // 记录各单元首次开始学习的时间（用于完成页展示"开始学习时间 / 完成用时"）
+  useEffect(() => {
+    if (!entry) return;
+    const k = `${entry.grade}-${entry.unit}`;
+    setProgress((prev) =>
+      prev.unitStartedAt?.[k]
+        ? prev
+        : {
+            ...prev,
+            unitStartedAt: { ...(prev.unitStartedAt ?? {}), [k]: Date.now() },
+          }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry?.grade, entry?.unit]);
+
+  // 祝贺页（通关页）弹出时收起键盘（iOS 上输入框焦点不释放会导致键盘遮挡按钮）。
+  // 三重保险：blur 失焦 + 原生 Keyboard.hide()（blur 可能因僵尸态失效）+
+  // 监听 visibilitychange（切其它 APP 再回来时 iOS 可能自动恢复键盘）。
+  useEffect(() => {
+    if (!celebration) return;
+    const hideKeyboard = () => {
+      if (document.visibilityState !== "visible") return;
+      (document.activeElement as HTMLElement | null)?.blur();
+      if (Capacitor.isNativePlatform()) Keyboard.hide().catch(() => {});
+    };
+    hideKeyboard();
+    document.addEventListener("visibilitychange", hideKeyboard);
+    return () => document.removeEventListener("visibilitychange", hideKeyboard);
+  }, [celebration]);
+
+  const restart = () => {
+    const p = freshProgress(version);
+    setProgress(p);
+    saveProgress(user.id, p);
+    setFinishedAll(false);
+    setAnimKey((k) => k + 1);
+  };
+
+  // 重点记忆模式：当前词条已加过积分（重复学习不加分，答对卡不显示积分）
+  const difficultAlreadyAwarded =
+    difficultMode && !!entry?.id &&
+    (progress.difficultAwardedIds ?? []).includes(entry.id);
+
+  if (!entry) return null;
+
+  if (finishedAll) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-6 px-8 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success-light ring-4 ring-white shadow-card">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-text">全部学完了！</h2>
+          <p className="mt-2 text-sm text-text2">
+            你已完成 1-9 年级全部内容，可以重新开始巩固复习。
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onRestart}
+            className="rounded-full border border-border bg-surface px-6 py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
+          >
+            重置进度
+          </button>
+          <button
+            type="button"
+            onClick={restart}
+            className="rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.97]"
+          >
+            重新学习
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative h-full overflow-hidden bg-bg transition-[padding] duration-200 ease-out"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div key={animKey} className="h-full animate-[cardIn_.35s_ease]">
+        <LearningCard
+          entry={entry}
+          onExit={onExit}
+          unitTitle={
+            difficultMode
+              ? `重点记忆 · ${difficultUnit?.title ?? ""}`
+              : practiceMode
+                ? `练习 · 第 ${practiceUnit?.unit} 单元 · ${practiceUnit?.title ?? ""}`
+                : `第 ${unit.unit} 单元 · ${unit.title}`
+          }
+          orderInUnit={
+            difficultMode
+              ? difficultIndex + 1
+              : practiceMode
+                ? practiceIndex + 1
+                : gs.entryIndex + 1
+          }
+          unitSize={
+            difficultMode
+              ? difficultOrder.length
+              : practiceMode
+                ? practiceOrder.length
+                : gs.unitOrder.length || unit.entries.length
+          }
+          onComplete={markComplete}
+          onNext={goNext}
+          onDontKnow={markDontKnow}
+          onMistake={addMistake}
+          onAddToDifficult={difficultMode ? undefined : addToDifficult}
+          alreadyInDifficult={progress.difficultEntryIds.includes(entry.id)}
+          frozen={celebration !== null}
+          autoNext={user.config.autoNext ?? false}
+          hidePoints={!!difficultAlreadyAwarded}
+          replay={() => {
+            speech.replayNow();
+          }}
+          stopAudio={speech.stop}
+          startAudio={(t) => {
+            primeSpeech();
+            speech.start(t, 1.0, accent);
+          }}
+        />
+      </div>
+
+      {/* 单元/年级完成祝贺页 */}
+      {celebration && (
+        <div className="absolute inset-0 z-40 overflow-y-auto bg-primary-lighter px-8 py-12">
+          <div className="mx-auto flex h-full max-w-sm flex-col items-center text-center">
+            <div className="animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)]">
+              <TrophyIcon size={120} />
+            </div>
+            {celebration.level === "unit" ? (
+              (() => {
+                const unitInfo = cur.find(
+                  (u) => `${u.grade}-${u.unit}` === celebration.unitKey
+                );
+                if (!unitInfo) return null;
+                return (
+                  <>
+                    <h2 className="mt-3 text-xl font-semibold text-text">
+                      恭喜完成 {gradeLabel(unitInfo.grade)}第{" "}
+                      {unitInfo.unit} 单元！
+                    </h2>
+                    <p className="mt-1.5 text-sm leading-5 text-text2">
+                      <span className="font-semibold text-text">
+                        {unitInfo.title}
+                      </span>
+                      ——通过努力学习，你完成了本单元的听写练习，太棒了！
+                    </p>
+                  </>
+                );
+              })()
+            ) : (
+              <>
+                <h2 className="mt-3 text-xl font-semibold text-text">
+                  恭喜通关 {gradeLabel(celebration.grade?.grade ?? progress.activeGrade)}！
+                </h2>
+                <p className="mt-1.5 text-sm leading-5 text-text2">
+                  {celebration.grade?.unitCount ?? 0} 个单元、
+                  {celebration.grade?.doneCount ?? 0} 个词条全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！
+                </p>
+              </>
+            )}
+
+            {/* 通关奖励：本轮获得的一颗星（2 的倍数轮合成太阳，满级显示最高荣誉） */}
+            {celebration.level === "grade" && celebration.grade && (() => {
+              const r = celebration.grade.rounds;
+              const isSun = r % 2 === 0; // 2/4/6/8/10 轮：本轮的星合成太阳
+              const isMax = r >= MAX_ROUNDS;
+              const suns = sunsOf(r);
+              const stars = starsOf(r);
+              return (
+                <div
+                  className="mt-5 flex w-full animate-[slideUp_.4s_ease] flex-col items-center gap-3 rounded-2xl bg-surface px-4 py-6 shadow-card"
+                  title={`累计 ${suns} 个太阳 · ${stars} 颗星星`}
+                >
+                  {isSun ? (
+                    <SunIcon size={56} />
+                  ) : (
+                    <StarIcon size={56} />
+                  )}
+                  <p className="text-sm font-semibold text-text">
+                    {isMax
+                      ? "达成最高荣誉！"
+                      : isSun
+                        ? "2 颗星星合成了 1 个太阳！"
+                        : "本轮获得 1 颗星星"}
+                  </p>
+                  <p className="text-[11px] text-text3">
+                    {isMax
+                      ? "已集满 5 个太阳"
+                      : `已完整学完本年级 ${r} 轮 · 2 颗星星将合成 1 颗太阳`}
+                  </p>
+                </div>
+              );
+            })()}
+
+            {/* 学习信息统计（仅年级完成时展示） */}
+            {celebration.level === "grade" && celebration.grade && (
+              <div className="mt-5 grid w-full grid-cols-2 gap-2">
+                <StatCard label="开始学习" value={formatDateTime(celebration.grade.startAt)} />
+                <StatCard label="完成用时" value={formatDuration(celebration.grade.durationMs)} />
+                <StatCard label="拼错或不会" value={`${celebration.grade.mistakeCount} 个`} valueColor="text-error" />
+                <StatCard label="一次做对" value={`${celebration.grade.onceRight} 个`} valueColor="text-success" />
+                <StatCard label="本轮积分" value={`+${celebration.grade.gradePoints}`} valueColor="text-gold" />
+                <StatCard label="完成轮数" value={celebration.grade.rounds >= MAX_ROUNDS ? "第 10 轮" : `第 ${celebration.grade.rounds} 轮`} />
+              </div>
+            )}
+
+            {/* 随机电影台词：仅单元完成时展示，年级通关页不显示 */}
+            {celebration.level === "unit" && (
+              <div className="relative mt-6 w-full animate-[slideUp_.4s_ease] rounded-[14px] border border-primary/20 bg-primary/10 px-5 py-4 text-left">
+                {/* 右上角装饰引号：与预览图 trophy-transparent-preview.html 一致 */}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-3 top-0 leading-none text-primary/20"
+                  style={{ fontSize: "34px" }}
+                >
+                  {"\u201D"}
+                </span>
+                {celebration.quote.en && (
+                  <p className="text-[13px] font-semibold leading-[1.7] text-text">
+                    {celebration.quote.en}
+                  </p>
+                )}
+                <p className="mt-1.5 text-xs leading-[1.7] text-text2">
+                  {celebration.quote.cn}
+                </p>
+                <p className="mt-2 text-right text-[11px] text-text3">
+                  —— 电影《{celebration.quote.movie}》
+                </p>
+              </div>
+            )}
+
+            {/* 重新学习本单元：仅单元祝贺页，保持在内容流中（积分不回收，年级通关页不显示） */}
+            {celebration.level === "unit" && (
+              <div className="mt-6 w-full">
+                <button
+                  type="button"
+                  onClick={restartUnitFromCelebration}
+                  className="w-full rounded-full bg-[#756CC5] py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(83,74,183,0.25)] transition-transform active:scale-[0.98]"
+                >
+                  重新学习本单元
+                </button>
+              </div>
+            )}
+
+            {/* 底部操作区：返回首页在继续学习上方，整体贴页面下方 */}
+            <div className="mt-auto w-full">
+              <button
+                type="button"
+                onClick={onExit}
+                className="w-full rounded-full border border-border bg-surface py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
+              >
+                返回首页
+              </button>
+              <button
+                type="button"
+                onClick={continueFromCelebration}
+                className="mt-3 w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+              >
+                继续学习
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 重点记忆全部学完提示 */}
+      {difficultMode && difficultDone && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/45 px-8">
+          <div className="w-full max-w-xs animate-[fadeIn_.2s_ease] rounded-3xl bg-surface p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success-light">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <h2 className="mt-3 text-base font-semibold text-text">重点记忆已全部学完！</h2>
+            <p className="mt-1.5 text-sm text-text2">
+              太棒了，所有重点词都复习了一遍。
+            </p>
+            <button
+              type="button"
+              onClick={onExit}
+              className="mt-5 w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+            >
+              确定
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 单元练习全部学完提示（只加积分、不计入整体进度） */}
+      {practiceMode && practiceDone && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/45 px-8">
+          <div className="w-full max-w-xs animate-[fadeIn_.2s_ease] rounded-3xl bg-surface p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success-light">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <h2 className="mt-3 text-base font-semibold text-text">本单元练习完成！</h2>
+            <p className="mt-1.5 text-sm text-text2">
+              本次练习获得的积分已计入总积分，不计入年级整体进度。
+            </p>
+            <button
+              type="button"
+              onClick={onExit}
+              className="mt-5 w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+            >
+              返回首页
+            </button>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2 animate-[fadeIn_.2s_ease]">
+          <span className="rounded-full bg-text/85 px-4 py-1.5 text-xs font-medium text-white shadow-lg">
+            {toast}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
