@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": false,
+    "rewriteRelativeImportExtensions": true,
+    "outDir": "../dist_audit",
+    "rootDir": "../src/data",
+    "declaration": false,
+    "noEmit": false,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "moduleDetection": "force"
+  },
+  "include": [
+    "../src/data/curriculum.ts",
+    "../src/data/renjiaoSL.ts",
+    "../src/data/waiyansheSL.ts",
+    "../src/data/oxfordSL.ts",
+    "../src/data/renai.ts",
+    "../src/data/kebiaoBank.ts",
+    "../src/data/mk.ts",
+    "../src/data/waiyanshe.ts",
+    "../src/data/oxford.ts",
+    "../src/data/grades4to9.ts",
+    "../src/data/movieQuotes.ts"
+  ]
+}

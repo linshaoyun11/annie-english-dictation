@@ -65,3 +65,41 @@ scripts/male_candidates.json
 
 # 存量音频优化前的原文件备份（本地回滚用，48 MB，不入库）
 .workbuddy/audio-backup/
+
+# 教材重建过程中的临时 dump 与待办清单
+.workbuddy/tmp-*
+
+# Workbook 工作目录下的本地数据、基线、测试脚本、临时产物（不入库）
+.workbuddy/_smoke.mjs
+.workbuddy/backups/
+.workbuddy/baselines/
+.workbuddy/check_curriculum.mjs
+.workbuddy/check_unit_sizes.mjs
+.workbuddy/g1g2_unique.json
+.workbuddy/kebiao.pdf
+.workbuddy/kebiao_compare.py
+.workbuddy/kebiao_extract.py
+.workbuddy/kebiao_gen.py
+.workbuddy/kebiao_missing.py
+.workbuddy/kebiao_ts_gen.py
+.workbuddy/layout_*.mjs
+.workbuddy/layout_test.stdout
+.workbuddy/runtime_smoke.mjs
+.workbuddy/test_*.mjs
+.workbuddy/verification/
+.workbuddy/keep-huawei-pak-grep.mjs
+.workbuddy/dev-policy-feed.mjs
+.workbuddy/kebiao_extract.json
+.workbuddy/kebiao_bank.json
+.workbuddy/kebiao_bank_review.txt
+.workbuddy/kebiao_missing.json
+
+# Cursor / IDE / 临时 shell 文件
+.cursor/
+.workbuddy/*.log
+.workbuddy/.DS_Store
+.workbuddy/Thumbs.db
+
+# 中间产物 / 本地预览（不入库）
+generated-images/
+screenshots/

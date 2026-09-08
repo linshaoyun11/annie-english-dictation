@@ -1,0 +1,993 @@
+{
+ "renai": [
+  {
+   "text": "superstorm",
+   "id": "ra-g8u21e1648",
+   "en": "superstorm"
+  },
+  {
+   "text": "self-driving",
+   "id": "ra-g9u29e2014",
+   "en": "self-driving"
+  },
+  {
+   "text": "the asia-pacific area",
+   "id": "ra-g9u29e2024",
+   "en": "the Asia-Pacific area"
+  },
+  {
+   "text": "world-famous",
+   "id": "ra-g9u31e2139",
+   "en": "world-famous"
+  },
+  {
+   "text": "would rather ... than ...",
+   "id": "ra-g9u35e2268",
+   "en": "would rather ... than ..."
+  }
+ ],
+ "waiyanshe3": [
+  {
+   "text": "stand up",
+   "id": "wy-g3u1e0221",
+   "en": "stand up"
+  },
+  {
+   "text": "sit down",
+   "id": "wy-g3u1e0223",
+   "en": "sit down"
+  },
+  {
+   "text": "here you are",
+   "id": "wy-g3u2e0255",
+   "en": "here you are"
+  },
+  {
+   "text": "let's",
+   "id": "wy-g3u2e0266",
+   "en": "let's"
+  },
+  {
+   "text": "pencil case",
+   "id": "wy-g3u3e0275",
+   "en": "pencil case"
+  },
+  {
+   "text": "lost and found",
+   "id": "wy-g3u3e0289",
+   "en": "lost and found"
+  },
+  {
+   "text": "come back",
+   "id": "wy-g3u3e0296",
+   "en": "come back"
+  },
+  {
+   "text": "hooray",
+   "id": "wy-g3u4e0325",
+   "en": "hooray"
+  },
+  {
+   "text": "all around",
+   "id": "wy-g3u4e0334",
+   "en": "all around"
+  },
+  {
+   "text": "chinese knot",
+   "id": "wy-g3u6e0358",
+   "en": "Chinese knot"
+  },
+  {
+   "text": "come on",
+   "id": "wy-g3u6e0373",
+   "en": "come on"
+  },
+  {
+   "text": "daddy",
+   "id": "wy-g3u6e0376",
+   "en": "daddy"
+  },
+  {
+   "text": "mummy",
+   "id": "wy-g3u6e0377",
+   "en": "mummy"
+  },
+  {
+   "text": "dining room",
+   "id": "wy-g3u7e0389",
+   "en": "dining room"
+  },
+  {
+   "text": "miaow",
+   "id": "wy-g3u7e0396",
+   "en": "miaow"
+  },
+  {
+   "text": "ostrich",
+   "id": "wy-g3u8e0424",
+   "en": "ostrich"
+  },
+  {
+   "text": "chameleon",
+   "id": "wy-g3u8e0426",
+   "en": "chameleon"
+  },
+  {
+   "text": "zebra",
+   "id": "wy-g3u8e0433",
+   "en": "zebra"
+  },
+  {
+   "text": "toe",
+   "id": "wy-g3u9e0454",
+   "en": "toe"
+  },
+  {
+   "text": "what about...",
+   "id": "wy-g3u10e0498",
+   "en": "what about..."
+  },
+  {
+   "text": "very much",
+   "id": "wy-g3u10e0511",
+   "en": "very much"
+  },
+  {
+   "text": "afternoon tea",
+   "id": "wy-g3u10e0514",
+   "en": "afternoon tea"
+  },
+  {
+   "text": "cupcake",
+   "id": "wy-g3u10e0519",
+   "en": "cupcake"
+  },
+  {
+   "text": "hot dog",
+   "id": "wy-g3u10e0524",
+   "en": "hot dog"
+  },
+  {
+   "text": "mantis",
+   "id": "wy-g3u11e0544",
+   "en": "mantis"
+  },
+  {
+   "text": "grow up",
+   "id": "wy-g3u11e0548",
+   "en": "grow up"
+  },
+  {
+   "text": "tick-tock",
+   "id": "wy-g3u12e0556",
+   "en": "tick-tock"
+  },
+  {
+   "text": "forty-five",
+   "id": "wy-g3u12e0562",
+   "en": "forty-five"
+  },
+  {
+   "text": "half past",
+   "id": "wy-g3u12e0566",
+   "en": "half past"
+  },
+  {
+   "text": "urgh",
+   "id": "wy-g3u12e0567",
+   "en": "urgh"
+  },
+  {
+   "text": "bookmark",
+   "id": "wy-g3u13e0599",
+   "en": "bookmark"
+  },
+  {
+   "text": "afterschool",
+   "id": "wy-g3u13e0603",
+   "en": "afterschool"
+  },
+  {
+   "text": "try your best",
+   "id": "wy-g4u1e0636",
+   "en": "try your best"
+  },
+  {
+   "text": "phew",
+   "id": "wy-g4u2e0640",
+   "en": "phew"
+  },
+  {
+   "text": "to-do list",
+   "id": "wy-g4u2e0648",
+   "en": "to-do list"
+  },
+  {
+   "text": "woof",
+   "id": "wy-g4u2e0655",
+   "en": "woof"
+  },
+  {
+   "text": "good job!",
+   "id": "wy-g4u2e0657",
+   "en": "Good job!"
+  },
+  {
+   "text": "helper",
+   "id": "wy-g4u2e0674",
+   "en": "helper"
+  },
+  {
+   "text": "equator",
+   "id": "wy-g4u4e0721",
+   "en": "equator"
+  },
+  {
+   "text": "all year round",
+   "id": "wy-g4u4e0723",
+   "en": "all year round"
+  },
+  {
+   "text": "beep",
+   "id": "wy-g4u5e0747",
+   "en": "beep"
+  },
+  {
+   "text": "whoosh",
+   "id": "wy-g4u5e0749",
+   "en": "whoosh"
+  },
+  {
+   "text": "tram",
+   "id": "wy-g4u5e0750",
+   "en": "tram"
+  },
+  {
+   "text": "chug",
+   "id": "wy-g4u5e0751",
+   "en": "chug"
+  },
+  {
+   "text": "on one's own",
+   "id": "wy-g4u6e0766",
+   "en": "on one's own"
+  },
+  {
+   "text": "be careful",
+   "id": "wy-g4u6e0770",
+   "en": "be careful"
+  },
+  {
+   "text": "police station",
+   "id": "wy-g4u7e0781",
+   "en": "police station"
+  },
+  {
+   "text": "owl",
+   "id": "wy-g4u7e0792",
+   "en": "owl"
+  },
+  {
+   "text": "night owl",
+   "id": "wy-g4u7e0793",
+   "en": "night owl"
+  },
+  {
+   "text": "puzzle",
+   "id": "wy-g4u9e0829",
+   "en": "puzzle"
+  },
+  {
+   "text": "sunflower",
+   "id": "wy-g4u10e0842",
+   "en": "sunflower"
+  },
+  {
+   "text": "horn",
+   "id": "wy-g4u11e0854",
+   "en": "horn"
+  },
+  {
+   "text": "dot",
+   "id": "wy-g4u11e0855",
+   "en": "dot"
+  },
+  {
+   "text": "raindrop",
+   "id": "wy-g4u11e0856",
+   "en": "raindrop"
+  },
+  {
+   "text": "keeper",
+   "id": "wy-g4u11e0859",
+   "en": "keeper"
+  },
+  {
+   "text": "dressmaker",
+   "id": "wy-g4u12e0878",
+   "en": "dressmaker"
+  },
+  {
+   "text": "robe",
+   "id": "wy-g4u12e0884",
+   "en": "robe"
+  },
+  {
+   "text": "food group",
+   "id": "wy-g5u1e0887",
+   "en": "food group"
+  },
+  {
+   "text": "cola",
+   "id": "wy-g5u1e0890",
+   "en": "cola"
+  },
+  {
+   "text": "that's enough",
+   "id": "wy-g5u1e0898",
+   "en": "that's enough"
+  },
+  {
+   "text": "whoa",
+   "id": "wy-g5u1e0910",
+   "en": "whoa"
+  },
+  {
+   "text": "oats",
+   "id": "wy-g5u1e0911",
+   "en": "oats"
+  },
+  {
+   "text": "nut",
+   "id": "wy-g5u1e0912",
+   "en": "nut"
+  },
+  {
+   "text": "bar",
+   "id": "wy-g5u1e0913",
+   "en": "bar"
+  },
+  {
+   "text": "teaspoon",
+   "id": "wy-g5u1e0914",
+   "en": "teaspoon"
+  },
+  {
+   "text": "turn into",
+   "id": "wy-g5u2e0929",
+   "en": "turn into"
+  },
+  {
+   "text": "er",
+   "id": "wy-g5u3e0943",
+   "en": "er"
+  },
+  {
+   "text": "openly",
+   "id": "wy-g5u3e0950",
+   "en": "openly"
+  },
+  {
+   "text": "be late for school",
+   "id": "wy-g5u4e0964",
+   "en": "be late for school"
+  },
+  {
+   "text": "fries",
+   "id": "wy-g5u5e0985",
+   "en": "fries"
+  },
+  {
+   "text": "merry christmas!",
+   "id": "wy-g5u6e0995",
+   "en": "Merry Christmas!"
+  },
+  {
+   "text": "id",
+   "id": "wy-g5u7e0998",
+   "en": "ID"
+  },
+  {
+   "text": "skier",
+   "id": "wy-g5u7e1003",
+   "en": "skier"
+  },
+  {
+   "text": "summer camp",
+   "id": "wy-g5u7e1005",
+   "en": "summer camp"
+  },
+  {
+   "text": "care home",
+   "id": "wy-g5u8e1019",
+   "en": "care home"
+  },
+  {
+   "text": "ukulele",
+   "id": "wy-g5u8e1024",
+   "en": "ukulele"
+  },
+  {
+   "text": "lunchtime",
+   "id": "wy-g5u8e1026",
+   "en": "lunchtime"
+  },
+  {
+   "text": "pillow",
+   "id": "wy-g5u10e1058",
+   "en": "pillow"
+  },
+  {
+   "text": "icebox",
+   "id": "wy-g5u10e1060",
+   "en": "icebox"
+  },
+  {
+   "text": "prison",
+   "id": "wy-g5u11e1087",
+   "en": "prison"
+  },
+  {
+   "text": "jewel",
+   "id": "wy-g5u11e1089",
+   "en": "jewel"
+  },
+  {
+   "text": "shiny",
+   "id": "wy-g5u11e1090",
+   "en": "shiny"
+  },
+  {
+   "text": "aha",
+   "id": "wy-g5u11e1091",
+   "en": "aha"
+  },
+  {
+   "text": "high-speed",
+   "id": "wy-g5u12e1095",
+   "en": "high-speed"
+  },
+  {
+   "text": "shopkeeper",
+   "id": "wy-g6u1e1108",
+   "en": "shopkeeper"
+  },
+  {
+   "text": "golden touch",
+   "id": "wy-g6u1e1109",
+   "en": "golden touch"
+  },
+  {
+   "text": "clang",
+   "id": "wy-g6u1e1113",
+   "en": "clang"
+  },
+  {
+   "text": "saving",
+   "id": "wy-g6u1e1114",
+   "en": "saving"
+  },
+  {
+   "text": "peel",
+   "id": "wy-g6u2e1119",
+   "en": "peel"
+  },
+  {
+   "text": "debate",
+   "id": "wy-g6u2e1125",
+   "en": "debate"
+  },
+  {
+   "text": "plateau",
+   "id": "wy-g6u3e1137",
+   "en": "plateau"
+  },
+  {
+   "text": "wheelchair",
+   "id": "wy-g6u4e1145",
+   "en": "wheelchair"
+  },
+  {
+   "text": "bird feeder",
+   "id": "wy-g6u4e1154",
+   "en": "bird feeder"
+  },
+  {
+   "text": "fold",
+   "id": "wy-g6u4e1158",
+   "en": "fold"
+  },
+  {
+   "text": "gladly",
+   "id": "wy-g6u5e1174",
+   "en": "gladly"
+  },
+  {
+   "text": "splash",
+   "id": "wy-g6u6e1181",
+   "en": "splash"
+  }
+ ],
+ "waiyanshe": [
+  {
+   "text": "stand up",
+   "id": "wy-g3u1e0221",
+   "en": "stand up"
+  },
+  {
+   "text": "sit down",
+   "id": "wy-g3u1e0223",
+   "en": "sit down"
+  },
+  {
+   "text": "here you are",
+   "id": "wy-g3u2e0255",
+   "en": "here you are"
+  },
+  {
+   "text": "let's",
+   "id": "wy-g3u2e0266",
+   "en": "let's"
+  },
+  {
+   "text": "pencil case",
+   "id": "wy-g3u3e0275",
+   "en": "pencil case"
+  },
+  {
+   "text": "lost and found",
+   "id": "wy-g3u3e0289",
+   "en": "lost and found"
+  },
+  {
+   "text": "come back",
+   "id": "wy-g3u3e0296",
+   "en": "come back"
+  },
+  {
+   "text": "hooray",
+   "id": "wy-g3u4e0325",
+   "en": "hooray"
+  },
+  {
+   "text": "all around",
+   "id": "wy-g3u4e0334",
+   "en": "all around"
+  },
+  {
+   "text": "chinese knot",
+   "id": "wy-g3u6e0358",
+   "en": "Chinese knot"
+  },
+  {
+   "text": "come on",
+   "id": "wy-g3u6e0373",
+   "en": "come on"
+  },
+  {
+   "text": "daddy",
+   "id": "wy-g3u6e0376",
+   "en": "daddy"
+  },
+  {
+   "text": "mummy",
+   "id": "wy-g3u6e0377",
+   "en": "mummy"
+  },
+  {
+   "text": "dining room",
+   "id": "wy-g3u7e0389",
+   "en": "dining room"
+  },
+  {
+   "text": "miaow",
+   "id": "wy-g3u7e0396",
+   "en": "miaow"
+  },
+  {
+   "text": "ostrich",
+   "id": "wy-g3u8e0424",
+   "en": "ostrich"
+  },
+  {
+   "text": "chameleon",
+   "id": "wy-g3u8e0426",
+   "en": "chameleon"
+  },
+  {
+   "text": "zebra",
+   "id": "wy-g3u8e0433",
+   "en": "zebra"
+  },
+  {
+   "text": "toe",
+   "id": "wy-g3u9e0454",
+   "en": "toe"
+  },
+  {
+   "text": "what about...",
+   "id": "wy-g3u10e0498",
+   "en": "what about..."
+  },
+  {
+   "text": "very much",
+   "id": "wy-g3u10e0511",
+   "en": "very much"
+  },
+  {
+   "text": "afternoon tea",
+   "id": "wy-g3u10e0514",
+   "en": "afternoon tea"
+  },
+  {
+   "text": "cupcake",
+   "id": "wy-g3u10e0519",
+   "en": "cupcake"
+  },
+  {
+   "text": "hot dog",
+   "id": "wy-g3u10e0524",
+   "en": "hot dog"
+  },
+  {
+   "text": "mantis",
+   "id": "wy-g3u11e0544",
+   "en": "mantis"
+  },
+  {
+   "text": "grow up",
+   "id": "wy-g3u11e0548",
+   "en": "grow up"
+  },
+  {
+   "text": "tick-tock",
+   "id": "wy-g3u12e0556",
+   "en": "tick-tock"
+  },
+  {
+   "text": "forty-five",
+   "id": "wy-g3u12e0562",
+   "en": "forty-five"
+  },
+  {
+   "text": "half past",
+   "id": "wy-g3u12e0566",
+   "en": "half past"
+  },
+  {
+   "text": "urgh",
+   "id": "wy-g3u12e0567",
+   "en": "urgh"
+  },
+  {
+   "text": "bookmark",
+   "id": "wy-g3u13e0599",
+   "en": "bookmark"
+  },
+  {
+   "text": "afterschool",
+   "id": "wy-g3u13e0603",
+   "en": "afterschool"
+  },
+  {
+   "text": "try your best",
+   "id": "wy-g4u1e0636",
+   "en": "try your best"
+  },
+  {
+   "text": "phew",
+   "id": "wy-g4u2e0640",
+   "en": "phew"
+  },
+  {
+   "text": "to-do list",
+   "id": "wy-g4u2e0648",
+   "en": "to-do list"
+  },
+  {
+   "text": "woof",
+   "id": "wy-g4u2e0655",
+   "en": "woof"
+  },
+  {
+   "text": "good job!",
+   "id": "wy-g4u2e0657",
+   "en": "Good job!"
+  },
+  {
+   "text": "helper",
+   "id": "wy-g4u2e0674",
+   "en": "helper"
+  },
+  {
+   "text": "equator",
+   "id": "wy-g4u4e0721",
+   "en": "equator"
+  },
+  {
+   "text": "all year round",
+   "id": "wy-g4u4e0723",
+   "en": "all year round"
+  },
+  {
+   "text": "beep",
+   "id": "wy-g4u5e0747",
+   "en": "beep"
+  },
+  {
+   "text": "whoosh",
+   "id": "wy-g4u5e0749",
+   "en": "whoosh"
+  },
+  {
+   "text": "tram",
+   "id": "wy-g4u5e0750",
+   "en": "tram"
+  },
+  {
+   "text": "chug",
+   "id": "wy-g4u5e0751",
+   "en": "chug"
+  },
+  {
+   "text": "on one's own",
+   "id": "wy-g4u6e0766",
+   "en": "on one's own"
+  },
+  {
+   "text": "be careful",
+   "id": "wy-g4u6e0770",
+   "en": "be careful"
+  },
+  {
+   "text": "police station",
+   "id": "wy-g4u7e0781",
+   "en": "police station"
+  },
+  {
+   "text": "owl",
+   "id": "wy-g4u7e0792",
+   "en": "owl"
+  },
+  {
+   "text": "night owl",
+   "id": "wy-g4u7e0793",
+   "en": "night owl"
+  },
+  {
+   "text": "puzzle",
+   "id": "wy-g4u9e0829",
+   "en": "puzzle"
+  },
+  {
+   "text": "sunflower",
+   "id": "wy-g4u10e0842",
+   "en": "sunflower"
+  },
+  {
+   "text": "horn",
+   "id": "wy-g4u11e0854",
+   "en": "horn"
+  },
+  {
+   "text": "dot",
+   "id": "wy-g4u11e0855",
+   "en": "dot"
+  },
+  {
+   "text": "raindrop",
+   "id": "wy-g4u11e0856",
+   "en": "raindrop"
+  },
+  {
+   "text": "keeper",
+   "id": "wy-g4u11e0859",
+   "en": "keeper"
+  },
+  {
+   "text": "dressmaker",
+   "id": "wy-g4u12e0878",
+   "en": "dressmaker"
+  },
+  {
+   "text": "robe",
+   "id": "wy-g4u12e0884",
+   "en": "robe"
+  },
+  {
+   "text": "food group",
+   "id": "wy-g5u1e0887",
+   "en": "food group"
+  },
+  {
+   "text": "cola",
+   "id": "wy-g5u1e0890",
+   "en": "cola"
+  },
+  {
+   "text": "that's enough",
+   "id": "wy-g5u1e0898",
+   "en": "that's enough"
+  },
+  {
+   "text": "whoa",
+   "id": "wy-g5u1e0910",
+   "en": "whoa"
+  },
+  {
+   "text": "oats",
+   "id": "wy-g5u1e0911",
+   "en": "oats"
+  },
+  {
+   "text": "nut",
+   "id": "wy-g5u1e0912",
+   "en": "nut"
+  },
+  {
+   "text": "bar",
+   "id": "wy-g5u1e0913",
+   "en": "bar"
+  },
+  {
+   "text": "teaspoon",
+   "id": "wy-g5u1e0914",
+   "en": "teaspoon"
+  },
+  {
+   "text": "turn into",
+   "id": "wy-g5u2e0929",
+   "en": "turn into"
+  },
+  {
+   "text": "er",
+   "id": "wy-g5u3e0943",
+   "en": "er"
+  },
+  {
+   "text": "openly",
+   "id": "wy-g5u3e0950",
+   "en": "openly"
+  },
+  {
+   "text": "be late for school",
+   "id": "wy-g5u4e0964",
+   "en": "be late for school"
+  },
+  {
+   "text": "fries",
+   "id": "wy-g5u5e0985",
+   "en": "fries"
+  },
+  {
+   "text": "merry christmas!",
+   "id": "wy-g5u6e0995",
+   "en": "Merry Christmas!"
+  },
+  {
+   "text": "id",
+   "id": "wy-g5u7e0998",
+   "en": "ID"
+  },
+  {
+   "text": "skier",
+   "id": "wy-g5u7e1003",
+   "en": "skier"
+  },
+  {
+   "text": "summer camp",
+   "id": "wy-g5u7e1005",
+   "en": "summer camp"
+  },
+  {
+   "text": "care home",
+   "id": "wy-g5u8e1019",
+   "en": "care home"
+  },
+  {
+   "text": "ukulele",
+   "id": "wy-g5u8e1024",
+   "en": "ukulele"
+  },
+  {
+   "text": "lunchtime",
+   "id": "wy-g5u8e1026",
+   "en": "lunchtime"
+  },
+  {
+   "text": "pillow",
+   "id": "wy-g5u10e1058",
+   "en": "pillow"
+  },
+  {
+   "text": "icebox",
+   "id": "wy-g5u10e1060",
+   "en": "icebox"
+  },
+  {
+   "text": "prison",
+   "id": "wy-g5u11e1087",
+   "en": "prison"
+  },
+  {
+   "text": "jewel",
+   "id": "wy-g5u11e1089",
+   "en": "jewel"
+  },
+  {
+   "text": "shiny",
+   "id": "wy-g5u11e1090",
+   "en": "shiny"
+  },
+  {
+   "text": "aha",
+   "id": "wy-g5u11e1091",
+   "en": "aha"
+  },
+  {
+   "text": "high-speed",
+   "id": "wy-g5u12e1095",
+   "en": "high-speed"
+  },
+  {
+   "text": "shopkeeper",
+   "id": "wy-g6u1e1108",
+   "en": "shopkeeper"
+  },
+  {
+   "text": "golden touch",
+   "id": "wy-g6u1e1109",
+   "en": "golden touch"
+  },
+  {
+   "text": "clang",
+   "id": "wy-g6u1e1113",
+   "en": "clang"
+  },
+  {
+   "text": "saving",
+   "id": "wy-g6u1e1114",
+   "en": "saving"
+  },
+  {
+   "text": "peel",
+   "id": "wy-g6u2e1119",
+   "en": "peel"
+  },
+  {
+   "text": "debate",
+   "id": "wy-g6u2e1125",
+   "en": "debate"
+  },
+  {
+   "text": "plateau",
+   "id": "wy-g6u3e1137",
+   "en": "plateau"
+  },
+  {
+   "text": "wheelchair",
+   "id": "wy-g6u4e1145",
+   "en": "wheelchair"
+  },
+  {
+   "text": "bird feeder",
+   "id": "wy-g6u4e1154",
+   "en": "bird feeder"
+  },
+  {
+   "text": "fold",
+   "id": "wy-g6u4e1158",
+   "en": "fold"
+  },
+  {
+   "text": "gladly",
+   "id": "wy-g6u5e1174",
+   "en": "gladly"
+  },
+  {
+   "text": "splash",
+   "id": "wy-g6u6e1181",
+   "en": "splash"
+  }
+ ]
+}
