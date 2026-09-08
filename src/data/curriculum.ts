@@ -63,8 +63,15 @@ export type EntryType = "word" | "phrase" | "sentence";
  *   三个一线 entry id 体系沿用 SL（v21 起）；新 Unit/Split 是同 prefix 内的连续计数，
  *   不会改已有 entry id（参与 id 的 entry 内容不变，id 仍有效；新增 entry 走 prefix seq 续号）。
  *   既有用户进度继续生效（不受本版本影响）。
+ * v23：废弃「3 年级起去重 1-2 年级已学词」机制（renjiao/waiyanshe 一线）。
+ *   旧逻辑假定 G3+ 是 G1G2 的同源扩展；但 v21/v22 起 G3+ 走独立 SL 教材，
+ *   按 G1G2 词表过滤会把新起点本应学的高频词错删。
+ *   影响：同一线（renjiao / waiyanshe）内，v22 之前「被 filter 过的 entries」
+ *   重新出现，entry id 体系不变（去的是 result 阶段的副本），故进度不需要重置，
+ *   但保守触发 freshProgress 让错删过的指标（如果存在）回到干净基线。
+ *   ‑ G1G2 带内去重（dedupeEarlyGrades）保留：仍是 dedupeEarlyGrades 承担。
  */
-export const CURRICULUM_VERSION = 22;
+export const CURRICULUM_VERSION = 23;
 
 export type CurriculumVersion =
   | "renjiao"
@@ -963,18 +970,19 @@ function withKebiao(
 
 /**
  * 外研社两条教材线派生。
- * 外研版《新标准英语》实际发行两种教材：一年级起点（1-6 年级）与
- * 三年级起点（3-6 年级），两条线都从零起点内容（问候/数字/文具等）
- * 开始，词表大量交叉。词库 WAIYANSHE_CURRICULUM 中 1-2 年级取自
- * 一年级起点教材、3-6 年级取自三年级起点教材、7-9 年级为初中新标准。
  *
- * - waiyanshe（一年级起点）：完整 1-9 年级。对 3 年级及以上单元过滤掉
- *   1-2 年级已学过的词（按英文小写比较），避免同一孩子连学重复；
- *   过滤后清空的单元（三上 U2-U4 与一年级完全重复）整体移除，
- *   剩 1-3 词的薄单元保留（快速通过即可）。
- *   ✅ **带课标补全**（本线非重建对象，课标单元追加在 3-9 年级末尾）。
- * - waiyanshe3（三年级起点）：仅 3-9 年级，按三年级起点教材原样，
- *   不做跨线去重（该线没有 1-2 年级内容，不存在跨线重复）。
+ * 2026-09-08（v22 起）：WAIYANSHE_CURRICULUM 仍保留 G1G2 一线起点词；
+ * waiyanshe 一线 G3+ 改用独立重建的 src/data/waiyansheSL.ts（一线版本）。
+ * 拼接策略：waiyanshe = WAIYANSHE_CURRICULUM G1G2（已一线版）+ SL G3-G18（一线版）。
+ * 这样 WAIYANSHE_SL_CURRICULUM 只在 waiyanshe 路径出现，不会再回流到 waiyanshe3。
+ *
+ * ⚠️ v22 已废弃「3 年级起去重 1-2 年级已学词」的过滤：SL G3+ 词表与 G1G2
+ * 本就是不同源（一线版教材），再去重反会丢失新起点词表增加的高频词；
+ * 真去重要等 G1G2 与 G3+ 同源时才有效。当前代码不再调用 wyEarlyWords.filter。
+ *
+ * - waiyanshe（一年级起点）：1-9 年级真实教材，按课标补完（3-9 年级末尾）。
+ *   ✅ **带课标补全**。
+ * - waiyanshe3（三年级起点）：3-9 年级，按三年级起点教材原样；
  *   ❌ **不补课标**（本次按用户逐册拍照重建的线，词表以教材为准）。
  */
 /**
@@ -1001,32 +1009,19 @@ function dedupeEarlyGrades(units: UnitInfo[], maxGrade = 2): UnitInfo[] {
     .filter((u) => u.entries.length > 0);
 }
 
-const wyEarlyWords = new Set(
-  WAIYANSHE_CURRICULUM.filter((u) => u.grade <= 2)
-    .flatMap((u) => u.entries)
-    .map((e) => e.english.toLowerCase())
-);
 // 一起线带课标（非重建线，保留旧行为）；三起线用纯净基线，不补课标
 // 2026-09-08: waiyanshe 一线 G3+ 改为按"外研新标准**一年级起点**版"真实教材独立重建，
 // 不再复用 WAIYANSHE_CURRICULUM 的三起 G3+ 段。一线 SL G3+ 现放在 src/data/waiyansheSL.ts。
 // 拼接策略：waiyanshe = WAIYANSHE_CURRICULUM G1G2（已 SL 化）+ SL G3-G18（已是新标准一线版）
 // 这样 WAIYANSHE_SL_CURRICULUM 只在 waiyanshe 路径出现，不会再回流到 waiyanshe3。
+// 2026-09-09 (v23)：去掉「跨 G2→G3 用 G1G2 词过滤」的逻辑，因 SL G3+ 是另一套
+// 真实教材词表而非 G1G2 同源扩展，过滤会错删。带内 G1G2 去重由 dedupeEarlyGrades 承担。
 const WAIYANSHE_LINE_BASE: UnitInfo[] = [
   ...WAIYANSHE_CURRICULUM.filter((u) => u.grade <= 2),  // waiyanshe G1G2（已 SL 化）
   ...WAIYANSHE_SL_CURRICULUM,                             // waiyanshe SL G3-G18（一线版）
 ];
 const WAIYANSHE_G1_START: UnitInfo[] = dedupeEarlyGrades(
   withKebiao(WAIYANSHE_LINE_BASE, makeWaiyansheEntry, [3, 4, 5, 6], [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
-    .map((u) =>
-      u.grade <= 2
-        ? u
-        : {
-            ...u,
-            entries: u.entries
-              .filter((e) => !wyEarlyWords.has(e.english.toLowerCase()))
-              .map((e) => ({ ...e })),
-          }
-    )
 );
 // 2026-09-08 用户约束：不许动三起线。深一层拷贝让 WAIYANSHE_G3_START
 // 与 WAIYANSHE_CURRICULUM G3+ 段不再共享 unit/entry 对象引用。
@@ -1038,45 +1033,33 @@ const WAIYANSHE_G3_START: UnitInfo[] = WAIYANSHE_CURRICULUM.filter(
 
 /**
  * 人教版两条教材线派生。
- * 人教社小学英语实际发行两种教材：《新起点》（一年级起点，1-6 年级）
- * 与 PEP（三年级起点，3-6 年级），两条线都从零起点内容开始，词表交叉。
- * 词库 CURRICULUM 中 1-2 年级取自新起点教材、3-6 年级取自 PEP 教材、
- * 7-9 年级为初中 Go for it（PEP 线延续）。
  *
- * - renjiao（一年级起点）：完整 1-9 年级。对 3 年级及以上单元过滤掉
- *   1-2 年级已学过的词（按英文小写比较），避免同一孩子连学重复；
- *   过滤后清空的单元（三上 U6 数字，与一年级 U4 完全重复）整体移除，
- *   剩 1-2 词的薄单元保留（快速通过即可）。
- *   ✅ **带课标补全**（本线非重建对象，课标单元追加在 3-9 年级末尾）。
- * - renjiao3（三年级起点）：仅 3-9 年级，按 PEP + Go for it 原样，
- *   不做跨线去重（该线没有 1-2 年级内容，不存在跨线重复）。
+ * 2026-09-08（v22 起）：renjiao 一线 G3+ 改用独立重建的 src/data/renjiaoSL.ts（SL 一线版）。
+ * CURRICULUM 顶数组 G1G2 已是 SL 一线版词表，G3+ 改走 SL。
+ * 拼接策略：renjiao = CURRICULUM G1G2（已 SL 化）+ SL G3-G9。
+ * 这样 RENJIAO_SL_CURRICULUM 只在 renjiao 路径出现，不会再回流到 renjiao3。
+ *
+ * ⚠️ v22 已废弃「3 年级起去重 1-2 年级已学词」的过滤：renjiaoSL G3+ 是新起点
+ * 一线版教材的独立词表，与 G1G2 不是同源扩展，过滤会错删。带内 G1G2 去重
+ * 由 dedupeEarlyGrades 承担。
+ *
+ * - renjiao（一年级起点）：1-9 年级真实教材，按课标补完（3-9 年级末尾）。
+ *   ✅ **带课标补全**。
+ * - renjiao3（三年级起点）：3-9 年级，按 PEP + Go for it 原样。
  *   ❌ **不补课标**（本次按用户逐册拍照重建的线，词表以教材为准）。
  */
-const rjEarlyWords = new Set(
-  CURRICULUM.filter((u) => u.grade <= 2)
-    .flatMap((u) => u.entries)
-    .map((e) => e.english.toLowerCase())
-);
 // 2026-09-08: renjiao 一线 G3+ 改为按"新起点 SL"独立重建，不再复用 CURRICULUM
 // 的 PEP G3+ 段。SL G3+ 现放在 src/data/renjiaoSL.ts。
 // 拼接策略：renjiao = CURRICULUM G1G2（已 SL 化） + SL G3-G9（已是新起点）
 // 这样 RENJIAO_SL_CURRICULUM 只在 renjiao 路径出现，不会再回流到 renjiao3。
+// 2026-09-09 (v23)：去掉「跨 G2→G3 用 G1G2 词过滤」的逻辑，理由同 waiyanshe 注释。
 const RENJIAO_LINE_BASE: UnitInfo[] = [
   ...CURRICULUM.filter((u) => u.grade <= 2),       // renjiao G1G2（已 SL）
   ...RENJIAO_SL_CURRICULUM,                          // renjiao SL G3-G9
 ];
 // 一起线带课标（非重建线，保留旧行为）；三起线用纯净基线，不补课标
 const RENJIAO_G1_START: UnitInfo[] = dedupeEarlyGrades(
-  withKebiao(RENJIAO_LINE_BASE, makeRenjiaoEntry, [3, 4, 5, 6], [7, 8, 9]).map((u) =>
-    u.grade <= 2
-      ? u
-      : {
-          ...u,
-          entries: u.entries
-            .filter((e) => !rjEarlyWords.has(e.english.toLowerCase()))
-            .map((e) => ({ ...e })),
-        }
-  )
+  withKebiao(RENJIAO_LINE_BASE, makeRenjiaoEntry, [3, 4, 5, 6], [7, 8, 9])
 );
 // 2026-09-08 用户约束：不许动三起线。深一层拷贝让 RENJIAO_G3_START
 // 与 CURRICULUM G3+ 段不再共享 unit/entry 对象引用。三起继续走 PEP。

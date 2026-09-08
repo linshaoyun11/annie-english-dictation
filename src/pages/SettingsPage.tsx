@@ -20,9 +20,9 @@ interface SettingsPageProps {
 
 /** 教材版本副标题（年级范围 + 结构特点；起点信息由分组标题承担） */
 const CURRICULUM_DESC: Record<CurriculumVersion, string> = {
-  renjiao: "1-9 年级，三年级起自动跳过已学词",
+  renjiao: "1-9 年级，按新起点 SL 真实教材",
   renjiao3: "3-9 年级，按教材原样",
-  waiyanshe: "1-9 年级，三年级起自动跳过已学词",
+  waiyanshe: "1-9 年级，按外研新标准真实教材",
   waiyanshe3: "3-9 年级，按教材原样",
   oxford: "1-6 年级起始 + 初中牛津上海版",
   renai: "7-9 年级，Project English（每个 Topic 一单元）",
