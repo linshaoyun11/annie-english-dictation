@@ -71,12 +71,6 @@ export default function DifficultWordsPage({
       .filter((e): e is NonNullable<typeof e> => !!e);
   }, [progress.difficultEntryIds, version]);
 
-  /** 重点记忆学习中拼对过至少一次的词条（学习过才能移除） */
-  const studiedSet = useMemo(
-    () => new Set(progress.difficultStudiedIds ?? []),
-    [progress.difficultStudiedIds]
-  );
-
   /** 列表中出现过的年级（筛选 chip 依据） */
   const filterGrades = useMemo(
     () =>
@@ -121,22 +115,9 @@ export default function DifficultWordsPage({
     }
   };
 
-  /** 移除按钮：学习一次后可用；点"移除"→"确定"两步确认 */
+  /** 移除按钮：点"移除"→"确定"两步确认 */
   const renderRemoveButton = (entryId: string) => {
-    const studied = studiedSet.has(entryId);
     const confirming = confirmingId === entryId;
-    if (!studied) {
-      return (
-        <button
-          type="button"
-          disabled
-          title="学习一次后才能移除"
-          className="flex h-8 w-14 cursor-not-allowed items-center justify-center rounded-full border border-border bg-bg text-xs font-semibold text-text3"
-        >
-          移除
-        </button>
-      );
-    }
     if (confirming) {
       return (
         <button
@@ -310,15 +291,7 @@ export default function DifficultWordsPage({
             })
           )}
 
-          {/* 提示：学习一次后才能移除 */}
-          <div className="mt-1 flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-[11px] leading-relaxed text-text3">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
-            </svg>
-            重点记忆词条至少学习一次才能移除。
-          </div>
+          {/* 底部留白 */}
         </div>
       )}
     </div>
