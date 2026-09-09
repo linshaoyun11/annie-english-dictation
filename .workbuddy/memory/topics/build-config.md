@@ -24,8 +24,12 @@
   看到 yaml 有 `triggering` 别以为能自动，目前不能。将来想启用：去 Codemagic
   → App settings → Build triggers 勾「Trigger on push」保存（会自动建 webhook），
   或手动在 GitHub 仓库 Settings → Webhooks 添加。
+  **2026-09-09 再确认**：yaml 里的 `events: [push]` **已被删掉**（注释写明"按用户要求
+  禁用"），如今只剩 `branch_patterns` 而没有 `events` ⇒ 按官方规则就是**只能手动触发**。
 - **推送后不要再单独 commit+push 文档补记**：`APP_BUILD` 没变 ⇒ 第二个包因 **build 号
   重复被 ASC 拒绝上传**。⇒ **memory 补记必须在推送前写完、与代码一起提交**。
+  （注：当前自动触发是关的，所以这条暂时不会真的踩到；**一旦启用自动触发就会**，
+   保留此约束。）
 - **本地 `vite build` 在沙箱会卡死**（2026-09-06）：卡在
   `transforming... 56 modules transformed.` 无限挂起（与"清空 dist 被 safe-delete
   拦截"是不同症状，那个秒失败）。**卡超 3 分钟就停掉直接推**，`tsc -b --noEmit` 过即可。

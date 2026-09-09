@@ -103,3 +103,6 @@ scripts/male_candidates.json
 # 中间产物 / 本地预览（不入库）
 generated-images/
 screenshots/
+
+__pycache__/
+.tmp-verifycache/
