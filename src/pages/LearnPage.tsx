@@ -138,6 +138,7 @@ export default function LearnPage({
   const [toast, setToast] = useState<string | null>(null);
   const [finishedAll, setFinishedAll] = useState(false);
   const [animKey, setAnimKey] = useState(0);
+  const [restartUnitConfirm, setRestartUnitConfirm] = useState(false);
   // 重点记忆模式：独立的当前索引 + 全部学完提示
   const [difficultIndex, setDifficultIndex] = useState(0);
   const [difficultDone, setDifficultDone] = useState(false);
@@ -810,6 +811,7 @@ export default function LearnPage({
     const unitKey = celebration.unitKey;
     const unitInfo = cur.find((u) => `${u.grade}-${u.unit}` === unitKey);
     setCelebration(null);
+    setRestartUnitConfirm(false);
     if (unitInfo) {
       const grade = unitInfo.grade;
       const unitIndex = cur.indexOf(unitInfo);
@@ -991,11 +993,27 @@ export default function LearnPage({
 
       {/* 单元/年级完成祝贺页 */}
       {celebration && (
-        <div className="absolute inset-0 z-40 overflow-y-auto bg-primary-lighter px-8 py-12">
-          <div className="mx-auto flex h-full max-w-sm flex-col items-center text-center">
-            <div className="animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)]">
-              <TrophyIcon size={120} />
+        <div
+          className="absolute inset-0 z-40 overflow-y-auto px-6"
+          style={{
+            background:
+              "radial-gradient(circle at 50% -6%, rgba(124,107,245,.16), rgba(124,107,245,0) 58%), radial-gradient(circle at 92% 12%, rgba(245,184,0,.12), rgba(245,184,0,0) 46%), linear-gradient(180deg, #F8F7FF 0%, #FDFCFF 38%, #FFFFFF 100%)",
+          }}
+        >
+          <div className="mx-auto flex min-h-full max-w-sm flex-col items-center pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-12 text-center">
+            {/* 奖杯：保留正式版 TrophyIcon，外加紫色柔光呼吸底盘 */}
+            <div
+              className="flex h-[132px] w-[132px] shrink-0 animate-[breathe_3.4s_ease-in-out_infinite] items-center justify-center rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle at 50% 50%, rgba(124,107,245,.18), rgba(124,107,245,.04) 56%, rgba(255,255,255,0) 74%)",
+              }}
+            >
+              <div className="animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)_both]">
+                <TrophyIcon size={120} />
+              </div>
             </div>
+
             {celebration.level === "unit" ? (
               (() => {
                 const unitInfo = cur.find(
@@ -1004,48 +1022,47 @@ export default function LearnPage({
                 if (!unitInfo) return null;
                 return (
                   <>
-                    <h2 className="mt-3 text-xl font-semibold text-text">
-                      恭喜完成 {gradeLabel(unitInfo.grade)}第{" "}
-                      {unitInfo.unit} 单元！
+                    <h2 className="mt-3 text-[20px] font-semibold leading-tight tracking-tight text-text">
+                      恭喜完成{gradeLabel(unitInfo.grade)}第 {unitInfo.unit} 单元！
                     </h2>
-                    <p className="mt-1.5 text-sm leading-5 text-text2">
+                    <p className="mt-2 px-2 text-[13.5px] leading-7 text-text2">
                       <span className="font-semibold text-text">
                         {unitInfo.title}
                       </span>
-                      ——通过努力学习，你完成了本单元的听写练习，太棒了！
+                      —— 通过努力学习，你完成了本单元的听写练习，太棒了！
                     </p>
                   </>
                 );
               })()
             ) : (
               <>
-                <h2 className="mt-3 text-xl font-semibold text-text">
-                  恭喜通关 {gradeLabel(celebration.grade?.grade ?? progress.activeGrade)}！
+                <h2 className="mt-3 text-[20px] font-semibold leading-tight tracking-tight text-text">
+                  恭喜通关{gradeLabel(celebration.grade?.grade ?? progress.activeGrade)}！
                 </h2>
-                <p className="mt-1.5 text-sm leading-5 text-text2">
-                  {celebration.grade?.unitCount ?? 0} 个单元、
-                  {celebration.grade?.doneCount ?? 0} 个词条全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！
+                <p className="mt-2 px-2 text-[13.5px] leading-7 text-text2">
+                  <span className="font-semibold text-text">
+                    {celebration.grade?.unitCount ?? 0} 个单元、
+                    {celebration.grade?.doneCount ?? 0} 个词条
+                  </span>
+                  全部学完，你用坚持和努力完成了整个年级的听写练习，太了不起了！
                 </p>
               </>
             )}
 
-            {/* 通关奖励：本轮获得的一颗星（2 的倍数轮合成太阳，满级显示最高荣誉） */}
+            {/* 年级通关奖励卡 */}
             {celebration.level === "grade" && celebration.grade && (() => {
               const r = celebration.grade.rounds;
-              const isSun = r % 2 === 0; // 2/4/6/8/10 轮：本轮的星合成太阳
+              const isSun = r % 2 === 0;
               const isMax = r >= MAX_ROUNDS;
               const suns = sunsOf(r);
               const stars = starsOf(r);
               return (
                 <div
-                  className="mt-5 flex w-full animate-[slideUp_.4s_ease] flex-col items-center gap-3 rounded-2xl bg-surface px-4 py-6 shadow-card"
+                  className="mt-5 flex w-full animate-[slideUp_.5s_cubic-bezier(.22,1,.36,1)_both] flex-col items-center gap-3 rounded-[20px] border border-border-light bg-surface px-4 py-5 shadow-card"
                   title={`累计 ${suns} 个太阳 · ${stars} 颗星星`}
+                  style={{ animationDelay: "0.12s" }}
                 >
-                  {isSun ? (
-                    <SunIcon size={56} />
-                  ) : (
-                    <StarIcon size={56} />
-                  )}
+                  {isSun ? <SunIcon size={56} /> : <StarIcon size={56} />}
                   <p className="text-sm font-semibold text-text">
                     {isMax
                       ? "达成最高荣誉！"
@@ -1053,18 +1070,31 @@ export default function LearnPage({
                         ? "2 颗星星合成了 1 个太阳！"
                         : "本轮获得 1 颗星星"}
                   </p>
-                  <p className="text-[11px] text-text3">
+                  <p className="text-[11.5px] text-text3">
                     {isMax
                       ? "已集满 5 个太阳"
                       : `已完整学完本年级 ${r} 轮 · 2 颗星星将合成 1 颗太阳`}
+                  </p>
+                  <div
+                    className="h-px w-full"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, rgba(83,74,183,0), rgba(83,74,183,.14), rgba(83,74,183,0))",
+                    }}
+                  />
+                  <p className="text-[11.5px] text-text3">
+                    累计 <span className="font-semibold text-text">{suns} 个太阳 · {stars} 颗星星</span>
                   </p>
                 </div>
               );
             })()}
 
-            {/* 学习信息统计（仅年级完成时展示） */}
+            {/* 年级通关统计网格 */}
             {celebration.level === "grade" && celebration.grade && (
-              <div className="mt-5 grid w-full grid-cols-2 gap-2">
+              <div
+                className="mt-4 grid w-full animate-[slideUp_.5s_cubic-bezier(.22,1,.36,1)_both] grid-cols-2 gap-2.5"
+                style={{ animationDelay: "0.2s" }}
+              >
                 <StatCard label="开始学习" value={formatDateTime(celebration.grade.startAt)} />
                 <StatCard label="完成用时" value={formatDuration(celebration.grade.durationMs)} />
                 <StatCard label="拼错或不会" value={`${celebration.grade.mistakeCount} 个`} valueColor="text-error" />
@@ -1074,60 +1104,96 @@ export default function LearnPage({
               </div>
             )}
 
-            {/* 随机电影台词：仅单元完成时展示，年级通关页不显示 */}
+            {/* 单元完成台词卡：金调渐变 + 左侧金条 */}
             {celebration.level === "unit" && (
-              <div className="relative mt-6 w-full animate-[slideUp_.4s_ease] rounded-[14px] border border-primary/20 bg-primary/10 px-5 py-4 text-left">
-                {/* 右上角装饰引号：与预览图 trophy-transparent-preview.html 一致 */}
+              <div
+                className="relative mt-5 w-full animate-[slideUp_.5s_cubic-bezier(.22,1,.36,1)_both] overflow-hidden rounded-[20px] border border-[rgba(245,184,0,.22)] px-5 py-4 text-left"
+                style={{
+                  background: "linear-gradient(135deg, #FFFAEB 0%, #FFF4D6 100%)",
+                  boxShadow: "0 6px 20px rgba(245,184,0,.10)",
+                  animationDelay: "0.2s",
+                }}
+              >
+                <div
+                  className="absolute left-0 top-3.5 bottom-3.5 w-[3px] rounded-r-[3px]"
+                  style={{ background: "linear-gradient(180deg, #F5B800, #FFD75E)" }}
+                />
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute right-3 top-0 leading-none text-primary/20"
-                  style={{ fontSize: "34px" }}
+                  className="pointer-events-none absolute right-3.5 top-1 leading-none text-[#F5B800]/20"
+                  style={{ fontSize: "40px", fontFamily: "Georgia, serif" }}
                 >
                   {"\u201D"}
                 </span>
                 {celebration.quote.en && (
-                  <p className="text-[13px] font-semibold leading-[1.7] text-text">
+                  <p className="text-[13.5px] italic leading-7 text-[#8A5A0B]">
                     {celebration.quote.en}
                   </p>
                 )}
-                <p className="mt-1.5 text-xs leading-[1.7] text-text2">
+                <p className="mt-2 text-[13.5px] font-semibold leading-7 text-[#7A4E08]">
                   {celebration.quote.cn}
                 </p>
-                <p className="mt-2 text-right text-[11px] text-text3">
+                <p className="mt-2 text-right text-[11.5px] text-[rgba(122,78,8,.62)]">
                   —— 电影《{celebration.quote.movie}》
                 </p>
               </div>
             )}
 
-            {/* 重新学习本单元：仅单元祝贺页，保持在内容流中（积分不回收，年级通关页不显示） */}
-            {celebration.level === "unit" && (
-              <div className="mt-6 w-full">
-                <button
-                  type="button"
-                  onClick={restartUnitFromCelebration}
-                  className="w-full rounded-full bg-[#756CC5] py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(83,74,183,0.25)] transition-transform active:scale-[0.98]"
+            {/* 底部操作区 */}
+            <div className="mt-auto w-full pt-6">
+              {restartUnitConfirm ? (
+                <div
+                  className="animate-[slideUp_.4s_ease] rounded-[20px] border border-border-light bg-surface px-4 py-5 shadow-card"
                 >
-                  重新学习本单元
-                </button>
-              </div>
-            )}
-
-            {/* 底部操作区：返回首页在继续学习上方，整体贴页面下方 */}
-            <div className="mt-auto w-full">
-              <button
-                type="button"
-                onClick={onExit}
-                className="w-full rounded-full border border-border bg-surface py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
-              >
-                返回首页
-              </button>
-              <button
-                type="button"
-                onClick={continueFromCelebration}
-                className="mt-3 w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
-              >
-                继续学习
-              </button>
+                  <p className="text-sm leading-6 text-text2">
+                    确定要重新学习本单元吗？
+                    <br />
+                    当前单元的学习进度将重置，已得积分保留。
+                  </p>
+                  <button
+                    type="button"
+                    onClick={restartUnitFromCelebration}
+                    className="mt-4 w-full rounded-full bg-primary py-3 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
+                  >
+                    确认重新学习
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRestartUnitConfirm(false)}
+                    className="mt-3 w-full rounded-full border border-border bg-surface py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
+                  >
+                    取消
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* 单元完成：重新学习 → 继续学习 → 返回首页 */}
+                  {celebration.level === "unit" && (
+                    <button
+                      type="button"
+                      onClick={() => setRestartUnitConfirm(true)}
+                      className="w-full rounded-full border border-[rgba(83,74,183,.18)] bg-surface py-[13px] text-sm font-semibold text-primary transition-colors active:bg-primary-lighter"
+                    >
+                      重新学习本单元
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={continueFromCelebration}
+                    className="mt-2.5 w-full rounded-full py-[15px] text-[15.5px] font-semibold text-white shadow-[0_8px_22px_rgba(83,74,183,0.32)] transition-transform active:scale-[0.98]"
+                    style={{ background: "linear-gradient(135deg, #6C5CE7 0%, #534AB7 100%)" }}
+                  >
+                    继续学习
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onExit}
+                    className="mt-2.5 w-full rounded-full bg-transparent py-2 text-[13px] font-medium text-text3 transition-colors active:text-text2"
+                  >
+                    返回首页
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
