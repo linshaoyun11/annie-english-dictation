@@ -16,12 +16,13 @@
   **If no events are defined, you can only start builds manually.**」
   ⇒ **没有 `triggering` 段 = 只能手动点**，不是"任何 push 都触发"。
   本项目 2026-09-06 前从未配过（20 个历史版本 triggering 行数均为 0）⇒ 一直手动点。
-  现配置（`d07dece` 起）：`events: [push]` + `branch_patterns: main` +
-  `cancel_previous_builds: true`。
-  **⚠️ 但这套配置当前不生效**——GitHub 侧 webhook 未配置，2026-09-06 实测
-  push 后无自动构建。用户已拍板「以后还是手动」。
-  ⇒ **实际发版流程：Codemagic 网页点「Start new build」选 ios-release。**
-  看到 yaml 有 `triggering` 别以为能自动，目前不能。将来想启用：去 Codemagic
+  9 月曾配过 `events: [push]` + `cancel_previous_builds: true`（`d07dece`），
+  但 GitHub 侧 webhook 未配置、实测 push 后无自动构建。
+  **⚠️ 现状（用户 9 月已拍板，codemagic.yaml 顶部有注释说明）：
+  「手动构建，不要自动触发」** —— `events` 与 `cancel_previous_builds` 已被**主动删除**，
+  只留 `branch_patterns: main`（无 events 时它不生效，留着便于以后再开）。
+  ⇒ **发版流程固定为：Codemagic 网页点「Start new build」选 ios-release。**
+  **不要"顺手"把自动触发加回去**，这是用户偏好（控制构建次数）不是配置缺失。
   → App settings → Build triggers 勾「Trigger on push」保存（会自动建 webhook），
   或手动在 GitHub 仓库 Settings → Webhooks 添加。
   **2026-09-09 再确认**：yaml 里的 `events: [push]` **已被删掉**（注释写明"按用户要求
