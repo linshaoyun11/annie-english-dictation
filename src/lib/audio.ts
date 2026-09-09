@@ -86,7 +86,15 @@ function ensureLocalManifest(
   return p;
 }
 
-/** 命中本地音频（美音 {id}.mp3 / 英音 {id}-uk.mp3）→ 返回结果；未命中返回 null */
+/**
+ * 命中本地音频（美音 {key}.mp3 / 英音 {key}-uk.mp3）→ 返回结果；未命中返回 null
+ *
+ * ⚠️ manifest 的 value 是**音频文件名标识**，从 2026-09-09 起 = blake2b(归一化文本)，
+ * 形如 `t57c093842a936eda`，**与词条 entry.id 无关**。
+ * 历史教训：旧版 value 用的就是 entry.id，而 entry.id 会随词库重建整体位移，
+ * 实测造成 5331 条映射里 1874 条（35%）音频与文本不符（例：显示 name 却念 point）。
+ * 改成文本哈希后，词表怎么改都不会再错位。见 scripts/regen_audio_by_text.py。
+ */
 async function resolveLocalAudio(
   text: string,
   variant: "us" | "uk" = "us"
