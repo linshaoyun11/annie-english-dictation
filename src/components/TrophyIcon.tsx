@@ -9,9 +9,10 @@ import trophyImg from "../assets/trophy-celebration-transparent.png";
  * ⚠️ 注意：祝贺页奖杯**正下方**就是 `SunIcon/StarIcon size={56}`，
  * 两者风格差异会在同屏显现——如需协调后续单独处理。
  *
- * 2026-09-06 米黄方形背景 → 透明：
- *   资源 `src/assets/trophy-celebration-transparent.png`（1024×1024 RGBA，
- *   67.4% 像素 alpha=0，原图来源豆包 AI，已抠图 + alpha Blur 0.6 抗锯齿）。
+ * 2026-09-09 替换为卡通金色奖杯（带麦穗/彩带/高光）：
+ *   资源 `src/assets/trophy-celebration-transparent.png`（1024×1024 RGBA）。
+ *   原图为豆包 AI 生成 JPG，已做：① 边缘 flood-fill 去白底；② 右下角水印区域
+ *   裁透明；③ 缩放至 1024×1024；④ 保存为 PNG。
  *   文件名加 `-transparent` 后缀是为了让 iPad Safari 等强缓存场景下，
  *   旧 URL `trophy-celebration.png` 完全失效，强制重下载。
  *
