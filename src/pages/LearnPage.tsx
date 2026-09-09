@@ -1001,15 +1001,18 @@ export default function LearnPage({
           }}
         >
           <div className="mx-auto flex min-h-full max-w-sm flex-col items-center pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-12 text-center">
-            {/* 奖杯：保留正式版 TrophyIcon，外加紫色柔光呼吸底盘 */}
+            {/* 奖杯：保留正式版 TrophyIcon，外加暖金色圆形底盘掩盖 PNG 透明瑕疵 */}
             <div
-              className="flex h-[132px] w-[132px] shrink-0 animate-[breathe_3.4s_ease-in-out_infinite] items-center justify-center rounded-full"
+              className="relative flex h-[132px] w-[132px] shrink-0 animate-[breathe_3.4s_ease-in-out_infinite] items-center justify-center rounded-full"
               style={{
                 background:
-                  "radial-gradient(circle at 50% 50%, rgba(124,107,245,.18), rgba(124,107,245,.04) 56%, rgba(255,255,255,0) 74%)",
+                  "radial-gradient(circle at 50% 55%, #FFD54F 0%, #F5B800 42%, #E89A0B 72%, #C67A20 100%)",
               }}
             >
-              <div className="animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)_both]">
+              <div
+                className="animate-[badgePop_.5s_cubic-bezier(.34,1.56,.64,1)_both]"
+                style={{ filter: "drop-shadow(0 2px 6px rgba(198,122,32,.35))" }}
+              >
                 <TrophyIcon size={120} />
               </div>
             </div>
