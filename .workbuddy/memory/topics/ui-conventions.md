@@ -34,6 +34,22 @@
 - **⚠️ 祝贺页奖杯正下方就是 `SunIcon/StarIcon size={56}`，两者同屏**
   ⇒ 改奖杯前先读 `RoundsStars.tsx`。
 
+## 学习卡竖向空间分配（LearningCard/SpellingInput 改动前必读，build 80）
+
+- **内容区禁止 `justify-center` + `overflow-*` 组合**：flex 不安全居中，内容超高时
+  顶部裁掉、滚不到，底部「我不会」按钮只露一半。用外层 `overflow-y-auto` +
+  内层 `m-auto` 安全居中（放得下视觉不变，放不下可滚到底）。
+- **字母格档位由实测决定，不按字母数猜**（折行数受单词切分/视口宽/键盘高影响，
+  390×844 下 40 字母句子在 compact 档仍溢出 12px）：LearningCard 持滚动容器，
+  useLayoutEffect 量 `scrollHeight > clientHeight` 就降一档
+  `normal→compact→xs→xxs`（绘制前完成无闪烁），ResizeObserver 兜底键盘
+  `--dkb-h` 异步回写。档位表 `CELL_METRICS` 在 SpellingInput（导出 `CellTier`），
+  SoundWave 用 `size: normal|xs|xxs` 联动，间距 `TIER_GAP` = mt-7/4/3/2。
+- **≤18 字母单词/短句从不溢出 ⇒ 恒停 normal 档**，布局与历史版本逐像素一致
+  （已实测按钮 top/bottom 完全相同）——改任何尺寸逻辑不得破坏这条。
+- 本地验证工作流（探针页 + 无头 Edge CDP + 269 条真实词条扫描）：
+  技能 `~/.workbuddy/skills/annie-layout-probe/SKILL.md`，改布局后照跑一遍。
+
 ## ✅ 拼写输入对「大小写 / 撇号」的处理（2026-09-06 已核实，勿再改）
 
 词库里有 **207 条首字母大写的专有名词**（`Miss` / `Mr` / `English` / `China` / `Canada` /
