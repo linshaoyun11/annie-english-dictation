@@ -59,6 +59,15 @@ interface SpellingInputProps {
    * （物理空格键由 LearningCard 的 window keydown 处理）。
    */
   onSpaceKey?: () => void;
+  /**
+   * 字母格尺寸档位，由 LearningCard 实测「内容是否溢出」后决定：
+   *   normal  —— 单词/短句，布局与历史版本完全一致；
+   *   compact —— 普通档放不下时降一档；
+   *   xs/xxs —— 仍放不下时继续降档（小屏长句）。
+   * 之所以由父组件决定：能不能放下取决于整个卡片的可用高度（视口高度、
+   * 自绘键盘高度、提示面板等），只有持有滚动容器的 LearningCard 量得到。
+   */
+  tier?: CellTier;
 }
 
 function parseTarget(target: string): WordGroup[] {
@@ -98,6 +107,43 @@ function isLetter(c: string) {
   return /^[a-zA-Z]$/.test(c);
 }
 
+/**
+ * 字母格尺寸档位表（与 LearningCard 的间距档位配合）。
+ * gapClass 写成完整字面量，Tailwind 才能在源码扫描阶段生成对应工具类。
+ */
+export type CellTier = keyof typeof CELL_METRICS;
+
+const CELL_METRICS = {
+  normal: {
+    cellW: 30, cellH: 58, cellGap: 10, wordGap: 5,
+    fontRevealed: 30, fontTyped: 26, caretH: 24,
+    underlineW: 28, underlineWCur: 30, underlineH: 4, underlineHCur: 5,
+    suffixW: 22, suffixFont: 22, suffixUnderlineW: 18,
+    gapClass: "gap-x-5 gap-y-4", padClass: "",
+  },
+  compact: {
+    cellW: 24, cellH: 46, cellGap: 7, wordGap: 4,
+    fontRevealed: 24, fontTyped: 20, caretH: 20,
+    underlineW: 22, underlineWCur: 24, underlineH: 3, underlineHCur: 4,
+    suffixW: 18, suffixFont: 17, suffixUnderlineW: 14,
+    gapClass: "gap-x-3 gap-y-2.5", padClass: "px-2",
+  },
+  xs: {
+    cellW: 17, cellH: 34, cellGap: 5, wordGap: 3,
+    fontRevealed: 16, fontTyped: 13, caretH: 14,
+    underlineW: 15, underlineWCur: 17, underlineH: 2, underlineHCur: 3,
+    suffixW: 13, suffixFont: 12, suffixUnderlineW: 10,
+    gapClass: "gap-x-1.5 gap-y-1.5", padClass: "px-2",
+  },
+  xxs: {
+    cellW: 14, cellH: 28, cellGap: 4, wordGap: 2,
+    fontRevealed: 13, fontTyped: 11, caretH: 12,
+    underlineW: 12, underlineWCur: 14, underlineH: 2, underlineHCur: 2,
+    suffixW: 11, suffixFont: 10, suffixUnderlineW: 8,
+    gapClass: "gap-x-1 gap-y-1", padClass: "px-1",
+  },
+} as const;
+
 export default function SpellingInput({
   target,
   resetKey,
@@ -107,6 +153,7 @@ export default function SpellingInput({
   revealSignal = 0,
   onStrike5,
   onSpaceKey,
+  tier = "normal",
 }: SpellingInputProps) {
   const groups = useMemo(() => parseTarget(target), [target]);
   const totalLetters = useMemo(
@@ -293,18 +340,43 @@ export default function SpellingInput({
   const showKeyboard = kbVisible && answering;
   let letterIdx = -1;
 
+  /**
+   * 字母格尺寸档位表。四档由大到小，实际用哪一档由 LearningCard 实测
+   * 「内容是否溢出」决定（见 LearningCard 的 tier 注释）。
+   *   normal  —— 单词、短句，布局与历史版本完全一致；
+   *   compact —— 长句折行后 normal 放不下，整体缩约 0.8 倍；
+   *   xs      —— compact 仍放不下，再缩一档；
+   *   xxs     —— xs 仍放不下（小屏 iPhone SE 上的长句），最后一档兜底。
+   * 格子只需看清进度、不需点按（输入走自绘键盘），小字号不影响操作。
+   */
+  const M = CELL_METRICS[tier];
+  const {
+    cellW,
+    cellH,
+    cellGap,
+    wordGap,
+    fontRevealed,
+    fontTyped,
+    caretH,
+    underlineW,
+    underlineWCur,
+    underlineH,
+    underlineHCur,
+    suffixW,
+    suffixFont,
+    suffixUnderlineW,
+  } = M;
+
   return (
     <div className="w-full select-none">
       {answering && (
         <div
           role="textbox"
           aria-label="拼写输入"
-          className={`flex flex-wrap items-end justify-center gap-x-5 gap-y-4 ${
-            totalLetters > 18 ? "px-2" : ""
-          }`}
+          className={`flex flex-wrap items-end justify-center ${M.gapClass} ${M.padClass}`}
         >
           {groups.map((g, gi) => (
-            <div key={gi} className="flex flex-wrap items-end justify-center" style={{ gap: 5 }}>
+            <div key={gi} className="flex flex-wrap items-end justify-center" style={{ gap: wordGap }}>
               {g.letters.map((ch, li) => {
                 letterIdx += 1;
                 const i = letterIdx;
@@ -341,7 +413,7 @@ export default function SpellingInput({
                   <div
                     key={li}
                     className="flex flex-col items-center justify-between"
-                    style={{ width: 30, height: 58, gap: 10 }}
+                    style={{ width: cellW, height: cellH, gap: cellGap }}
                   >
                     <div className="flex flex-1 items-center justify-center w-full">
                       {display ? (
@@ -349,7 +421,7 @@ export default function SpellingInput({
                           className="font-semibold leading-none"
                           style={{
                             color: charColor,
-                            fontSize: revealed ? "30px" : "26px",
+                            fontSize: revealed ? `${fontRevealed}px` : `${fontTyped}px`,
                             textShadow: revealed
                               ? "0 0 14px rgba(83,74,183,0.25)"
                               : "none",
@@ -362,8 +434,9 @@ export default function SpellingInput({
                         </span>
                       ) : isCurrent ? (
                         <span
-                          className="block w-[2px] h-6 rounded-sm"
+                          className="block w-[2px] rounded-sm"
                           style={{
+                            height: caretH,
                             backgroundColor: "#534AB7",
                             animation: "caretBlink 0.9s steps(1) infinite",
                           }}
@@ -373,8 +446,8 @@ export default function SpellingInput({
                     <span
                       className="block rounded-full shrink-0"
                       style={{
-                        width: isCurrent ? 30 : 28,
-                        height: isCurrent ? 5 : 4,
+                        width: isCurrent ? underlineWCur : underlineW,
+                        height: isCurrent ? underlineHCur : underlineH,
                         backgroundColor: underlineColor,
                         transition: "background-color .15s, width .15s",
                       }}
@@ -385,14 +458,21 @@ export default function SpellingInput({
               {g.suffix && (
                 <div
                   className="flex flex-col items-center justify-between"
-                  style={{ width: 22, height: 58, gap: 10 }}
+                  style={{ width: suffixW, height: cellH, gap: cellGap }}
                 >
-                  <div className="flex flex-1 items-center justify-center w-full text-[22px] leading-none font-medium text-text3">
+                  <div
+                    className="flex flex-1 items-center justify-center w-full font-medium text-text3 leading-none"
+                    style={{ fontSize: `${suffixFont}px` }}
+                  >
                     {g.suffix}
                   </div>
                   <span
                     className="block rounded-full shrink-0"
-                    style={{ width: 18, height: 4, backgroundColor: "#E8E6F0" }}
+                    style={{
+                      width: suffixUnderlineW,
+                      height: underlineH,
+                      backgroundColor: "#E8E6F0",
+                    }}
                   />
                 </div>
               )}

@@ -1,9 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { type WordEntry, gradeLabel } from "../data/curriculum";
 import { pointsForEntry } from "../lib/users";
 import { safeClearTimeout, safeTimeout } from "../lib/timer";
 import SoundWave from "./SoundWave";
-import SpellingInput from "./SpellingInput";
+import SpellingInput, { type CellTier } from "./SpellingInput";
+
+/** 降档顺序：内容放不下时依次变小，xxs 为最后一档兜底 */
+const TIER_CHAIN: CellTier[] = ["normal", "compact", "xs", "xxs"];
+
+/** 各档位对应的上下间距（越小越紧凑） */
+const TIER_GAP: Record<CellTier, string> = {
+  normal: "mt-7",
+  compact: "mt-4",
+  xs: "mt-3",
+  xxs: "mt-2",
+};
 
 interface LearningCardProps {
   entry: WordEntry;
@@ -167,6 +178,58 @@ export default function LearningCard({
     onMistake?.(entry.id);
   };
 
+  /**
+   * 字母格尺寸档位 —— 实测驱动，不按字母数猜。
+   *
+   * 背景：句子/长短语的字母格会折成 3-4 行，内容区高度不足时「我不会」
+   * 按钮被挤出视口（3 行露一半、4 行完全看不见）。
+   *
+   * 为什么不用字母数阈值：折几行不只取决于字母数，还取决于单词切分
+   * 带来的折行浪费、视口宽度、自绘键盘实测高度，同一字母数在不同机型
+   * 上差一行就够翻车（390×844 实测：40 字母在 compact 档仍溢出 12px）。
+   *
+   * 因此改为渲染后量：内容区一旦真的溢出（scrollHeight > clientHeight）
+   * 就降一档，normal → compact → xs → xxs，最多降三档。
+   *  - 单词/短句从不溢出 ⇒ 恒定停在 normal，布局与历史版本逐像素一致；
+   *  - useLayoutEffect 中同步完成，浏览器绘制前已定型，无闪烁；
+   *  - ResizeObserver 兜底：自绘键盘高度是异步回写的，容器高度变化后补测。
+   *  - xxs 仍放不下时停止降档，交给滚动（m-auto 是安全居中，底部可滚到）。
+   */
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [tier, setTier] = useState<CellTier>("normal");
+
+  // 换词条：回到 normal，保证每条词都从最舒服的尺寸开始重新判定
+  useLayoutEffect(() => {
+    setTier("normal");
+  }, [entry.id]);
+
+  const shrinkIfOverflow = useCallback(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    if (el.scrollHeight <= el.clientHeight + 1) return;
+    setTier((t) => {
+      const next = TIER_CHAIN[TIER_CHAIN.indexOf(t) + 1];
+      return next ?? t; // 已到 xxs（最后一档）：保持，收敛
+    });
+  }, []);
+
+  // 降档后立即重测（deps 含 tier），直到不再溢出或已到 xxs（末档不再变化，收敛）
+  useLayoutEffect(() => {
+    if (completed || revealed) return;
+    shrinkIfOverflow();
+  }, [shrinkIfOverflow, tier, entry.id, completed, revealed]);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => shrinkIfOverflow());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [shrinkIfOverflow]);
+
+  const gapClass = TIER_GAP[tier];
+  const contentMt = tier === "xxs" ? "mt-2" : tier === "xs" ? "mt-3" : "mt-6";
+
   const nextBtn = (
     <button
       type="button"
@@ -269,9 +332,19 @@ export default function LearningCard({
         </div>
       </div>
 
-      {/* 主要内容区：键盘弹起时允许滚动，避免底部按钮被键盘盖住 */}
-      <div className="mt-6 flex flex-1 flex-col items-center justify-center overflow-y-auto">
-        {completed ? (
+      {/* 主要内容区。
+          安全居中：不用 justify-center —— flex 容器里 justify-center 配合
+          overflow 时是不安全居中（unsafe centering），内容一旦高于容器，
+          顶部会被裁掉且无法滚动到，底部按钮也只露一半。改为内层 m-auto：
+          内容放得下时 auto margin 均分剩余空间，视觉效果与 justify-center
+          完全一致；放不下时 margin 归零、从顶部起排并可滚动到底，
+          「我不会」按钮始终可达。 */}
+      <div
+        ref={contentRef}
+        className={`flex flex-1 flex-col overflow-y-auto ${contentMt}`}
+      >
+        <div className="m-auto flex w-full flex-col items-center">
+          {completed ? (
           <div className="w-full max-w-[320px] animate-[slideUp_.35s_ease]">
             <div className="rounded-3xl bg-success-light p-6 text-center shadow-card">
               <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
@@ -357,7 +430,11 @@ export default function LearningCard({
               /* 阻止点击时选中文字、触发 iOS 长按菜单 */
               onMouseDown={(e) => e.preventDefault()}
             >
-              <SoundWave active={!completed && !revealed} onClick={replay} />
+              <SoundWave
+                active={!completed && !revealed}
+                onClick={replay}
+                size={tier === "xxs" ? "xxs" : tier === "xs" ? "xs" : "normal"}
+              />
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
@@ -390,7 +467,7 @@ export default function LearningCard({
           答对/揭示后整块卸载，把空间完整让给正确页/揭示页卡片。
         */}
         {!completed && !revealed && (
-          <div className="mt-7 w-full">
+          <div className={`w-full ${gapClass}`}>
             <SpellingInput
               target={entry.english}
               resetKey={entry.id}
@@ -400,6 +477,7 @@ export default function LearningCard({
               onStrike5={() => revealAnswer("strike5")}
               /* 屏幕空格键与物理空格键共用同一行为：切换提示 */
               onSpaceKey={() => setShowHint((v) => !v)}
+              tier={tier}
             />
           </div>
         )}
@@ -410,7 +488,7 @@ export default function LearningCard({
             type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => revealAnswer("dontKnow")}
-            className="mt-7 flex items-center gap-1.5 rounded-full border border-[#F0D9B0] bg-[#FFF8EC] px-4 py-2 text-xs font-medium text-[#A06A1F] shadow-sm transition-all hover:bg-[#FDF1DB] active:scale-[0.97] active:bg-[#FAEEDA]"
+            className={`flex items-center gap-1.5 rounded-full border border-[#F0D9B0] bg-[#FFF8EC] px-4 py-2 text-xs font-medium text-[#A06A1F] shadow-sm transition-all hover:bg-[#FDF1DB] active:scale-[0.97] active:bg-[#FAEEDA] ${gapClass}`}
           >
             <svg
               width="14"
@@ -429,6 +507,7 @@ export default function LearningCard({
             我不会
           </button>
         )}
+        </div>
       </div>
     </div>
   );
