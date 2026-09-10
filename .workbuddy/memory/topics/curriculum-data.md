@@ -316,3 +316,19 @@ unit 编号 8-13，接 G3 上（unit 1-7）。6 单元 200 条。
 - 设置页副标题里**「自动跳过」「去重」是过时表述**，如要标记也是「按 XX 教材原样」
 - 升版触发 freshProgress：积分保留、生词本按 validIds 自动过滤失效 id
 - 推送前必须先 tsc，再 git commit，再 --force push
+
+## v24：一线 SL 数据的 grade = 册序号（2026-09-10 修复年级错乱）
+- `waiyansheSL.ts` / `oxfordSL.ts` 的 grade 字段是**册序号**：1A=1、1B=2、2A=3 … 9B=18。
+  两套教材都是 1A-9B 18 册（沪教牛津 = 上海版 1-9 年级每学年 2 册；外研一线同构）。
+  文件头注释自证：「G3 二年级上册 (2A)」「G5 三年级上册 (3A)」。
+- UI gradeLabel：≤6→"小学N"、>6→"初中(N-6)" ⇒ 册 10-18 渲染成"初中4~12年级"（用户报告的 BUG）。
+- **修复在组装层**（curriculum.ts）：`mergeBooksToGrades()` 归并 G=⌈册/2⌉、
+  下册 unit 续接上册、entry 的 grade/unit/id 重写（seq 保留）、先按册号稳定排序
+  （oxfordSL 里 3A/3B 排在 2A/2B 前）。**不要再把册号当年级写进数据文件**。
+- 归并后：waiyanshe G1-G9 = 20/40/42/42/42/42/40/40/40 单元（2810 词条）；
+  oxford = 20/12/24/24/24/8/12/12/12（1557 词条）。
+- ⚠️ 连带坑（第 2 次）：dedupeEarlyGrades 的 seen 跨年级累计，归并后把 2A 中
+  复现 1A/1B 核心词的整单元错删。已加 perGrade 参数（年级内去重），waiyanshe
+  传 true，renjiao 保持旧行为。**任何"跨年级过滤/去重"对独立重建的教材段都是错删**。
+- CURRICULUM_VERSION 24（两条线 id 全变，进度重置）。音频 0 影响（文本哈希命名）。
+- oxford G6-G9 内容仍是占位级数据（标题"Module 1 "为空），等用户拍初中教材再补。
