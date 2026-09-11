@@ -2624,7 +2624,7 @@ export const WAIYANSHE_CURRICULUM: UnitInfo[] = [
       mk("wy", 8, 3, "word", "condition", "/kənˈdɪʃn/", "n. 状况，状态；条件"),
       mk("wy", 8, 3, "phrase", "blow sb away", "/ˌbləʊ sʌmbədi əˈweɪ/", "使大为惊讶"),
       mk("wy", 8, 3, "word", "lend", "/lend/", "v. 借给，借出"),
-      mk("wy", 8, 3, "phrase", "lend (sb) a hand", "/ˌlend sʌmbədi ə ˈhænd/", "帮助（某人）做事；（给某人）搭把手"),
+      mk("wy", 8, 3, "phrase", "lend a hand", "/ˌlend sʌmbədi ə ˈhænd/", "帮助（某人）做事；（给某人）搭把手"),
       mk("wy", 8, 3, "word", "improve", "/ɪmˈpruːv/", "v. 改善，改进；变得更好"),
       mk("wy", 8, 3, "word", "3-D", "/ˌθriː ˈdiː/", "adj. 三维的，立体的"),
       mk("wy", 8, 3, "word", "printer", "/ˈprɪntə(r)/", "n. 打印机"),
