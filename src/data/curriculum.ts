@@ -4,7 +4,6 @@ import { RENJIAO_SL_CURRICULUM } from "./renjiaoSL";
 import { WAIYANSHE_SL_CURRICULUM } from "./waiyansheSL";
 import { WAIYANSHE_CURRICULUM } from "./waiyanshe";
 import { OXFORD_SL_CURRICULUM } from "./oxfordSL";
-import { OXFORD_CURRICULUM } from "./oxford";
 import { RENAI_CURRICULUM } from "./renai";
 import { applyKebiaoTo, makeRenjiaoEntry, makeWaiyansheEntry } from "./kebiaoBank";
 
@@ -83,7 +82,7 @@ export type EntryType = "word" | "phrase" | "sentence";
  *   影响：两条线全部 entry id 变化 ⇒ CURRICULUM_VERSION 23→24 触发 freshProgress
  *   （积分保留、生词本按 validIds 过滤）。音频文件名是文本哈希与 id 无关 ⇒ 0 影响。
  */
-export const CURRICULUM_VERSION = 24;
+export const CURRICULUM_VERSION = 25;
 
 export type CurriculumVersion =
   | "renjiao"
@@ -997,94 +996,9 @@ function withKebiao(
  * - waiyanshe3（三年级起点）：3-9 年级，按三年级起点教材原样；
  *   ❌ **不补课标**（本次按用户逐册拍照重建的线，词表以教材为准）。
  */
-/**
- * 一年级起点线的带内去重：maxGrade（默认 2）及以下的单元里，
- * 后面单元中与前面单元重复的词条（按英文小写比较）一律移除，
- * 保留序列中首次出现的位置。词条 id 保持不变（去重发生在构建层，
- * 不动数据文件），被移除词条的历史进度引用由 loadProgress 统一清理。
- * 例如外研社 spring/summer/autumn/winter 在一年级 U9 首次出现，
- * 二年级 U5 的重复项会被移除。
- */
-function dedupeEarlyGrades(
-  units: UnitInfo[],
-  maxGrade = 2,
-  perGrade = false
-): UnitInfo[] {
-  let seen = new Set<string>();
-  let prevGrade = 0;
-  return units
-    .map((u) => {
-      if (u.grade > maxGrade) return u;
-      // perGrade=true：seen 只在同一年级内累计（上册→下册），跨年级重置。
-      // v24：waiyanshe 册归并后 G2=2A+2B 是独立教材年，若沿用跨年累计，
-      // 2A 中复现 1A/1B 核心词的整单元（如 M3U1 mother/father…）会被错删，
-      // 与 v23 废弃跨 G2→G3 过滤同理。
-      if (perGrade && u.grade !== prevGrade) {
-        seen = new Set();
-        prevGrade = u.grade;
-      }
-      const kept = u.entries.filter((e) => {
-        const k = e.english.toLowerCase();
-        if (seen.has(k)) return false;
-        seen.add(k);
-        return true;
-      });
-      return kept.length === u.entries.length ? u : { ...u, entries: kept };
-    })
-    .filter((u) => u.entries.length > 0);
-}
 
 // 一起线带课标（非重建线，保留旧行为）；三起线用纯净基线，不补课标
 // 2026-09-08: waiyanshe 一线 G3+ 改为按"外研新标准**一年级起点**版"真实教材独立重建，
-/**
- * 「册」归并为「年级」（v24，仅用于 waiyanshe / oxford 两条一线）。
- *
- * waiyansheSL / oxfordSL 按教材册序号编 grade：1A=1、1B=2、2A=3 … 9B=18（18 册）。
- * UI 只支持 1-9 年级 ⇒ 归并规则：G = ⌈册/2⌉（1A+1B→G1 … 9A+9B→G9），
- * 同一年级内下册的 unit 续接上册（上册 1..N，下册 N+1..）。
- *
- * entry 的 grade/unit/id 三者同步重写：
- *   - id 只改 g/u 段，seq 段保留（`wy-g1u1e0001` / `g3u1e4882` 两种格式都处理），
- *     seq 不变 ⇒ 与其他线共用全局 seq 空间仍唯一。
- * - 输入数组允许册序乱序（oxfordSL 中 3A/3B 排在 2A/2B 前面），先按册号稳定排序。
- * - 必须在 withKebiao（课标补全）**之前**调用，让补全单元用新 grade/unit 编号。
- */
-function mergeBooksToGrades(units: UnitInfo[]): UnitInfo[] {
-  const sorted = [...units].sort((a, b) => a.grade - b.grade);
-  const out: UnitInfo[] = [];
-  let curGrade = 0;
-  let curBook = 0;
-  let offset = 0;
-  let maxUnit = 0;
-  for (const u of sorted) {
-    const g = Math.ceil(u.grade / 2);
-    if (g !== curGrade) {
-      curGrade = g;
-      curBook = u.grade;
-      offset = 0;
-      maxUnit = 0;
-    } else if (u.grade !== curBook) {
-      // 同年级内换册（上→下）：下册 unit 续接上册
-      curBook = u.grade;
-      offset = maxUnit;
-    }
-    const nu = u.unit + offset;
-    maxUnit = Math.max(maxUnit, nu);
-    out.push({
-      ...u,
-      grade: g,
-      unit: nu,
-      entries: u.entries.map((e) => {
-        const m = /^([a-z]+-)?g\d+u\d+(e\d+)$/.exec(e.id);
-        const id = m
-          ? `${m[1] ?? ""}g${g}u${nu}${m[2]}`
-          : e.id.replace(/^g\d+u\d+/, `g${g}u${nu}`);
-        return { ...e, id, grade: g, unit: nu };
-      }),
-    });
-  }
-  return out;
-}
 
 // 2026-09-08: waiyanshe 一线 G3+ 改为按"外研新标准一线"独立重建，
 // 不再复用 WAIYANSHE_CURRICULUM 的三起 G3+ 段。一线 SL G3+ 现放在 src/data/waiyansheSL.ts。
@@ -1094,15 +1008,20 @@ function mergeBooksToGrades(units: UnitInfo[]): UnitInfo[] {
 // 真实教材词表而非 G1G2 同源扩展，过滤会错删。带内 G1G2 去重由 dedupeEarlyGrades 承担。
 // 2026-09-10 (v24)：G1G2 与 SL 全段按「册」编号（1A=1 … 9B=18），经 mergeBooksToGrades
 // 归并为真实年级 1-9；课标补全的 midGrades 相应从 [7..18] 改回 [7,8,9]。
-const WAIYANSHE_LINE_BASE: UnitInfo[] = mergeBooksToGrades([
-  ...WAIYANSHE_CURRICULUM.filter((u) => u.grade <= 2), // waiyanshe G1G2（已 SL 化，册 1A/1B）
-  ...WAIYANSHE_SL_CURRICULUM, // waiyanshe SL（一线版，册 2A-9B ⇒ grade 3-18）
-]);
-const WAIYANSHE_G1_START: UnitInfo[] = dedupeEarlyGrades(
-  withKebiao(WAIYANSHE_LINE_BASE, makeWaiyansheEntry, [3, 4, 5, 6], [7, 8, 9]),
-  2,
-  true
-);
+// 2026-09-11 (v25)：waiyansheSL.ts 已按官方教材重录为 **1-9 年级全量**
+// （小学 1-6 年级《英语（新标准）一年级起点》+ 初中 7-9 年级外研版），
+// 数据直接用真实年级编号，不再需要 mergeBooksToGrades 册→年级归并，
+// 也不再拼接 WAIYANSHE_CURRICULUM 的 G1G2 段（那份仅供 waiyanshe3 三起线使用）。
+const WAIYANSHE_LINE_BASE: UnitInfo[] = WAIYANSHE_SL_CURRICULUM;
+// 2026-09-11 (v25)：全段已是按官方教材逐册录入的真实数据（G1-G9），
+// 不再走 dedupeEarlyGrades。该去重是为旧的「G1G2 同源扩展」假数据设计的，
+// 真实教材上下册/相邻年级之间本就有螺旋复现词，去重会删掉真内容。
+const WAIYANSHE_G1_START: UnitInfo[] = withKebiao(
+  WAIYANSHE_LINE_BASE,
+  makeWaiyansheEntry,
+  [3, 4, 5, 6],
+  [7, 8, 9]
+).map((u) => ({ ...u, entries: [...u.entries] }));
 // 2026-09-08 用户约束：不许动三起线。深一层拷贝让 WAIYANSHE_G3_START
 // 与 WAIYANSHE_CURRICULUM G3+ 段不再共享 unit/entry 对象引用。
 // filter() 仅新建数组，元素对象仍是基线同一份；map 浅拷贝一层让
@@ -1133,14 +1052,17 @@ const WAIYANSHE_G3_START: UnitInfo[] = WAIYANSHE_CURRICULUM.filter(
 // 拼接策略：renjiao = CURRICULUM G1G2（已 SL 化） + SL G3-G9（已是新起点）
 // 这样 RENJIAO_SL_CURRICULUM 只在 renjiao 路径出现，不会再回流到 renjiao3。
 // 2026-09-09 (v23)：去掉「跨 G2→G3 用 G1G2 词过滤」的逻辑，理由同 waiyanshe 注释。
-const RENJIAO_LINE_BASE: UnitInfo[] = [
-  ...CURRICULUM.filter((u) => u.grade <= 2),       // renjiao G1G2（已 SL）
-  ...RENJIAO_SL_CURRICULUM,                          // renjiao SL G3-G9
-];
+// 2026-09-11 (v25)：renjiaoSL.ts 已按官方教材重录为 **1-9 年级全量**
+// （小学 1-6 年级《英语（新起点）》+ 初中 7-9 年级《Go for it! 新目标》），
+// 不再需要拼接 CURRICULUM 的 G1G2 段（那份数据仅供 renjiao3 三起线使用）。
+const RENJIAO_LINE_BASE: UnitInfo[] = RENJIAO_SL_CURRICULUM;
 // 一起线带课标（非重建线，保留旧行为）；三起线用纯净基线，不补课标
-const RENJIAO_G1_START: UnitInfo[] = dedupeEarlyGrades(
-  withKebiao(RENJIAO_LINE_BASE, makeRenjiaoEntry, [3, 4, 5, 6], [7, 8, 9])
-);
+const RENJIAO_G1_START: UnitInfo[] = withKebiao(
+  RENJIAO_LINE_BASE,
+  makeRenjiaoEntry,
+  [3, 4, 5, 6],
+  [7, 8, 9]
+).map((u) => ({ ...u, entries: [...u.entries] }));
 // 2026-09-08 用户约束：不许动三起线。深一层拷贝让 RENJIAO_G3_START
 // 与 CURRICULUM G3+ 段不再共享 unit/entry 对象引用。三起继续走 PEP。
 const RENJIAO_G3_START: UnitInfo[] = CURRICULUM.filter((u) => u.grade >= 3).map(
@@ -1151,10 +1073,11 @@ const RENJIAO_G3_START: UnitInfo[] = CURRICULUM.filter((u) => u.grade >= 3).map(
 // OXFORD_CURRICULUM G1G2 已是真实 SL 版，G3+ 现放在 src/data/oxfordSL.ts。
 // 2026-09-10 (v24)：G1G2 + SL 全段按「册」编号（1A=1 … 9B=18，上海版 1-9 年级
 // 每学年 2 册），经 mergeBooksToGrades 归并为真实年级 1-9。
-const OXFORD_LINE_BASE: UnitInfo[] = mergeBooksToGrades([
-  ...OXFORD_CURRICULUM.filter((u) => u.grade <= 2), // oxford G1G2 (已 SL，册 1A/1B)
-  ...OXFORD_SL_CURRICULUM, // oxford SL（上海版，册 2A-9B ⇒ grade 3-18）
-]);
+// 2026-09-11 (v25)：oxfordSL.ts 已按官方教材重录为 **1-9 年级全量**
+// （小学 1-5 年级 + 六年级上《牛津上海版》+ 初中 7-9 年级沪教牛津版），
+// 数据直接用真实年级编号，不再需要 mergeBooksToGrades 册→年级归并，
+// 也不再拼接 OXFORD_CURRICULUM 的 G1G2 段。
+const OXFORD_LINE_BASE: UnitInfo[] = OXFORD_SL_CURRICULUM;
 // 深拷贝防止外部修改
 const OXFORD_DEEPCOPY: UnitInfo[] = OXFORD_LINE_BASE.map((u) => ({
   ...u,
