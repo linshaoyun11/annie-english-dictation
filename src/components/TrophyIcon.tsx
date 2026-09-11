@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from "react";
-import trophyImg from "../assets/trophy-celebration-v2.png";
+import trophyImg from "../assets/trophy-celebration-v3.png";
 
 /**
  * TrophyIcon — 祝贺页奖杯图标
@@ -10,7 +10,11 @@ import trophyImg from "../assets/trophy-celebration-v2.png";
  * 两者风格差异会在同屏显现——如需协调后续单独处理。
  *
  * 2026-09-11 替换为新版奖杯（底座带 Congratulations! 铭牌、更多彩带）：
- *   资源 `src/assets/trophy-celebration-v2.png`（1024×1024 RGBA）。
+ * 2026-09-11 修正 v3：v2 的封闭口袋自动判别（灰格占比>30%）误伤了真高光——
+ *   白色星星闪光/杯身白高光在 JPEG 下蓝通道 ≤250 被当成棋盘格清掉。
+ *   v3 改为把每个候选口袋裁对照图人工目验，显式名单清除（只清把手圈孔等
+ *   6 处真背景），杯口闪光、杯沿反光、杯身白高光全部保留。
+ *   资源 `src/assets/trophy-celebration-v3.png`（1024×1024 RGBA）。
  *   源图为豆包 AI 生成 JPG（棋盘格背景烤进图片），抠图处理：
  *   ① 边界泛洪去棋盘背景；② 14 个封闭口袋（把手圈内等）棋盘残留按
  *   「灰格占比>30%」判别清除；③ 杯身白色高光（均匀纯白）保留；
