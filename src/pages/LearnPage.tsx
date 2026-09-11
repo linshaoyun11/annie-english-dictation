@@ -985,13 +985,18 @@ export default function LearnPage({
       {/* 单元/年级完成祝贺页 */}
       {celebration && (
         <div
-          className="absolute inset-0 z-40 overflow-y-auto px-6"
+          className="fixed inset-0 z-40 mx-auto max-w-md overflow-y-auto px-6"
           style={{
             background:
               "radial-gradient(circle at 50% -6%, rgba(124,107,245,.16), rgba(124,107,245,0) 58%), radial-gradient(circle at 92% 12%, rgba(245,184,0,.12), rgba(245,184,0,0) 46%), linear-gradient(180deg, #F8F7FF 0%, #FDFCFF 38%, #FFFFFF 100%)",
+            // 阻止滚动链传到 body：iOS 上整页被拖动时 WKWebView 底下的
+            // 原生 window 是黑底，会出现"底部黑色横幅"。
+            overscrollBehavior: "contain",
           }}
         >
-          <div className="mx-auto flex min-h-full max-w-sm flex-col items-center pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-12 text-center">
+          {/* fixed 相对视口（viewport-fit=cover 下含状态栏/手势条全屏），
+              渐变铺满整屏消除安全区交界色差；内容用 env 保护不进刘海/手势条 */}
+          <div className="mx-auto flex min-h-full max-w-sm flex-col items-center pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(3rem+env(safe-area-inset-top))] text-center">
             {/* 奖杯：保留正式版 TrophyIcon，紫色呼吸柔光底盘 */}
             <div
               className="relative flex h-[132px] w-[132px] shrink-0 animate-[breathe_3.4s_ease-in-out_infinite] items-center justify-center rounded-full"
