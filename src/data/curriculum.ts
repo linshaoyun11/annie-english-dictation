@@ -86,8 +86,15 @@ export type EntryType = "word" | "phrase" | "sentence";
  *   Helen/Emma/Peter/Tom/Maria 等，含 Hemingway/Picasso/J.K.Rowling 名人名）。
  *   mk() 全局 seq 递增 ⇒ 后续全部 entry id 偏移 ⇒ 25→26 触发 freshProgress。
  *   外研一线 / 牛津一线无人名词条，未改动。
+ *
+ * v27（2026-09-12）：三条一线删除地名/缩写/电影名词条 78 条
+ *   （Toronto/Disneyland/Titanic/DJ/CD/DVD/UK 等）。**课标 1600 词表内的
+ *   China/TV/X-ray/IT/PE/US/OK/Internet/Christmas 保留**——applyKebiaoTo
+ *   按 english 小写匹配覆盖，删了会被「课标词汇」单元自动加回。
+ *   另修正 5 条普通名词误大写（Vocabulary/Pie/Earth/Sandcastle/Voyage）。
+ *   mk() 全局 seq 偏移 ⇒ 26→27 触发 freshProgress。
  */
-export const CURRICULUM_VERSION = 26;
+export const CURRICULUM_VERSION = 27;
 
 export type CurriculumVersion =
   | "renjiao"
