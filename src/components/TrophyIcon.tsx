@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from "react";
-import trophyImg from "../assets/trophy-celebration-transparent.png";
+import trophyImg from "../assets/trophy-celebration-v2.png";
 
 /**
  * TrophyIcon — 祝贺页奖杯图标
@@ -9,12 +9,14 @@ import trophyImg from "../assets/trophy-celebration-transparent.png";
  * ⚠️ 注意：祝贺页奖杯**正下方**就是 `SunIcon/StarIcon size={56}`，
  * 两者风格差异会在同屏显现——如需协调后续单独处理。
  *
- * 2026-09-09 替换为卡通金色奖杯（带麦穗/彩带/高光）：
- *   资源 `src/assets/trophy-celebration-transparent.png`（1024×1024 RGBA）。
- *   原图为豆包 AI 生成 JPG，已做：① 边缘 flood-fill 去白底；② 右下角水印区域
- *   裁透明；③ 缩放至 1024×1024；④ 保存为 PNG。
- *   文件名加 `-transparent` 后缀是为了让 iPad Safari 等强缓存场景下，
- *   旧 URL `trophy-celebration.png` 完全失效，强制重下载。
+ * 2026-09-11 替换为新版奖杯（底座带 Congratulations! 铭牌、更多彩带）：
+ *   资源 `src/assets/trophy-celebration-v2.png`（1024×1024 RGBA）。
+ *   源图为豆包 AI 生成 JPG（棋盘格背景烤进图片），抠图处理：
+ *   ① 边界泛洪去棋盘背景；② 14 个封闭口袋（把手圈内等）棋盘残留按
+ *   「灰格占比>30%」判别清除；③ 杯身白色高光（均匀纯白）保留；
+ *   ④ 清除右下角"豆包AI生成"水印；⑤ 1px 羽化、裁边、1024×1024。
+ *   脚本 `.workbuddy/tmp/trophy_cutout.py`。换图必须换文件名（-v2），
+ *   否则 iPad Safari 强缓存会继续显示旧奖杯。
  *
  * 接口保持与 SVG 版一致：`size` 控制宽度（正方形），`className` 等透传。
  */
