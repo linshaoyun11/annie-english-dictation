@@ -3872,7 +3872,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
       w(9, 10, "sheep", "/ʃiːp/", "羊；绵羊"),
       w(9, 10, "hat", "/hæt/", "帽子"),
       w(9, 10, "keep", "/kiːp kept kept/", "保持；留在"),
-      mk(9, 10, "phrase", "keep sb./sth.away", "/kiːp sb sth əˈweɪ/", "（使）避开；（使）不靠近"),
+      mk(9, 10, "phrase", "keep sb. away", "/kiːp sb sth əˈweɪ/", "（使）避开；（使）不靠近"),
       w(9, 10, "fly", "/flaɪ/", "苍蝇"),
       w(9, 10, "scissors", "/ˈsɪzəz/", "剪刀"),
       mk(9, 10, "phrase", "cut sth.off sth", "/kʌt sth ɒf sth/", "把某物从某物上剪掉"),

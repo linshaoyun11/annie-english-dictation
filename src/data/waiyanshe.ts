@@ -63,7 +63,7 @@ export const WAIYANSHE_CURRICULUM: UnitInfo[] = [
       mk("wy", 1, 2, "phrase", "Good morning.", "/ˌɡʊd ˈmɔːnɪŋ/", "早上好。"),
       mk("wy", 1, 2, "phrase", "Good afternoon.", "/ˌɡʊd ˌɑːftəˈnuːn/", "下午好。"),
       mk("wy", 1, 2, "phrase", "My name's ...", "/maɪ neɪmz/", "我叫……"),
-      mk("wy", 1, 2, "phrase", "I'm a boy / girl.", "/aɪm ə bɔɪ / ɡɜːl/", "我是个男孩 / 女孩。"),
+      mk("wy", 1, 2, "phrase", "I'm a boy.", "/aɪm ə bɔɪ / ɡɜːl/", "我是个男孩 / 女孩。"),
     ],
   },
 
@@ -146,7 +146,7 @@ export const WAIYANSHE_CURRICULUM: UnitInfo[] = [
       mk("wy", 1, 6, "word", "dog", "/dɒɡ/", "n. 狗"),
       mk("wy", 1, 6, "word", "that", "/ðæt/", "pron. 那个"),
       mk("wy", 1, 6, "phrase", "This is my classroom.", "/ðɪs ɪz maɪ ˈklɑːsruːm/", "这是我的教室。"),
-      mk("wy", 1, 6, "phrase", "That's a dog / cat.", "/ðæts ə dɒɡ / kæt/", "那是一只狗 / 猫。"),
+      mk("wy", 1, 6, "phrase", "That's a dog.", "/ðæts ə dɒɡ / kæt/", "那是一只狗 / 猫。"),
     ],
   },
 
@@ -225,7 +225,7 @@ export const WAIYANSHE_CURRICULUM: UnitInfo[] = [
       mk("wy", 1, 10, "word", "doll", "/dɒl/", "n. 玩偶"),
       mk("wy", 1, 10, "word", "bear", "/beə(r)/", "n. 熊"),
       mk("wy", 1, 10, "phrase", "Where's the ...?", "/ˌweəz ðə/", "……在哪里？"),
-      mk("wy", 1, 10, "phrase", "It's in / on / under ...", "/ɪts ɪn / ɒn / ˈʌndə(r)/", "它在……里 / 上 / 下。"),
+      mk("wy", 1, 10, "phrase", "It's in ...", "/ɪts ɪn / ɒn / ˈʌndə(r)/", "它在……里 / 上 / 下。"),
     ],
   },
 
@@ -273,7 +273,7 @@ export const WAIYANSHE_CURRICULUM: UnitInfo[] = [
       mk("wy", 2, 2, "phrase", "he's = he is", "/hiːz/", "他是"),
       mk("wy", 2, 2, "phrase", "she's = she is", "/ʃiːz/", "她是"),
       mk("wy", 2, 2, "phrase", "This is my friend.", "/ðɪs ɪz maɪ frend/", "这是我的朋友。"),
-      mk("wy", 2, 2, "phrase", "He's/She's a pupil.", "/hiːz / ʃiːz ə ˈpjuːpl/", "他 / 她是小学生。"),
+      mk("wy", 2, 2, "phrase", "He's a pupil.", "/hiːz / ʃiːz ə ˈpjuːpl/", "他 / 她是小学生。"),
     ],
   },
 
