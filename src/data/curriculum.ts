@@ -81,8 +81,13 @@ export type EntryType = "word" | "phrase" | "sentence";
  *   连带：waiyanshe 课标补全 midGrades 从 [7..18] 改回 [7,8,9]。
  *   影响：两条线全部 entry id 变化 ⇒ CURRICULUM_VERSION 23→24 触发 freshProgress
  *   （积分保留、生词本按 validIds 过滤）。音频文件名是文本哈希与 id 无关 ⇒ 0 影响。
+ *
+ * v26（2026-09-12）：人教一线删除人名词条 127 条（初中段 G7-G9，
+ *   Helen/Emma/Peter/Tom/Maria 等，含 Hemingway/Picasso/J.K.Rowling 名人名）。
+ *   mk() 全局 seq 递增 ⇒ 后续全部 entry id 偏移 ⇒ 25→26 触发 freshProgress。
+ *   外研一线 / 牛津一线无人名词条，未改动。
  */
-export const CURRICULUM_VERSION = 25;
+export const CURRICULUM_VERSION = 26;
 
 export type CurriculumVersion =
   | "renjiao"
