@@ -43,6 +43,17 @@ interface LearningCardProps {
   startAudio: (text: string) => void;
 }
 
+/**
+ * 实测刷新率缓存（模块级，跨题目、跨渲染复用）：
+ * 时钟冻结的兜底期只能数帧，而「帧数 → 墙钟时间」的换算依赖屏幕 Hz
+ * （60Hz 与 120Hz 差一倍）。写死帧数必然与进度条对不上：
+ * 200 帧 @60Hz = 3.3s（晚跳 1.5s），@120Hz = 1.67s（早跳 0.13s）。
+ * 因此在时钟正常时借兜底循环前几帧实测 Hz 缓存下来，冻结期按
+ * 「目标毫秒 × Hz」换算帧数，保证与进度条 1.8s 对齐。
+ * 实测只认 2~40ms 的帧间隔：冻结时 Date.now() 不走动、dt≈0，自动被过滤。
+ */
+let cachedHz = 0;
+
 export default function LearningCard({
   entry,
   unitTitle,
@@ -189,18 +200,42 @@ export default function LearningCard({
    * onAnimationEnd 兜底在冻结态下同样不可靠（animationend 派发依赖主线程任务队列）。
    * 但 CSS 进度条仍在走 ⇒ 合成器渲染管线活着 ⇒ rAF 回调仍会被调度。
    *
-   * 双条件触发：墙钟差 ≥1750ms（时钟正常时精确跳）或帧数 ≥200
-   * （时钟冻结时靠帧数兜底：约 1.7s @120Hz / 3.3s @60Hz，冻结态属少见
-   * 情形，稍慢可接受）。统一走 fireAutoNext，与另两路互斥。
+   * 双条件触发：墙钟差 ≥1780ms（时钟正常时精确对齐进度条 1.8s）或
+   * 帧数 ≥ framesNeeded（时钟冻结时靠帧数兜底）。framesNeeded 用模块级
+   * 实测刷新率 cachedHz 换算（1.8s × Hz + 8 帧余量），与进度条对齐；
+   * 尚无实测值（首题即冻结的罕见情形）退回 200 帧，宁可慢不可不跳。
+   * 统一走 fireAutoNext，与另两路互斥。
    */
   useEffect(() => {
     if (!completed || !autoNext || frozen) return;
     let raf = 0;
     let frames = 0;
+    const BAR_MS = 1800;
     const start = Date.now();
+    let framesNeeded = cachedHz > 20 ? Math.ceil(cachedHz * (BAR_MS / 1000)) + 8 : 200;
+    let dtSum = 0;
+    let dtCount = 0;
+    let last = start;
     const tick = () => {
       frames += 1;
-      if (Date.now() - start >= 1750 || frames >= 200) {
+      const now = Date.now();
+      if (dtCount < 20) {
+        const dt = now - last;
+        last = now;
+        if (dt >= 2 && dt <= 40) {
+          dtSum += dt;
+          dtCount += 1;
+          if (dtCount === 20) {
+            const hz = 1000 / (dtSum / dtCount);
+            if (hz > 30 && hz < 240) {
+              cachedHz = hz;
+              const need = Math.ceil(hz * (BAR_MS / 1000)) + 8;
+              if (need > frames) framesNeeded = need;
+            }
+          }
+        }
+      }
+      if (now - start >= BAR_MS - 20 || frames >= framesNeeded) {
         fireAutoNext();
         return;
       }
