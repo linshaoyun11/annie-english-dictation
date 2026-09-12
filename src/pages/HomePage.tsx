@@ -320,7 +320,7 @@ export default function HomePage({
                   const unitIndex = cur.indexOf(u);
                   return (
                     <option key={unitIndex} value={unitIndex}>
-                      第 {u.unit} 单元 · {u.title}
+                      {u.unit === 0 ? "Starter" : `第 ${u.unit} 单元`} · {u.title}
                     </option>
                   );
                 })}

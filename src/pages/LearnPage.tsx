@@ -945,8 +945,8 @@ export default function LearnPage({
             difficultMode
               ? `重点记忆 · ${difficultUnit?.title ?? ""}`
               : practiceMode
-                ? `练习 · 第 ${practiceUnit?.unit} 单元 · ${practiceUnit?.title ?? ""}`
-                : `第 ${unit.unit} 单元 · ${unit.title}`
+                ? `练习 · ${practiceUnit?.unit === 0 ? "Starter" : `第 ${practiceUnit?.unit} 单元`} · ${practiceUnit?.title ?? ""}`
+                : `${unit.unit === 0 ? "Starter" : `第 ${unit.unit} 单元`} · ${unit.title}`
           }
           orderInUnit={
             difficultMode
@@ -1019,7 +1019,8 @@ export default function LearnPage({
                 return (
                   <>
                     <h2 className="mt-3 text-[20px] font-semibold leading-tight tracking-tight text-text">
-                      恭喜完成{gradeLabel(unitInfo.grade)}第 {unitInfo.unit} 单元！
+                      恭喜完成{gradeLabel(unitInfo.grade)}
+                      {unitInfo.unit === 0 ? "Starter" : `第 ${unitInfo.unit} 单元`}！
                     </h2>
                     <p className="mt-2 px-2 text-[13.5px] leading-7 text-text2">
                       <span className="font-semibold text-text">

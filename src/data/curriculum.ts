@@ -93,8 +93,13 @@ export type EntryType = "word" | "phrase" | "sentence";
  *   按 english 小写匹配覆盖，删了会被「课标词汇」单元自动加回。
  *   另修正 5 条普通名词误大写（Vocabulary/Pie/Earth/Sandcastle/Voyage）。
  *   mk() 全局 seq 偏移 ⇒ 26→27 触发 freshProgress。
+ *
+ * v28（2026-09-12）：外研三起线合并同单元重复词条 3 组（G8U4 more/later、
+ *   G8U6 cause 按词性分两行重复录入，合并义项后各保留一行）。删 3 行 ⇒
+ *   全局 seq 偏移 ⇒ 27→28 触发 freshProgress。en 文本无增减 ⇒ 音频 0 影响。
+ *   另：G7 Starter 单元（unit:0）UI 显示改为 "Starter"（不动数据）。
  */
-export const CURRICULUM_VERSION = 27;
+export const CURRICULUM_VERSION = 28;
 
 export type CurriculumVersion =
   | "renjiao"
