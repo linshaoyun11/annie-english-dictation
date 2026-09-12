@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   getCurriculum,
   gradeLabel,
@@ -6,7 +6,7 @@ import {
   type CurriculumVersion,
 } from "../data/curriculum";
 import type { Progress } from "../lib/progress";
-import { resolveAudio } from "../lib/audio";
+import { releaseElement, resolveAudio } from "../lib/audio";
 import type { Accent } from "../lib/users";
 
 interface DifficultWordsPageProps {
@@ -58,6 +58,10 @@ export default function DifficultWordsPage({
   /** 已点"移除"等待二次确认的词条（再点"确定"才真正移除） */
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  /** 持住 SpeechSynthesisUtterance 引用：Safari 里 utterance 被 GC 会吞掉 onend */
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
+  /** 播放结束看门狗的 rAF 句柄（卸载时取消） */
+  const watchdogRafRef = useRef(0);
 
   const cur = getCurriculum(version);
 
@@ -86,19 +90,49 @@ export default function DifficultWordsPage({
     [difficultEntries, filterGrade]
   );
 
+  const resetPlaying = (entryId: string) => {
+    setPlayingId((cur) => (cur === entryId ? null : cur));
+  };
+
+  /**
+   * 播放结束看门狗（rAF 轮询元素状态，不依赖 ended 事件）。
+   *
+   * 背景（2026-09-12 用户真机）：喇叭按钮播完不变回，图标卡在声波。
+   * 原因：复位只挂 in <audio> 的 ended 事件，而 iOS WKWebView 后台挂起后
+   * 媒体事件与定时器一同冻结（与自动跳题「走完不跳」同族问题）⇒ ended
+   * 永不派发。渲染管线活着 rAF 就活 ⇒ 直接轮询 el.ended / el.paused，
+   * 播完立即复位并按项目铁律 releaseElement 释放解码器。
+   */
+  const startEndWatchdog = (el: HTMLAudioElement, entryId: string) => {
+    const tick = () => {
+      if (audioRef.current !== el) return; // 已切到别的音频，旧看门狗退出
+      const finished = el.ended || (el.currentTime > 0.05 && el.paused && !el.error);
+      if (finished) {
+        releaseElement(el);
+        audioRef.current = null;
+        resetPlaying(entryId);
+        return;
+      }
+      watchdogRafRef.current = requestAnimationFrame(tick);
+    };
+    watchdogRafRef.current = requestAnimationFrame(tick);
+  };
+
   const playAudio = async (english: string, entryId: string) => {
     if (audioRef.current) {
-      audioRef.current.pause();
+      releaseElement(audioRef.current);
       audioRef.current = null;
     }
     setPlayingId(entryId);
 
     const result = await resolveAudio(english, accent);
     const fallbackSpeak = () => {
+      audioRef.current = null; // 看门狗随之退出，改走语音合成路径
       const u = new SpeechSynthesisUtterance(english);
       u.lang = accent === "uk" ? "en-GB" : "en-US";
       u.rate = 0.9;
-      u.onend = () => setPlayingId((cur) => (cur === entryId ? null : cur));
+      u.onend = () => resetPlaying(entryId);
+      utterRef.current = u; // 防 GC 吞掉 onend（Safari 已知问题）
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     };
@@ -106,14 +140,33 @@ export default function DifficultWordsPage({
       // <audio> 元素直出；失败回落浏览器语音
       const audio = new Audio(result.url);
       audio.playbackRate = 0.9;
-      audio.onended = () => setPlayingId((cur) => (cur === entryId ? null : cur));
+      audio.onended = () => {
+        releaseElement(audio);
+        if (audioRef.current === audio) audioRef.current = null;
+        resetPlaying(entryId);
+      };
       audio.onerror = fallbackSpeak;
       audioRef.current = audio;
+      startEndWatchdog(audio, entryId);
       audio.play().catch(fallbackSpeak);
     } else {
       fallbackSpeak();
     }
   };
+
+  // 离开页面：停掉在播的音频与语音合成
+  useEffect(() => {
+    return () => {
+      cancelAnimationFrame(watchdogRafRef.current);
+      if (audioRef.current) releaseElement(audioRef.current);
+      audioRef.current = null; // 看门狗下一帧看到 null 即自行退出
+      try {
+        speechSynthesis.cancel();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, []);
 
   /** 移除按钮：点"移除"→"确定"两步确认 */
   const renderRemoveButton = (entryId: string) => {
