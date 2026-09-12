@@ -506,6 +506,8 @@ export default function LearnPage({
         busyRef.current = false;
       }, 50);
     };
+    try {
+      // try/finally 兜底：任何分支抛异常都不至于把 busyRef 永久卡在 true
 
     // 重点记忆模式：遍历难词列表，全部学完弹完成提示
     if (difficultMode) {
@@ -589,6 +591,11 @@ export default function LearnPage({
     });
     setAnimKey((k) => k + 1);
     release();
+    } finally {
+      // 兜底释放：即使上方任一分支抛异常（如祝贺统计计算出错），
+      // busyRef 也必须解锁，否则之后所有跳题（自动 + 手动）全部静默失效
+      release();
+    }
   }, [
     difficultMode,
     difficultIndex,

@@ -86,6 +86,19 @@ export default function LearningCard({
    */
   const nextPressRef = useRef(false);
   const difficultPressRef = useRef(false);
+  /** 自动跳转「已触发」标志：safeTimeout / onAnimationEnd / rAF 三路兜底互斥 */
+  const autoNextDoneRef = useRef(false);
+
+  /** 自动跳转统一出口（重复调用被 doneRef 拦下，onNext 只会走一次） */
+  const fireAutoNext = () => {
+    if (autoNextDoneRef.current) return;
+    autoNextDoneRef.current = true;
+    if (autoNextTimer.current) {
+      safeClearTimeout(autoNextTimer.current);
+      autoNextTimer.current = null;
+    }
+    onNext();
+  };
 
   useEffect(() => {
     setShowHint(false);
@@ -142,6 +155,7 @@ export default function LearningCard({
       // 答对或揭示答案后，空格 = 进入下一题
       if (completed || revealed) {
         e.preventDefault();
+        autoNextDoneRef.current = true; // 手动跳过：拦下尚未触发的自动兜底
         if (autoNextTimer.current) {
           safeClearTimeout(autoNextTimer.current);
           autoNextTimer.current = null;
@@ -162,11 +176,40 @@ export default function LearningCard({
     onComplete(entry.id);
     if (frozen) return;
     if (!autoNext) return; // 关闭自动跳题：停在正确页，等空格 / 点按钮
-    autoNextTimer.current = safeTimeout(() => {
-      autoNextTimer.current = null;
-      onNext();
-    }, 1800);
+    autoNextDoneRef.current = false;
+    autoNextTimer.current = safeTimeout(fireAutoNext, 1800);
   };
+
+  /**
+   * rAF 帧数兜底（第三条路）：
+   *
+   * 背景（2026-09-12 用户真机）：答对页进度条走完不自动跳题。桌面复现正常，
+   * 定位为 iOS WKWebView 已知的「后台挂起后 JS 时钟冻结」——safeTimeout 的
+   * 墙钟定时器不再触发，且自动跳转场景没有用户触摸，runKicks 心跳无从补发；
+   * onAnimationEnd 兜底在冻结态下同样不可靠（animationend 派发依赖主线程任务队列）。
+   * 但 CSS 进度条仍在走 ⇒ 合成器渲染管线活着 ⇒ rAF 回调仍会被调度。
+   *
+   * 双条件触发：墙钟差 ≥1750ms（时钟正常时精确跳）或帧数 ≥200
+   * （时钟冻结时靠帧数兜底：约 1.7s @120Hz / 3.3s @60Hz，冻结态属少见
+   * 情形，稍慢可接受）。统一走 fireAutoNext，与另两路互斥。
+   */
+  useEffect(() => {
+    if (!completed || !autoNext || frozen) return;
+    let raf = 0;
+    let frames = 0;
+    const start = Date.now();
+    const tick = () => {
+      frames += 1;
+      if (Date.now() - start >= 1750 || frames >= 200) {
+        fireAutoNext();
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completed, autoNext, frozen, entry.id]);
 
   const revealAnswer = (reason: "dontKnow" | "strike5") => {
     if (completed || revealed) return;
@@ -241,10 +284,7 @@ export default function LearningCard({
         // 幽灵点击：没经过本按钮的 pointerdown，是上一次按键尾巴上的合成 click
         if (!nextPressRef.current) return;
         nextPressRef.current = false;
-        if (autoNextTimer.current) {
-          safeClearTimeout(autoNextTimer.current);
-          autoNextTimer.current = null;
-        }
+        autoNextDoneRef.current = true; // 手动跳过：拦下尚未触发的自动兜底
         onNext();
       }}
       className="relative mt-5 w-full overflow-hidden rounded-2xl bg-primary py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(83,74,183,0.35)] transition-transform active:scale-[0.98]"
@@ -256,13 +296,8 @@ export default function LearningCard({
           onAnimationEnd={() => {
             // CSS 动画跑在合成器线程，不受 iOS 后台 JS 时钟冻结影响。
             // 后台唤醒后动画恢复并正常触发 animationend → 可靠跳题。
-            // safeTimeout 作为兜底：若 animationend 因故未触发，心跳补发仍可跳题。
-            // 互斥守餐：safeTimeout 回调会先置 autoNextTimer.current = null，
-            // 此处检测到 null 即说明已跳过，防止双调用。
-            if (autoNextTimer.current === null) return;
-            safeClearTimeout(autoNextTimer.current);
-            autoNextTimer.current = null;
-            onNext();
+            // safeTimeout 与 rAF 帧数为另两路兜底，fireAutoNext 内部互斥防双调用。
+            fireAutoNext();
           }}
         />
       )}
