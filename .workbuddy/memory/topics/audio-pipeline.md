@@ -22,10 +22,26 @@
 
 | 音源 | 端点 | 美音 | 英音 | 原生格式 | 需代理 |
 |---|---|---|---|---|---|
-| **有道 dictvoice（首选）** | `dict.youdao.com/dictvoice?audio=X&type=2\|1` | ✅ | ✅ | 64k / 48kHz mono | 否 |
+| **有道 dictvoice（首选-单词）** | `dict.youdao.com/dictvoice?audio=X&type=2\|1` | ✅ | ✅ | 64k / 48kHz mono | 否 |
+| **豆包 seed-tts-2.0（首选-短语/句子）** | `openspeech.bytedance.com/api/v3/tts/unidirectional` | ✅ | ✅ | 64k / 24kHz mono | 否 |
 | **Edge TTS** | `edge_tts.Communicate(text, voice)` | ✅ | ✅ | **48k / 24kHz mono** | 否 |
 | 谷歌 translate_tts | `translate.google.com/translate_tts?...&tl=..&client=tw-ob` | ✅ | ✅ | 64k / 24kHz mono | **是** |
 | 百度 gettts | `fanyi.baidu.com/gettts?lan=en&text=X&spd=3&source=web` | ✅ | ❌ | — | 否 |
+
+### 🟢 豆包语音合成（2026-09-13 接入，build 108）
+
+- **鉴权**：v3 接口 `X-Api-Key`（火山控制台 API Key）+ `X-Api-Resource-Id: seed-tts-2.0`，
+  **不需要 appid**（v1 的 appid+token 模式不适用）。key 走环境变量 `DOUBAO_TTS_KEY`，**不进 git**。
+- **请求**：POST body `{user:{uid}, req_params:{text, speaker, audio_params:{format:"mp3", sample_rate:24000}}}`；
+  响应 HTTP chunked，逐行 `data:{"code":0,"data":"<base64>"}` 拼接解码；code 20000000=完成。
+- **音色**（2.0 英文仅 3 个，无英式）：`en_female_dacey_uranus_bigtts`（女/美）、
+  `en_female_stokie_uranus_bigtts`（女）、`en_male_tim_uranus_bigtts`（男）。
+  现行分配：**美=Dacey / 英=Stokie**。中文音色丰富（zh_female_vv_uranus_bigtts 等）。
+- **批次脚本**：`scripts/doubao_tts_batch.py`（并发 6、断点续传、魔数校验、失败清单）+
+  `scripts/dump_all_texts.mjs`（导出全量运行时文本含类型）。2026-09-13 实测 1978 文本×2 口音
+  5分17秒 零失败。文本清洗：`*` 前缀、弯引号、" ... " 省略号（`clean_tts_text()`）。
+- 注意：1.0 资源（seed-tts-1.0，含 en_female_samc 等）该账号未授权（403）。
+  体积 64kbps，最长句 64KB，略超 60KB 审计阈值属正常。
 
 ### 有道可用性：两次结论反转（都要知道）
 
