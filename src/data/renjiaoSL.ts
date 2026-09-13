@@ -547,7 +547,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 3,
     unit: 7,
-    title: "Unit 1",
+    title: "Unit 1 School Subjects",
     entries: [
       w(3, 7, "Chinese", "/ˌtʃaɪˈniːz/", "n. 汉语"),
       w(3, 7, "English", "/ˈɪŋɡlɪʃ/", "n. 英语（的)"),
@@ -564,7 +564,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 3,
     unit: 8,
-    title: "Unit 2",
+    title: "Unit 2 My School",
     entries: [
       w(3, 8, "classroom", "/ˈklɑːsruːm/", "n. 教室"),
       w(3, 8, "library", "/ˈlaɪbrəri/", "n. 图书馆"),
@@ -585,7 +585,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 3,
     unit: 9,
-    title: "Unit 3",
+    title: "Unit 3 After School Activities",
     entries: [
       mk(3, 9, "phrase", "after school", "/ˈɑːftə(r) skuːl/", "放学后"),
       mk(3, 9, "phrase", "play sports", "/pleɪ spɔːts/", "做运动"),
@@ -609,7 +609,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 3,
     unit: 10,
-    title: "Unit 4",
+    title: "Unit 4 My Family",
     entries: [
       w(3, 10, "family", "/ˈfæməli/", "n. 家；家庭；家族"),
       w(3, 10, "uncle", "/ˈʌŋkl/", "n. 舅父；叔父；伯父；姑父；姨夫"),
@@ -634,7 +634,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 3,
     unit: 11,
-    title: "Unit 5",
+    title: "Unit 5 Family Activities",
     entries: [
       mk(3, 11, "phrase", "cooking dinner", "/ˈkʊkɪŋ ˈdɪnə(r)/", "正在做饭"),
       mk(3, 11, "phrase", "walking the dog", "/ˈwɔːkɪŋ ðə dɒɡ/", "正在遛狗"),
@@ -653,7 +653,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 3,
     unit: 12,
-    title: "Unit 6",
+    title: "Unit 6 My Home",
     entries: [
       w(3, 12, "home", "/həʊm/", "n. 到家；在家；家；家庭"),
       w(3, 12, "bedroom", "/ˈbedruːm/", "n. 卧室"),
@@ -832,7 +832,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 4,
     unit: 7,
-    title: "Unit 1",
+    title: "Unit 1 My Neighbourhood",
     entries: [
       mk(4, 7, "phrase", "across from", "/əˈkrɒs frəm/", "在对面"),
       mk(4, 7, "phrase", "next to", "/ˈnekst tu/", "紧邻；在……近旁"),
@@ -863,7 +863,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 4,
     unit: 8,
-    title: "Unit 2",
+    title: "Unit 2 Cities",
     entries: [
       w(4, 8, "city", "/ˈsɪti/", "n. 城市"),
       w(4, 8, "street", "/striːt/", "n. 大街；街道"),
@@ -889,7 +889,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 4,
     unit: 9,
-    title: "Unit 3",
+    title: "Unit 3 Travel Plans",
     entries: [
       w(4, 9, "sea", "/siː/", "n. 大海，海洋"),
       w(4, 9, "ski", "/skiː/", "v. 滑雪"),
@@ -906,7 +906,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 4,
     unit: 10,
-    title: "Unit 4",
+    title: "Unit 4 Hobbies",
     entries: [
       w(4, 10, "reading", "/ˈriːdɪŋ/", "v. 读书；阅读"),
       w(4, 10, "skateboarding", "/ˈskeɪtbɔːdɪŋ/", "n. 玩滑板"),
@@ -924,7 +924,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 4,
     unit: 11,
-    title: "Unit 5",
+    title: "Unit 5 Free Time",
     entries: [
       mk(4, 11, "phrase", "go for a picnic", "/ɡəʊ fɔː(r) ə ˈpɪknɪk/", "去野餐"),
       mk(4, 11, "phrase", "play the violin", "/pleɪ ðə ˌvaɪəˈlɪn/", "拉小提琴"),
@@ -941,7 +941,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 4,
     unit: 12,
-    title: "Unit 6",
+    title: "Unit 6 Countries",
     entries: [
       mk(4, 12, "phrase", "the UK", "/ðə ˌjuː ˈkeɪ/", "英国"),
       mk(4, 12, "phrase", "the USA", "/ði ˌjuː es ˈeɪ/", "美国"),
@@ -983,7 +983,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 2,
-    title: "Unit 2",
+    title: "Unit 2 Teachers",
     entries: [
       mk(5, 2, "phrase", "wear glasses", "/weə(r) ˈɡlɑːsɪz/", "戴眼镜"),
       w(5, 2, "slim", "/slɪm/", "adj. 苗条的，纤细的；单薄的"),
@@ -999,7 +999,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 3,
-    title: "Unit 3",
+    title: "Unit 3 Animals",
     entries: [
       w(5, 3, "animal", "/ˈænɪml/", "n. 兽；动物"),
       w(5, 3, "elephant", "/ˈelɪfənt/", "n. 大象"),
@@ -1019,7 +1019,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 4,
-    title: "Unit 4",
+    title: "Unit 4 Shopping Day",
     entries: [
       mk(5, 4, "phrase", "exercise book", "/ˈeksəsaɪz bʊk/", "练习本"),
       mk(5, 4, "phrase", "pencil sharpener", "/ˈpensl ʃɑːpnə(r)/", "铅笔刀"),
@@ -1039,7 +1039,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 5,
-    title: "Unit 5",
+    title: "Unit 5 TV Shows",
     entries: [
       w(5, 5, "wonderful", "/ˈwʌndəfl/", "adj. 精彩的;美妙的"),
       w(5, 5, "cool", "/kuːl/", "adj. 酷的；时髦的；绝妙的"),
@@ -1052,7 +1052,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 6,
-    title: "Unit 6",
+    title: "Unit 6 Chores",
     entries: [
       w(5, 6, "chore", "/tʃɔː(r)/", "n. 家务"),
       mk(5, 6, "phrase", "clean the room", "/kliːn ðə ruːm/", "打扫房间"),
@@ -1067,7 +1067,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 7,
-    title: "Unit 1",
+    title: "Unit 1 Keeping Healthy",
     entries: [
       mk(5, 7, "phrase", "too much", "/tuː mʌtʃ/", "太多"),
       w(5, 7, "candy", "/ˈkændi/", "n. 糖果"),
@@ -1093,7 +1093,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 8,
-    title: "Unit 2",
+    title: "Unit 2 Special Days",
     entries: [
       mk(5, 8, "phrase", "New Year's Day", "/ˌnjuː jɪəz ˈdeɪ/", "新年"),
       mk(5, 8, "phrase", "Tree Planting Day", "/triː ˈplɑːntɪŋ deɪ/", "植树节"),
@@ -1120,7 +1120,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 9,
-    title: "Unit 3",
+    title: "Unit 3 Making Contact",
     entries: [
       mk(5, 9, "phrase", "send an email", "/send ən ˈiːmeɪl/", "发送电子邮件"),
       mk(5, 9, "phrase", "write a letter", "/raɪt ə ˈletə(r)/", "写信"),
@@ -1137,7 +1137,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 10,
-    title: "Unit 4",
+    title: "Unit 4 Last Weekend",
     entries: [
       mk(5, 10, "phrase", "cleaned the window", "/kliːnd ðə ˈwɪndəʊ/", "（过去式）擦窗子"),
       mk(5, 10, "phrase", "watched TV", "/wɒtʃt ˌtiː ˈviː/", "（过去式）看电视"),
@@ -1160,7 +1160,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 11,
-    title: "Unit 5",
+    title: "Unit 5 Having a Great Trip",
     entries: [
       mk(5, 11, "phrase", "went to the beach", "/went tu ðə biːtʃ/", "（过去式）去海边"),
       mk(5, 11, "phrase", "drank cold drinks", "/dræŋk kəʊld drɪŋks/", "（过去式）喝冷饮"),
@@ -1182,7 +1182,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 5,
     unit: 12,
-    title: "Unit 6",
+    title: "Unit 6 Growing Up",
     entries: [
       mk(5, 12, "phrase", "was born", "/wəz bɔːn/", "（过去式）出生"),
       mk(5, 12, "phrase", "started to speak", "/stɑːtɪd tuː spiːk/", "（过去式）开始说话"),
@@ -1235,7 +1235,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 2,
-    title: "Unit 2",
+    title: "Unit 2 Around the World",
     entries: [
       mk(6, 2, "phrase", "the British Museum", "/ðə ˈbrɪtɪʃ mjuˈziːəm/", "大英博物馆"),
       mk(6, 2, "phrase", "the CN Tower", "/ðə ˌsiː ˈen ˈtaʊər/", "加拿大国家电视塔"),
@@ -1255,7 +1255,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 3,
-    title: "Unit 3",
+    title: "Unit 3 Animal World",
     entries: [
       w(6, 3, "reptile", "/ˈreptaɪl/", "n. 爬行动物"),
       w(6, 3, "bird", "/bɜːd/", "n. 鸟"),
@@ -1278,7 +1278,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 4,
-    title: "Unit 4",
+    title: "Unit 4 Feelings",
     entries: [
       w(6, 4, "scared", "/skeəd/", "adj. 害怕的；害怕，恐惧"),
       w(6, 4, "worried", "/ˈwʌrid/", "adj. 担心的；担忧的；发愁的；烦恼的"),
@@ -1301,7 +1301,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 5,
-    title: "Unit 5",
+    title: "Unit 5 Famous People",
     entries: [
       w(6, 5, "astronaut", "/ˈæstrənɔːt/", "n. 宇航员"),
       w(6, 5, "artist", "/ˈɑːtɪst/", "n. 画家；艺术家"),
@@ -1327,7 +1327,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 6,
-    title: "Unit 6",
+    title: "Unit 6 Winter Vacation",
     entries: [
       w(6, 6, "dumpling", "/ˈdʌmplɪŋ/", "n. 饺子；汤团"),
       w(6, 6, "fan", "/fæn/", "n. 迷；爱好者"),
@@ -1345,7 +1345,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 7,
-    title: "Unit 1",
+    title: "Unit 1 Visiting Canada",
     entries: [
       w(6, 7, "live", "/lɪv/", "v. 居住；生活"),
       w(6, 7, "quite", "/kwaɪt/", "adv. 有点"),
@@ -1360,7 +1360,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 8,
-    title: "Unit 2",
+    title: "Unit 2 All Around Me",
     entries: [
       mk(6, 8, "phrase", "show ... around", "/ʃəʊ... əˈraʊnd/", "带领⋯⋯参观"),
       mk(6, 8, "phrase", "Queen's Park", "/kwiːnz pɑːk/", "女王公园"),
@@ -1374,7 +1374,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 9,
-    title: "Unit 3",
+    title: "Unit 3 Daily Life",
     entries: [
       w(6, 9, "volunteer", "/ˌvɒlənˈtɪə(r)/", "n. 志愿者"),
       w(6, 9, "sandwich", "/ˈsænwɪtʃ/", "n. 三明治"),
@@ -1388,7 +1388,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 10,
-    title: "Unit 4",
+    title: "Unit 4 Free Time",
     entries: [
       mk(6, 10, "phrase", "talk about", "/tɔːk əˈbaʊt/", "谈论；讨论"),
       w(6, 10, "hockey", "/ˈhɒki/", "n. 曲棍球；冰上曲棍球"),
@@ -1402,7 +1402,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 11,
-    title: "Unit 5",
+    title: "Unit 5 Nature and Culture",
     entries: [
       w(6, 11, "countryside", "/ˈkʌntrisaɪd/", "n. 乡村；农村，乡下"),
       w(6, 11, "Thanksgiving", "/ˌθæŋksˈɡɪvɪŋ/", "n. 感恩节"),
@@ -1416,7 +1416,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 6,
     unit: 12,
-    title: "Unit 6",
+    title: "Unit 6 Summer Vacation",
     entries: [
       mk(6, 12, "phrase", "English-Chinese dictionary", "/ˈɪŋɡlɪʃ ˌtʃaɪˈniːz ˈdɪkʃənri/", "英汉词典"),
       mk(6, 12, "phrase", "shopping centre", "/ˈʃɒpɪŋ sentə(r)/", "购物中心"),
@@ -1429,7 +1429,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 1,
-    title: "Starter Unit 1",
+    title: "Starter Unit 1 Hello!",
     entries: [
       w(7, 1, "unit", "/'juːnɪt/", "n. 单元"),
       mk(7, 1, "phrase", "starter unit", "/ˈstɑːtər ˈjuːnɪt/", "过渡单元"),
@@ -1495,7 +1495,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 2,
-    title: "Starter Unit 2",
+    title: "Starter Unit 2 Keep Tidy!",
     entries: [
       w(7, 2, "bottle", "/'bɒtl/", "n. 瓶子"),
       w(7, 2, "eraser", "/ɪ'reɪzə(r)/", "n. 橡皮"),
@@ -1560,7 +1560,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 3,
-    title: "Starter Unit 3",
+    title: "Starter Unit 3 Welcome!",
     entries: [
       w(7, 3, "fun", "/fʌn/", "n. 乐趣；快乐 adj. 有趣的；使人快乐的"),
       w(7, 3, "yard", "/jɑːd/", "n. 院子；园圃"),
@@ -1615,7 +1615,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 4,
-    title: "Unit 1",
+    title: "Unit 1 You and Me",
     entries: [
       mk(7, 4, "phrase", "make friends", "/meɪk frendz/", "交朋友"),
       mk(7, 4, "phrase", "get to know", "/ɡet tuː nəʊ/", "认识；了解"),
@@ -1711,7 +1711,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 5,
-    title: "Unit 2",
+    title: "Unit 2 We're Family!",
     entries: [
       w(7, 5, "mean", "/miːn/", "v. 意思是；打算"),
       w(7, 5, "husband", "/'hʌzbənd/", "n. 丈夫"),
@@ -1802,7 +1802,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 6,
-    title: "Unit 3",
+    title: "Unit 3 My School",
     entries: [
       w(7, 6, "hall", "/hɔːl/", "n. 礼堂；大厅"),
       mk(7, 6, "phrase", "dining hall", "/ˈdaɪnɪŋ hɔːl/", "餐厅"),
@@ -1878,7 +1878,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 7,
-    title: "Unit 4",
+    title: "Unit 4 My Favourite Subject",
     entries: [
       w(7, 7, "biology", "/baɪ'ɒlədʒi/", "n. 生物学"),
       mk(7, 7, "phrase", "IT", "/ɪt/", "信息技术"),
@@ -1941,7 +1941,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 8,
-    title: "Unit 5",
+    title: "Unit 5 Fun Clubs",
     entries: [
       w(7, 8, "club", "/klʌb/", "n. 俱乐部；社团"),
       w(7, 8, "join", "/dʒɔɪn/", "v. 参加；加入"),
@@ -1997,7 +1997,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 9,
-    title: "Unit 6",
+    title: "Unit 6 A Day in the Life",
     entries: [
       mk(7, 9, "phrase", "make use of", "/meɪk juːz ɒv/", "使用……；利用……"),
       w(7, 9, "quarter", "/ˈkwɔːrtər/", "n. 一刻钟；四等份之一"),
@@ -2057,7 +2057,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 10,
-    title: "Unit 7",
+    title: "Unit 7 Happy Birthday!",
     entries: [
       w(7, 10, "celebrate", "/'selɪbreɪt/", "v. 庆祝；庆贺"),
       w(7, 10, "surprise", "/sə'praɪz/", "n. 惊奇；惊讶 v. 使感到意外"),
@@ -2127,7 +2127,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 11,
-    title: "Unit 1",
+    title: "Unit 1 Animal Friends",
     entries: [
       w(7, 11, "fox", "/fɒks/", "n. 狐狸"),
       w(7, 11, "giraffe", "/dʒəˈrɑːf/", "n. 长颈鹿"),
@@ -2200,7 +2200,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 12,
-    title: "Unit 2",
+    title: "Unit 2 No Rules, No Order",
     entries: [
       w(7, 12, "rule", "/ruːl/", "n. 规则；规章"),
       w(7, 12, "order", "/ˈɔːdə(r)/", "v. 点菜；命令"),
@@ -2281,7 +2281,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 13,
-    title: "Unit 3",
+    title: "Unit 3 Keep Fit",
     entries: [
       w(7, 13, "fit", "/fɪt/", "adj. 健康的；健壮的；v. 适合"),
       w(7, 13, "baseball", "/ˈbeɪsbɔːl/", "n. 棒球（运动）"),
@@ -2351,7 +2351,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 14,
-    title: "Unit 4",
+    title: "Unit 4 Eat Well",
     entries: [
       w(7, 14, "watermelon", "/ˈwɔːtəmelən/", "n. 西瓜"),
       w(7, 14, "cabbage", "/ˈkæbɪdʒ/", "n. 卷心菜"),
@@ -2426,7 +2426,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 15,
-    title: "Unit 5",
+    title: "Unit 5 Here and Now",
     entries: [
       mk(7, 15, "phrase", "right now", "/raɪt naʊ/", "adv. 现在；立刻"),
       w(7, 15, "ride", "/raɪd/", "v. 骑；n. 旅程"),
@@ -2508,7 +2508,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 16,
-    title: "Unit 6",
+    title: "Unit 6 Rain or Shine",
     entries: [
       mk(7, 16, "phrase", "rain or shine", "/reɪn ɔːr ʃaɪn/", "不论是雨还是晴；不管发生什么事"),
       w(7, 16, "affect", "/əˈfekt/", "v. 影响"),
@@ -2594,7 +2594,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 17,
-    title: "Unit 7",
+    title: "Unit 7 A Day to Remember",
     entries: [
       mk(7, 17, "phrase", "meet up", "/miːt ʌp/", "碰头；相聚"),
       w(7, 17, "museum", "/mjuˈziːəm/", "n. 博物馆"),
@@ -2661,7 +2661,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 18,
-    title: "Unit 8",
+    title: "Unit 8 Once upon a Time",
     entries: [
       w(7, 18, "upon", "/əˈpɒn/", "prep. 在……上"),
       mk(7, 18, "phrase", "once upon a time", "/wʌns əˈpɑːn ə taɪm/", "很久很久以前"),
@@ -2741,7 +2741,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 1,
-    title: "Unit 1",
+    title: "Unit 1 Where did you go on vacation?",
     entries: [
       w(8, 1, "anyone", "/ˈeniwʌn/", "pron. 任何人"),
       w(8, 1, "anywhere", "/ˈeniwer/", "adv. 随处,到处；任何地方"),
@@ -2797,7 +2797,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 2,
-    title: "Unit 2",
+    title: "Unit 2 How often do you exercise?",
     entries: [
       w(8, 2, "housework", "/ˈhaʊswɜːrk/", "n. 家务活，家务劳动"),
       w(8, 2, "hardly", "/ˈhɑːdli/", "adv. 几乎不；几乎没有"),
@@ -2846,7 +2846,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 3,
-    title: "Unit 3",
+    title: "Unit 3 I'm more outgoing than my sister.",
     entries: [
       w(8, 3, "outgoing", "/ˈaʊtɡoʊɪŋ/", "adj. 外向的；开朗的"),
       w(8, 3, "both", "/bəʊθ/", "pron. 两个都；都"),
@@ -2896,7 +2896,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 4,
-    title: "Unit 4",
+    title: "Unit 4 What's the best movie theater?",
     entries: [
       w(8, 4, "theater", "/ˈθi:ətər/", "n. 电影院，戏院，剧场；戏剧"),
       w(8, 4, "comfortable", "/ˈkʌmftəbl/", "adj. 使人舒服的；舒适的"),
@@ -2945,7 +2945,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 5,
-    title: "Unit 5",
+    title: "Unit 5 Do you want to watch a game show?",
     entries: [
       w(8, 5, "sitcom", "/ˈsɪtkɑ:m/", "n. 情景喜剧"),
       w(8, 5, "news", "/nu:z/", "n. 新闻；消息；新闻报道"),
@@ -2996,7 +2996,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 6,
-    title: "Unit 6",
+    title: "Unit 6 I'm going to study computer science.",
     entries: [
       mk(8, 6, "phrase", "grow up", "/ɡrəʊ ʌp/", "长大；成长"),
       mk(8, 6, "phrase", "computer programmer", "/kəmˈpjuːtə(r) ˈproʊɡræmər/", "计算机程序设计员；编程人员"),
@@ -3048,7 +3048,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 7,
-    title: "Unit 7",
+    title: "Unit 7 Will people have robots?",
     entries: [
       w(8, 7, "paper", "/ˈpeɪpə(r)/", "n. 纸，纸张"),
       w(8, 7, "pollution", "/pəˈluːʃ(ə)n/", "n. 污染；污染物"),
@@ -3098,7 +3098,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 8,
-    title: "Unit 8",
+    title: "Unit 8 How do you make a banana milk shake?",
     entries: [
       w(8, 8, "shake", "/ʃeɪk/", "v. （与某人）握手；摇头；摇动，震动"),
       mk(8, 8, "phrase", "milk shake", "/ˈmɪlkʃeɪk/", "奶昔"),
@@ -3148,7 +3148,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 9,
-    title: "Unit 9",
+    title: "Unit 9 Can you come to my party?",
     entries: [
       mk(8, 9, "phrase", "prepare for", "/prɪˈpeər fɔː(r)/", "为……做准备；使有准备"),
       w(8, 9, "exam", "/ɪɡˈzæm/", "n. 考试"),
@@ -3197,7 +3197,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 10,
-    title: "Unit 10",
+    title: "Unit 10 If you go to the party, you'll have a great time!",
     entries: [
       w(8, 10, "meeting", "/ˈmiːtɪŋ/", "n. 会议；会面；集会"),
       w(8, 10, "video", "/ˈvɪdiəʊ/", "n. 录像；录像带"),
@@ -3236,7 +3236,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 11,
-    title: "Unit 1",
+    title: "Unit 1 What's the matter?",
     entries: [
       w(8, 11, "matter", "/ˈmætə(r)/", "v. 事情；问题"),
       mk(8, 11, "sentence", "What's the matter?", "", "怎么了"),
@@ -3307,7 +3307,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 12,
-    title: "Unit 2",
+    title: "Unit 2 I'll help to clean up the city parks.",
     entries: [
       mk(8, 12, "phrase", "clean up", "/ˈkliːn ʌp/", "打扫，扫除"),
       w(8, 12, "cheer", "/tʃɪə(r)/", "v. 加油；欢呼；欢呼声，喝彩声"),
@@ -3368,7 +3368,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 13,
-    title: "Unit 3",
+    title: "Unit 3 Could you please clean your room?",
     entries: [
       w(8, 13, "rubbish", "/ˈrʌbɪʃ/", "n. 垃圾，废弃物"),
       mk(8, 13, "phrase", "take out the rubbish", "/teɪk aʊt ðə ˈrʌbɪʃ/", "倒垃圾"),
@@ -3413,7 +3413,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 14,
-    title: "Unit 4",
+    title: "Unit 4 Why don't you talk to your parents?",
     entries: [
       w(8, 14, "allow", "/əˈlaʊ/", "v. 允许进入（或出去、通过）；准许"),
       w(8, 14, "wrong", "/rɒŋ/", "adj. 有毛病；不正常"),
@@ -3465,7 +3465,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 15,
-    title: "Unit 5",
+    title: "Unit 5 What were you doing when the rainstorm came?",
     entries: [
       w(8, 15, "rainstorm", "/ˈreɪnstɔːrm/", "n. 暴风雨，大暴雨"),
       w(8, 15, "alarm", "/əˈlɑ:rm/", "n. 闹钟"),
@@ -3519,7 +3519,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 16,
-    title: "Unit 6",
+    title: "Unit 6 An old man tried to move the mountains.",
     entries: [
       w(8, 16, "shoot", "/ʃuːt/", "v. （朝某个方向）射，冲，飞驰；开枪射击"),
       w(8, 16, "stone", "/stəʊn/", "n. 石头，石料，岩石"),
@@ -3576,7 +3576,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 17,
-    title: "Unit 7",
+    title: "Unit 7 What's the highest mountain in the world?",
     entries: [
       w(8, 17, "square", "/skweə(r)/", "adj. 正方形（的）；方形的"),
       w(8, 17, "meter", "/ˈmiːtər/", "n. 米，公尺"),
@@ -3647,7 +3647,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 18,
-    title: "Unit 8",
+    title: "Unit 8 Have you read Treasure Island yet?",
     entries: [
       w(8, 18, "treasure", "/ˈtrɛʒɚ/", "n. 珠宝；财富；珍宝"),
       w(8, 18, "island", "/ˈaɪlənd/", "n. 岛"),
@@ -3706,7 +3706,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 19,
-    title: "Unit 9",
+    title: "Unit 9 Have you ever been to a museum?",
     entries: [
       w(8, 19, "amusement", "/əˈmjuzmənt/", "n. 娱乐；游戏"),
       mk(8, 19, "phrase", "amusement park", "/əˈmjuːzmənt pɑːk/", "游乐场"),
@@ -3764,7 +3764,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 20,
-    title: "Unit 10",
+    title: "Unit 10 I've had this bike for three years.",
     entries: [
       w(8, 20, "yard", "/jɑːrd/", "n. 院子"),
       mk(8, 20, "phrase", "yard sale", "/ˈjɑːrd seɪl/", "庭院拍卖会"),
@@ -3822,7 +3822,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 1,
-    title: "Unit 1",
+    title: "Unit 1 How can we become good learners?",
     entries: [
       w(9, 1, "textbook", "/'tekstbʊk/", "n. 教科书；课本"),
       w(9, 1, "conversation", "/ˌkɒnvə'seɪʃn,ˌkɑːnvər'seɪʃn/", "n. 交谈；谈话"),
@@ -3868,7 +3868,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 2,
-    title: "Unit 2",
+    title: "Unit 2 I think that mooncakes are delicious!",
     entries: [
       w(9, 2, "mooncake", "/'mu:nkeɪk/", "n. 月饼"),
       w(9, 2, "lantern", "/'læntə(r)n/", "n. 灯笼"),
@@ -3929,7 +3929,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 3,
-    title: "Unit 3",
+    title: "Unit 3 Could you please tell me where the restrooms are?",
     entries: [
       w(9, 3, "restroom", "/'restruːm/", "n. （美）洗手间；公共厕所"),
       w(9, 3, "stamp", "/stæmp/", "n. 邮票；印章"),
@@ -3977,7 +3977,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 4,
-    title: "Unit 4",
+    title: "Unit 4 I used to be afraid of the dark.",
     entries: [
       w(9, 4, "humorous", "/'hjuːmərəs/", "adj. 有幽默感的；滑稽有趣的"),
       w(9, 4, "silent", "/'saɪlənt/", "adj. 不说话的；沉默的"),
@@ -4023,7 +4023,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 5,
-    title: "Unit 5",
+    title: "Unit 5 What are the shirts made of?",
     entries: [
       w(9, 5, "chopstick", "/'tʃɒpstɪk,'tʃɑːpstɪk/", "n. 筷子"),
       w(9, 5, "coin", "/kɔɪn/", "n. 硬币"),
@@ -4080,7 +4080,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 6,
-    title: "Unit 6",
+    title: "Unit 6 When was it invented?",
     entries: [
       w(9, 6, "heel", "/hiːl/", "n. 鞋跟；足跟"),
       w(9, 6, "scoop", "/skuːp/", "n. 勺；铲子"),
@@ -4149,7 +4149,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 7,
-    title: "Unit 7",
+    title: "Unit 7 Teenagers should be allowed to choose their own clothes.",
     entries: [
       mk(9, 7, "phrase", "license", "/ˈlaɪsns/", "证；证件"),
       w(9, 7, "safety", "/'seɪfti/", "n. 安全；安全性"),
@@ -4186,7 +4186,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 8,
-    title: "Unit 8",
+    title: "Unit 8 It must belong to Carla.",
     entries: [
       w(9, 8, "whose", "/huːz/", "adj. & pron. 谁的"),
       w(9, 8, "truck", "/trʌk/", "n. 卡车；货车"),
@@ -4245,7 +4245,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 9,
-    title: "Unit 9",
+    title: "Unit 9 I like music that I can dance to.",
     entries: [
       w(9, 9, "prefer", "/prɪ'fɜː(r)/", "v. 更喜欢"),
       mk(9, 9, "phrase", "lyrics", "/ˈlɪrɪks/", "歌词"),
@@ -4298,7 +4298,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 10,
-    title: "Unit 10",
+    title: "Unit 10 You're supposed to shake hands.",
     entries: [
       w(9, 10, "bow", "/baʊ/", "v. & n. 鞠躬"),
       w(9, 10, "kiss", "/kɪs/", "v. & n. 亲吻；接吻"),
@@ -4345,7 +4345,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 11,
-    title: "Unit 11",
+    title: "Unit 11 Sad movies make me cry.",
     entries: [
       w(9, 11, "rather", "/'rɑːðə,'ræðər/", "adv. 相当；相反"),
       mk(9, 11, "phrase", "would rather", "/wʊd ˈræðər/", "（通常缩写为'd rather）宁愿"),
@@ -4399,7 +4399,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 12,
-    title: "Unit 12",
+    title: "Unit 12 Life is full of the unexpected.",
     entries: [
       w(9, 12, "unexpected", "/ˌʌnɪk'spektɪd/", "adj. 出乎意料的；始料不及的"),
       mk(9, 12, "sentence", "by the time ...", "/baɪ ðə taɪm/", "在⋯⋯以前"),
@@ -4446,7 +4446,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 13,
-    title: "Unit 13",
+    title: "Unit 13 We're trying to save the earth!",
     entries: [
       w(9, 13, "litter", "/'lɪtə(r)/", "v. 乱扔|n. 垃圾；废弃物"),
       w(9, 13, "fisherman", "/'fɪʃə(r)mən/", "n. 渔民；钓鱼的人"),
@@ -4499,7 +4499,7 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 14,
-    title: "Unit 14",
+    title: "Unit 14 I remember meeting all of you in Grade 7.",
     entries: [
       w(9, 14, "survey", "/'sɜː(r)veɪ/", "n. 调查"),
       w(9, 14, "standard", "/'stændə(r)d/", "n. 标准；水平"),

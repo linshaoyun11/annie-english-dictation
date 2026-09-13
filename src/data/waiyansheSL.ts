@@ -2339,7 +2339,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 8,
-    title: "Unit 1",
+    title: "Unit 1 The secrets of happiness",
     entries: [
       w(7, 8, "review", "/rɪˈvjuː/", "n.书评"),
       w(7, 8, "chocolate", "/ˈtʃɒklət/", "n.巧克力，朱古力"),
@@ -2420,7 +2420,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 9,
-    title: "Unit 2",
+    title: "Unit 2 Go for it!",
     entries: [
       mk(7, 9, "phrase", "last but not least", "/læst bʌt nɑːt liːst/", "最后但同样重要的（一点）"),
       w(7, 9, "marathon", "/ˈmærəθən/", "n.马拉松赛跑（全程约26英里或42千米）"),
@@ -2506,7 +2506,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 10,
-    title: "Unit 3",
+    title: "Unit 3 Food matters",
     entries: [
       w(7, 10, "certain", "/ˈsɜːtn/", "adj.某个；某些"),
       w(7, 10, "mine", "/maɪn/", "pron.我的（东西）"),
@@ -2598,7 +2598,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 11,
-    title: "Unit 4",
+    title: "Unit 4 The art of having fun",
     entries: [
       w(7, 11, "dull", "/dʌl/", "adj.愚笨的，迟钝的"),
       w(7, 11, "imagine", "/ɪˈmædʒɪn/", "v.想象"),
@@ -2652,7 +2652,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 12,
-    title: "Unit 5",
+    title: "Unit 5 Amazing nature",
     entries: [
       w(7, 12, "plateau", "/ˈplætəʊ/", "n.高原"),
       w(7, 12, "cloud", "/klaʊd/", "n.云"),
@@ -2702,7 +2702,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 13,
-    title: "Unit 6",
+    title: "Unit 6 Hitting the road",
     entries: [
       w(7, 13, "airport", "/ˈeəpɔːt/", "n.机场，航空站（港）"),
       w(7, 13, "burn", "/bɜːn/", "v.（使）（身体部位）灼痛，（使）火辣辣地痛"),
@@ -3164,7 +3164,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 13,
-    title: "Module 1",
+    title: "Module 1 Feelings and impressions",
     entries: [
       w(8, 13, "smell", "/smɛl/", "n. 有…的气味；闻；气味"),
       w(8, 13, "soft", "/sɔ:ft/", "adj. 柔软的；轻柔的；柔和的"),
@@ -3204,7 +3204,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 14,
-    title: "Module 2",
+    title: "Module 2 Experiences",
     entries: [
       w(8, 14, "ever", "/ˈevə(r)/", "adv. 曾经；从来；在任何时候"),
       w(8, 14, "enter", "/ˈentər/", "v. （使）参加；（使）报名"),
@@ -3233,7 +3233,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 15,
-    title: "Module 3",
+    title: "Module 3 Journey to space",
     entries: [
       w(8, 15, "earth", "/ɜːθ/", "n. 地球；大地"),
       w(8, 15, "moon", "/muːn/", "n. 月亮；月球"),
@@ -3269,7 +3269,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 16,
-    title: "Module 4",
+    title: "Module 4 Seeing the doctor",
     entries: [
       w(8, 16, "cough", "/kɒf/", "n. 咳嗽"),
       w(8, 16, "fever", "/ˈfiːvər/", "n. 发烧，发热"),
@@ -3310,7 +3310,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 17,
-    title: "Module 5",
+    title: "Module 5 Cartoons",
     entries: [
       w(8, 17, "cartoon", "/kɑːˈtuːn/", "n. 漫画；动画片；卡通片"),
       w(8, 17, "handsome", "/ˈhænsəm/", "adj. 漂亮的，英俊的"),
@@ -3346,7 +3346,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 18,
-    title: "Module 6",
+    title: "Module 6 Hobbies",
     entries: [
       w(8, 18, "fan", "/fæn/", "n. 风扇；扇子"),
       w(8, 18, "stamp", "/stæmp/", "n. 邮票；跺脚，用力踩"),
@@ -3379,7 +3379,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 19,
-    title: "Module 7",
+    title: "Module 7 Summer in Los Angeles",
     entries: [
       w(8, 19, "list", "/lɪst/", "n. 名单;目录;清单"),
       mk(8, 19, "phrase", "make a list", "/meɪk eɪ lɪst/", "列清单"),
@@ -3415,7 +3415,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 20,
-    title: "Module 8",
+    title: "Module 8 Time off",
     entries: [
       w(8, 20, "hardly", "/ˈhɑːdli/", "adv. 几乎不；几乎没有"),
       mk(8, 20, "phrase", "take up", "/teɪk ʌp/", "占去（时间或空间）"),
@@ -3441,7 +3441,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 21,
-    title: "Module 9",
+    title: "Module 9 Friendship",
     entries: [
       w(8, 21, "helpline", "/ˈhelplaɪn/", "n. 服务热线"),
       w(8, 21, "separate", "/'sepəreɪt/", "v. 使分开；分隔，隔开，阻隔；分开的"),
@@ -3473,7 +3473,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 8,
     unit: 22,
-    title: "Module 10",
+    title: "Module 10 On the radio",
     entries: [
       w(8, 22, "director", "/dəˈrektər/", "n. 导演；部门负责人"),
       w(8, 22, "show", "/ʃoʊ/", "v. 引领；带领"),
@@ -3960,7 +3960,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 13,
-    title: "Module 1",
+    title: "Module 1 Travel",
     entries: [
       w(9, 13, "flight", "/flaɪt/", "n. 航班；飞行"),
       mk(9, 13, "phrase", "because of", "/bɪˈkɒz əv/", "因为；由于"),
@@ -3981,7 +3981,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 14,
-    title: "Module 2",
+    title: "Module 2 Education",
     entries: [
       w(9, 14, "ours", "/ɑːz/", "pron. 我们的"),
       w(9, 14, "tie", "/taɪ/", "n. 领带；绳子；纽带，关系"),
@@ -3997,7 +3997,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 15,
-    title: "Module 3",
+    title: "Module 3 Life now and then",
     entries: [
       w(9, 15, "wealthy", "/ˈwɛlθi/", "adj. 富有的；富裕的"),
       w(9, 15, "fear", "/fɪə(r)/", "n. 害怕；惧怕"),
@@ -4025,7 +4025,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 16,
-    title: "Module 4",
+    title: "Module 4 Rules and suggestions",
     entries: [
       mk(9, 16, "phrase", "set off", "/set ɒf/", "动身；出发"),
       w(9, 16, "sock", "/sɒk/", "n. 短袜；袜子"),
@@ -4058,7 +4058,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 17,
-    title: "Module 5",
+    title: "Module 5 Look after yourself",
     entries: [
       mk(9, 17, "phrase", "catch up", "/kætʃ ʌp/", "赶上"),
       w(9, 17, "blind", "/blaɪnd/", "adj. 瞎的；失明的"),
@@ -4078,7 +4078,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 18,
-    title: "Module 6",
+    title: "Module 6 Eating together",
     entries: [
       w(9, 18, "invitation", "/ˌɪnvɪˈteɪʃn/", "n. 邀请；请帖"),
       w(9, 18, "calendar", "/ˈkæləndɚ/", "n. 日历；历书；挂历"),
@@ -4105,7 +4105,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 19,
-    title: "Module 7",
+    title: "Module 7 English for you and me",
     entries: [
       w(9, 19, "achieve", "/əˈtʃiv/", "v. （经努力）达到，取得，实现；获得成功"),
       w(9, 19, "including", "/ɪnˈklu:dɪŋ/", "v. 包括；包含"),
@@ -4122,7 +4122,7 @@ export const WAIYANSHE_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 9,
     unit: 20,
-    title: "Module 8",
+    title: "Module 8 My future life",
     entries: [
       w(9, 20, "handbag", "/ˈhændbæɡ/", "n. 手提包"),
       w(9, 20, "beat", "/bit/", "v. 节拍；拍子"),

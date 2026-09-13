@@ -27,7 +27,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 1,
-    title: "Unit 1",
+    title: "Unit 1 Greetings",
     entries: [
       w(1, 1, "morning", "/ˈmɔːnɪŋ/", "n. 早晨;上午"),
       w(1, 1, "afternoon", "/ˌɑːftəˈnuːn/", "n. 下午(中午12 点至下午6 点左右)"),
@@ -37,7 +37,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 2,
-    title: "Unit 2",
+    title: "Unit 2 New friends",
     entries: [
       w(1, 2, "hello", "/həˈləʊ/", "excl. 你好"),
       w(1, 2, "friend", "/frend/", "n. 朋友;友人"),
@@ -49,7 +49,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 3,
-    title: "Unit 3",
+    title: "Unit 3 My schoolbag",
     entries: [
       w(1, 3, "pack", "/pæk/", "v. 收拾(行李);装(箱)"),
       w(1, 3, "my", "/maɪ/", "adj. 我的"),
@@ -64,7 +64,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 4,
-    title: "Unit 4",
+    title: "Unit 4 My classroom",
     entries: [
       w(1, 4, "clean", "/kliːn/", "v. 除去……的灰尘;打扫"),
       w(1, 4, "classroom", "/ˈklɑːsruːm/", "n. 教室;课堂"),
@@ -79,7 +79,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 5,
-    title: "Unit 5",
+    title: "Unit 5 Lovely faces",
     entries: [
       w(1, 5, "face", "/feɪs/", "n. 脸;面孔"),
       w(1, 5, "eye", "/aɪ/", "n. 眼睛"),
@@ -91,7 +91,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 6,
-    title: "Unit 6",
+    title: "Unit 6 My family",
     entries: [
       w(1, 6, "family", "/ˈfæmɪli/", "n. 家;家庭"),
       w(1, 6, "mum", "/mʌm/", "n. 妈妈"),
@@ -107,7 +107,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 7,
-    title: "Unit 7",
+    title: "Unit 7 Animals in our lives",
     entries: [
       w(1, 7, "helpful", "/ˈhelpfl/", "adj. 有益的;有帮助的"),
       w(1, 7, "animal", "/ˈænɪml/", "n. 动物"),
@@ -121,7 +121,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 8,
-    title: "Unit 8",
+    title: "Unit 8 Have a go!",
     entries: [
       w(1, 8, "bird", "/bɜːd/", "n. 鸟"),
       w(1, 8, "hill", "/hɪl/", "n. 山丘;小山"),
@@ -133,7 +133,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 9,
-    title: "Unit 9",
+    title: "Unit 9 Yes, I can!",
     entries: [
       w(1, 9, "wash", "/wɒʃ/", "v. 洗"),
       mk(1, 9, "phrase", "tie shoelaces", "/taɪ ˈʃuːleɪsɪz/", "系鞋带"),
@@ -143,7 +143,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 10,
-    title: "Unit 10",
+    title: "Unit 10 Fun numbers",
     entries: [
       w(1, 10, "one", "/wʌn/", "num. 一"),
       w(1, 10, "two", "/tuː/", "num. 二"),
@@ -156,7 +156,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 11,
-    title: "Unit 1",
+    title: "Unit 1 Back to school",
     entries: [
       w(1, 11, "fine", "/faɪn/", "adj. 健康的；身体很好 的"),
       w(1, 11, "great", "/ɡreɪt/", "adj. 身心愉快的；心情愉快的"),
@@ -168,7 +168,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 12,
-    title: "Unit 2",
+    title: "Unit 2 Lunch time",
     entries: [
       w(1, 12, "lunch", "/lʌntʃ/", "n. 午餐；午饭"),
       w(1, 12, "time", "/taɪm/", "n. 时间"),
@@ -182,7 +182,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 13,
-    title: "Unit 3",
+    title: "Unit 3 Colours in the park",
     entries: [
       w(1, 13, "colour", "/ˈkʌlə(r)/", "n. 颜色；色彩"),
       w(1, 13, "yellow", "/ˈjeləʊ/", "adj. 黄色的"),
@@ -194,7 +194,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 14,
-    title: "Unit 4",
+    title: "Unit 4 In the playground",
     entries: [
       w(1, 14, "playground", "/ˈpleɪɡraʊnd/", "n. （尤指公园中的）游乐场"),
       w(1, 14, "slide", "/slaɪd/", "n. 滑梯"),
@@ -207,7 +207,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 15,
-    title: "Unit 5",
+    title: "Unit 5 Weather",
     entries: [
       w(1, 15, "weather", "/ˈweðə(r)/", "n. 天气；气象"),
       w(1, 15, "sunny", "/ˈsʌni/", "adj. 阳光充足的"),
@@ -220,7 +220,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 16,
-    title: "Unit 6",
+    title: "Unit 6 Clothes",
     entries: [
       w(1, 16, "clothes", "/kləʊðz/", "n. 衣服；服装"),
       w(1, 16, "shirt", "/ʃɜːt/", "n. （尤指衬衫的）衬衣"),
@@ -237,7 +237,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 17,
-    title: "Unit 7",
+    title: "Unit 7 After school",
     entries: [
       w(1, 17, "game", "/ɡeɪm/", "n. 游戏；娱乐项目"),
       w(1, 17, "hide-and-seek", "/ˌhaɪd ən ˈsiːk/", "n. 捉迷藏"),
@@ -251,7 +251,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 18,
-    title: "Unit 8",
+    title: "Unit 8 Traffic safety",
     entries: [
       mk(1, 18, "phrase", "traffic light", "/ˈtræfɪk laɪt/", "交通信号灯"),
       w(1, 18, "stop", "/stɒp/", "v. （使）停止"),
@@ -263,7 +263,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 19,
-    title: "Unit 9",
+    title: "Unit 9 I see animals",
     entries: [
       w(1, 19, "panda", "/ˈpændə/", "n. 大熊猫"),
       w(1, 19, "tiger", "/ˈtaɪɡə(r)/", "n. 虎；老虎"),
@@ -276,7 +276,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 1,
     unit: 20,
-    title: "Unit 10",
+    title: "Unit 10 I like toys",
     entries: [
       w(1, 20, "kite", "/kaɪt/", "n. 风筝"),
       mk(1, 20, "phrase", "toy car", "/tɔɪ kɑː(r)/", "玩具汽车"),
@@ -1410,7 +1410,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 1,
-    title: "Unit 1",
+    title: "Unit 1 Friendship",
     entries: [
       w(7, 1, "guitar", "/ɡɪˈtɑːr/", "n.吉他"),
       w(7, 1, "honest", "/ˈɑːnɪst/", "adj.诚实的"),
@@ -1461,7 +1461,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 2,
-    title: "Unit 2",
+    title: "Unit 2 School life",
     entries: [
       w(7, 2, "geography", "/dʒiˈɑːɡrəfi/", "n.地理 ( 学 )"),
       w(7, 2, "corner", "/ˈkɔːrnər/", "n.角；墙角"),
@@ -1510,7 +1510,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 3,
-    title: "Unit 3",
+    title: "Unit 3 The seasons",
     entries: [
       w(7, 3, "footprint", "", "n.脚印；足迹"),
       w(7, 3, "wet", "/wet/", "adj.潮湿的"),
@@ -1555,7 +1555,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 4,
-    title: "Unit 4",
+    title: "Unit 4 The Earth",
     entries: [
       w(7, 4, "system", "/ˈsɪstəm/", "n.系统"),
       w(7, 4, "file", "/faɪl/", "n.档案"),
@@ -1611,7 +1611,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 5,
-    title: "Unit 5",
+    title: "Unit 5 Off to space",
     entries: [
       w(7, 5, "spacesuit", "", "n.航天服；宇航服"),
       w(7, 5, "collect", "/kəˈlekt/", "v.收集；采集"),
@@ -1659,7 +1659,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 6,
-    title: "Unit 6",
+    title: "Unit 6 Travelling around Asia",
     entries: [
       w(7, 6, "guide", "/ɡaɪd/", "n.指南；手册"),
       w(7, 6, "east", "/iːst/", "n.东；东方adv.朝东"),
@@ -1705,7 +1705,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 7,
-    title: "Unit 7",
+    title: "Unit 7 Fun after school",
     entries: [
       w(7, 7, "literature", "/ˈlɪtərətʃər/", "n.文学 ； 文学作品"),
       w(7, 7, "act", "/ækt/", "v. 扮演(戏剧、电影中的角色 )"),
@@ -1749,7 +1749,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 8,
-    title: "Unit 8",
+    title: "Unit 8 Collecting as a hobby",
     entries: [
       w(7, 8, "ring", "/rɪŋ/", "n.环状物；圈形的东西"),
       w(7, 8, "collection", "/kəˈlekʃn/", "n.(常指同类的)收集物"),
@@ -1797,7 +1797,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 9,
-    title: "Unit 1",
+    title: "Unit 1 People around us",
     entries: [
       w(7, 9, "advice", "/ədˈvaɪs/", "n. 建议"),
       w(7, 9, "encourage", "/ɪnˈkʌrɪdʒ/", "v. 鼓励；激励"),
@@ -1838,7 +1838,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 10,
-    title: "Unit 2",
+    title: "Unit 2 Travelling around the world",
     entries: [
       w(7, 10, "wine", "/waɪn/", "n. 葡萄酒"),
       w(7, 10, "match", "/mætʃ/", "v. 配对"),
@@ -1888,7 +1888,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 11,
-    title: "Unit 3",
+    title: "Unit 3 Trees and us",
     entries: [
       w(7, 11, "branch", "/brɑːntʃ/", "n. 树枝"),
       w(7, 11, "root", "/ruːt/", "n. 根；根茎"),
@@ -1931,7 +1931,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 12,
-    title: "Unit 4",
+    title: "Unit 4 Our animal friends",
     entries: [
       w(7, 12, "dolphin", "/ˈdɒlfɪn/", "n. 海豚"),
       w(7, 12, "hen", "/hen/", "n. 母鸡"),
@@ -1973,7 +1973,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 13,
-    title: "Unit 5",
+    title: "Unit 5 Water is life",
     entries: [
       w(7, 13, "everyday", "/ˈevrideɪl/", "adj. 每天的；日常的"),
       w(7, 13, "form", "/fɔːm/", "n. 类型；种类"),
@@ -2016,7 +2016,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 14,
-    title: "Unit 6",
+    title: "Unit 6 Electricity everywhere",
     entries: [
       w(7, 14, "battery", "/ˈbætəri/", "n.电池"),
       w(7, 14, "electricity", "/ɪˌlekˈtrɪsəti/", "n.电；电能"),
@@ -2056,7 +2056,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 15,
-    title: "Unit 7",
+    title: "Unit 7 Role models of our time",
     entries: [
       w(7, 15, "contribution", "/ˌkɒntrɪˈbjuːʃn/", "n.贡献"),
       w(7, 15, "hero", "/ˈhɪərəʊ/", "n.英雄"),
@@ -2111,7 +2111,7 @@ export const OXFORD_SL_CURRICULUM: UnitInfo[] = [
   {
     grade: 7,
     unit: 16,
-    title: "Unit 8",
+    title: "Unit 8 Follow your interests",
     entries: [
       w(7, 16, "possible", "/ˈpɒsəbl/", "adj. 可能"),
       w(7, 16, "athlete", "/ˈæθliːt/", "n. 运动员"),
