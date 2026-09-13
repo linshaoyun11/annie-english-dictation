@@ -47,8 +47,17 @@
   SoundWave 用 `size: normal|xs|xxs` 联动，间距 `TIER_GAP` = mt-7/4/3/2。
 - **≤18 字母单词/短句从不溢出 ⇒ 恒停 normal 档**，布局与历史版本逐像素一致
   （已实测按钮 top/bottom 完全相同）——改任何尺寸逻辑不得破坏这条。
+- **⚠️ 长句必须强制 3 行（大字档），否则级联收敛到小字（2026-09-13 两次反馈的教训）**：
+  均衡分行 `balancedLines()` 在 normal/compact 档对「贪心 ≥2 行」的长句强制
+  `L = max(贪心行数, 3)` 再 DP 均衡；切不开时**逐级回退 L 重试 DP**（不许直接退贪心，
+  贪心首行塞满、尾行零星）。xs/xxs 兜底档**不强制**（极矮视口多一行反而更挤）。
+  根因：行数少 → 每档都塞得下 → 降档级联一路压到 xs/xxs 13px；强制 3 行后
+  normal/compact 就放得下，字号保住 20px+。iPhone 14 实测截图句
+  「What do you have in your schoolbag?」xs/13px/2行 → compact/20px+/3行均衡。
 - 本地验证工作流（探针页 + 无头 Edge CDP + 269 条真实词条扫描）：
   技能 `~/.workbuddy/skills/annie-layout-probe/SKILL.md`，改布局后照跑一遍。
+  另有纯数值级联模拟脚本 `.workbuddy/tmp/sim_lines.js`（node 直跑，秒级验证
+  各机型 × 各档位的行数/行宽/内容总高，改折行逻辑先跑它再上真机）。
 
 ## ✅ 拼写输入对「大小写 / 撇号」的处理（2026-09-06 已核实，勿再改）
 

@@ -173,16 +173,23 @@ function lineWidth(ws: number[], gapX: number) {
  * 第二行只剩零星几个词，行数一多 LearningCard 就降档位，第一行字号被
  * 压得过小（2026-09-13 用户反馈）。改为主动分行：
  *   1. 贪心按词边界折行，确定最少行数 L（与自然折行一致，保证不溢出）；
- *   2. 在 L 行内用 DP 把词条组按顺序切成 L 段，最小化 Σ(行宽)² ——
+ *   2. 长句（贪心 ≥ 2 行）在 normal/compact 大字档强制至少均衡切成 3 行
+ *      ——行数少了每个档位都「塞得进」，级联会一路收敛到 xs/xxs 小字档；
+ *      强制 3 行后大字档纵向放得下，字号留在 20px+（2026-09-13 二次反馈：
+ *      「上次修正似乎没效果」，根因正是贪心最少行数 + 档位级联合谋）。
+ *      xs/xxs 小字档不强制：那是极矮视口的兜底区，多一行反而多占高度；
+ *   3. 在 L 行内用 DP 把词条组按顺序切成 L 段，最小化 Σ(行宽)² ——
  *      总宽固定时平方和最小 ⇔ 各行宽尽量均匀，第一行不再被塞满。
  * 单词本身超行宽（极小屏 + 超长词）时返回 null，由调用方退回自然折行。
+ * 「我不会」按钮不被遮挡由 LearningCard 的溢出降档 + 底部可滚动兜底。
  * 返回值为「行 → 词条组下标」的二维数组。
  */
 function balancedLines(
   groups: WordGroup[],
   M: (typeof CELL_METRICS)[CellTier],
   gapX: number,
-  availW: number
+  availW: number,
+  forceThreeLines: boolean
 ): number[][] | null {
   if (availW <= 0 || groups.length === 0) return null;
   const widths = groups.map((g) => groupWidth(g, M));
@@ -203,37 +210,51 @@ function balancedLines(
   if (cur.length > 0) greedy.push(cur);
   if (greedy.length <= 1) return [groups.map((_, i) => i)];
 
-  // 第二步：DP 均衡（切成恰好 L 段，最小化 Σ段宽²）
-  const L = greedy.length;
+  // 第二步：DP 均衡。长句（贪心 ≥ 2 行）在 normal/compact 大字档强制至少
+  // 3 行：行多一行、每行更短，大字档就能纵向放下，避免级联收敛到 xs/xxs
+  // 小字。贪心本就 ≥ 3 行的超长句维持原行数（max 不改变它）；小字档
+  // （xs/xxs）由调用方传 forceThreeLines=false，维持贪心行数兜底。
+  // 强制的行数切不开时（如仅 2 个词条组切不出 3 段）逐级回退重试，最少
+  // 退到贪心行数——任一层级的 DP 均衡都优于直接返回贪心（贪心首行塞满、
+  // 尾行零星，正是行宽不均的来源）。
   const n = groups.length;
   const INF = Number.POSITIVE_INFINITY;
-  const dp: number[][] = Array.from({ length: n + 1 }, () => Array(L + 1).fill(INF));
-  const cut: number[][] = Array.from({ length: n + 1 }, () => Array(L + 1).fill(-1));
   const segW = (i: number, j: number) => lineWidth(widths.slice(i, j + 1), gapX);
-  dp[0][0] = 0;
-  for (let l = 1; l <= L; l++) {
-    for (let i = 1; i <= n; i++) {
-      for (let j = 0; j < i; j++) {
-        if (dp[j][l - 1] === INF) continue;
-        const w = segW(j, i - 1);
-        if (w > availW) continue; // 超行宽的切法不要
-        const cost = dp[j][l - 1] + w * w;
-        if (cost < dp[i][l]) {
-          dp[i][l] = cost;
-          cut[i][l] = j;
+  const maxL = forceThreeLines ? Math.max(greedy.length, 3) : greedy.length;
+
+  for (let L = maxL; L >= 2; L--) {
+    const dp: number[][] = Array.from({ length: n + 1 }, () =>
+      Array(L + 1).fill(INF)
+    );
+    const cut: number[][] = Array.from({ length: n + 1 }, () =>
+      Array(L + 1).fill(-1)
+    );
+    dp[0][0] = 0;
+    for (let l = 1; l <= L; l++) {
+      for (let i = 1; i <= n; i++) {
+        for (let j = 0; j < i; j++) {
+          if (dp[j][l - 1] === INF) continue;
+          const w = segW(j, i - 1);
+          if (w > availW) continue; // 超行宽的切法不要
+          const cost = dp[j][l - 1] + w * w;
+          if (cost < dp[i][l]) {
+            dp[i][l] = cost;
+            cut[i][l] = j;
+          }
         }
       }
     }
+    if (dp[n][L] === INF) continue; // 词边界切不出 L 行 → 降一档行数重试
+    const lines: number[][] = [];
+    let i = n;
+    for (let l = L; l >= 1; l--) {
+      const j = cut[i][l];
+      lines.unshift(Array.from({ length: i - j }, (_, k) => j + k));
+      i = j;
+    }
+    return lines;
   }
-  if (dp[n][L] === INF) return greedy; // 词边界切不出 L 行 → 退回贪心
-  const lines: number[][] = [];
-  let i = n;
-  for (let l = L; l >= 1; l--) {
-    const j = cut[i][l];
-    lines.unshift(Array.from({ length: i - j }, (_, k) => j + k));
-    i = j;
-  }
-  return lines;
+  return greedy; // 理论不可达（贪心行数必然可切），纯兜底
 }
 
 export default function SpellingInput({
@@ -464,10 +485,20 @@ export default function SpellingInput({
    */
   const M = CELL_METRICS[tier];
   const { gapX, gapY } = TIER_GAPS[tier];
-  /** 均衡分行结果（null = 尚未量宽/单词超宽，退回自然折行） */
+  /**
+   * 均衡分行结果（null = 尚未量宽/单词超宽，退回自然折行）。
+   * 仅 normal/compact 大字档强制长句 3 行（保字号），xs/xxs 兜底档不强制。
+   */
   const lines = useMemo(
-    () => balancedLines(groups, M, gapX, availW),
-    [groups, M, gapX, availW]
+    () =>
+      balancedLines(
+        groups,
+        M,
+        gapX,
+        availW,
+        tier === "normal" || tier === "compact"
+      ),
+    [groups, M, gapX, availW, tier]
   );
   const {
     cellW,

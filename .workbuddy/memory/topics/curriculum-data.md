@@ -355,7 +355,11 @@ unit 编号 8-13，接 G3 上（unit 1-7）。6 单元 200 条。
 
 - **删除类别**：人名（含作者/名人）、地名/景点/机构、非课标缩写、书/电影/歌名。
 - **必保留**：①课标表内词（applyKebiaoTo 会补回：China/TV/PE/IT/OK/US/WHO/
-  X-ray/T-shirt/a.m./p.m. 及人名形普通词 Brown/Green/Wood/Bill/Rose/Miss/Sir/Dear）；
+  X-ray/T-shirt/a.m./p.m. 及 Miss/Sir/Dear）；
+  ⚠️ **2026-09-13 更正**：人名形普通词 Brown/Green/Wood/Bill/Rose **已删**
+  （build 103）——它们全在人教三起 grades4to9，而 **applyKebiaoTo 只作用于
+  SL 派生线（withKebiao 只给一起线副本追加），三起线删了不会被补回**，
+  "课标必留"对三起线不成立；判定补回风险前先确认该线是否真的调用补全；
   ②句子型条目（type=sentence，含人名的教材句型不动）；③行星天体（太阳系单元
   词汇）；④国籍/语言（Finnish/Thai/Arab…）；⑤食物名（宫保鸡丁等）；⑥节日；
   ⑦the Olympics/the Red Army/Nazi/WWII/Pulitzer Prize。
