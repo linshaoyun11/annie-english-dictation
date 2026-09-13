@@ -577,7 +577,7 @@ export const OXFORD_CURRICULUM: UnitInfo[] = [
       mk("ox", 4, 6, "word", "plant", "/plɑːnt/", "n. 植物 v. 种植"),
       mk("ox", 4, 6, "word", "grow", "/ɡrəʊ/", "v. 生长；种植"),
       mk("ox", 4, 6, "word", "fresh", "/freʃ/", "adj. 新鲜的；淡的"),
-      mk("ox", 4, 6, "word", "clean", "/kliːn/", "v. 打扫；干净的"),
+      mk("ox", 4, 6, "word", "clean", "/kliːn/", "v. 打扫 adj. 干净的"),
       mk("ox", 4, 6, "word", "beautiful", "/ˈbjuːtɪfl/", "adj. 美丽的"),
     ],
   },
