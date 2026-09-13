@@ -3632,7 +3632,6 @@ export const RENJIAO_SL_CURRICULUM: UnitInfo[] = [
       w(8, 17, "huge", "/hjuːdʒ/", "adj. 巨大的，极多的"),
       mk(8, 17, "phrase", "Tenzing Norgay", "", "丹增·诺尔盖"),
       mk(8, 17, "phrase", "Edmund Hillary", "", "埃德蒙·希拉里"),
-      mk(8, 17, "phrase", "Junko Tabei", "", "田部井淳"),
       mk(8, 17, "phrase", "the Nile", "", "尼罗河"),
       mk(8, 17, "phrase", "the Caspian Sea", "", "里海"),
       mk(8, 17, "phrase", "the Sahara", "", "撒哈拉沙漠"),

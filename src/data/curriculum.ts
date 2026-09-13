@@ -99,7 +99,7 @@ export type EntryType = "word" | "phrase" | "sentence";
  *   全局 seq 偏移 ⇒ 27→28 触发 freshProgress。en 文本无增减 ⇒ 音频 0 影响。
  *   另：G7 Starter 单元（unit:0）UI 显示改为 "Starter"（不动数据）。
  */
-export const CURRICULUM_VERSION = 29;
+export const CURRICULUM_VERSION = 30;
 
 export type CurriculumVersion =
   | "renjiao"
