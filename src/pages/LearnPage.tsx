@@ -1171,24 +1171,24 @@ export default function LearnPage({
                 </div>
               ) : (
                 <>
-                  {/* 单元完成：重新学习 → 继续学习 → 返回首页 */}
-                  {celebration.level === "unit" && (
-                    <button
-                      type="button"
-                      onClick={() => setRestartUnitConfirm(true)}
-                      className="w-full rounded-full border border-[rgba(83,74,183,.18)] bg-surface py-[13px] text-sm font-semibold text-primary transition-colors active:bg-primary-lighter"
-                    >
-                      重新学习本单元
-                    </button>
-                  )}
+                  {/* 单元完成：继续学习 → 重新学习 → 返回首页（主操作在上） */}
                   <button
                     type="button"
                     onClick={continueFromCelebration}
-                    className="mt-2.5 w-full rounded-full py-[15px] text-[15.5px] font-semibold text-white shadow-[0_8px_22px_rgba(83,74,183,0.32)] transition-transform active:scale-[0.98]"
+                    className="w-full rounded-full py-[15px] text-[15.5px] font-semibold text-white shadow-[0_8px_22px_rgba(83,74,183,0.32)] transition-transform active:scale-[0.98]"
                     style={{ background: "linear-gradient(135deg, #6C5CE7 0%, #534AB7 100%)" }}
                   >
                     继续学习
                   </button>
+                  {celebration.level === "unit" && (
+                    <button
+                      type="button"
+                      onClick={() => setRestartUnitConfirm(true)}
+                      className="mt-2.5 w-full rounded-full border border-[rgba(83,74,183,.18)] bg-surface py-[13px] text-sm font-semibold text-primary transition-colors active:bg-primary-lighter"
+                    >
+                      重新学习本单元
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={onExit}
