@@ -1520,7 +1520,6 @@ export const WAIYANSHE_CURRICULUM: UnitInfo[] = [
     unit: 7,
     title: "Growing up",
     entries: [
-      mk("wy", 5, 7, "word", "ID", "/ˌaɪ ˈdiː/", "n. 身份证明"),
       mk("wy", 5, 7, "word", "pay", "/peɪ/", "v. 付款；付钱给（某人）"),
       mk("wy", 5, 7, "word", "ride", "/raɪd/", "v. 骑，骑自行车"),
       mk("wy", 5, 7, "word", "could", "/kʊd/", "modal v. 能，会，可以"),
@@ -2796,7 +2795,6 @@ export const WAIYANSHE_CURRICULUM: UnitInfo[] = [
       mk("wy", 8, 6, "word", "private", "/ˈpraɪvət/", "adj. 个人的，私人的"),
       mk("wy", 8, 6, "word", "avoid", "/əˈvɔɪd/", "v. 避免"),
       mk("wy", 8, 6, "word", "address", "/əˈdres/", "n. 地址"),
-      mk("wy", 8, 6, "word", "ID", "/ˌaɪ ˈdiː/", "身份证明（文件）"),
       mk("wy", 8, 6, "word", "passport", "/ˈpɑːspɔːt/", "n. 护照"),
       mk("wy", 8, 6, "word", "limit", "/ˈlɪmɪt/", "v. 限制，限定"),
       mk("wy", 8, 6, "word", "password", "/ˈpɑːswɜːd/", "n. 密码"),
