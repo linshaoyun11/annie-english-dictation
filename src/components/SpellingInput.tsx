@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 /**
@@ -143,6 +143,98 @@ const CELL_METRICS = {
     gapClass: "gap-x-1 gap-y-1", padClass: "px-1",
   },
 } as const;
+
+/** 各档位的列间距/行间距数值（与上面 gapClass 一一对应），供均衡分行估宽用 */
+const TIER_GAPS: Record<CellTier, { gapX: number; gapY: number }> = {
+  normal: { gapX: 20, gapY: 16 },
+  compact: { gapX: 12, gapY: 10 },
+  xs: { gapX: 6, gapY: 6 },
+  xxs: { gapX: 4, gapY: 4 },
+};
+
+/** 单个词条组（一个单词段 + 词尾标点）的估算宽度 */
+function groupWidth(g: WordGroup, M: (typeof CELL_METRICS)[CellTier]) {
+  return (
+    g.letters.length * M.cellW +
+    (g.letters.length - 1) * M.wordGap +
+    (g.suffix ? M.cellGap + M.suffixW : 0)
+  );
+}
+
+/** 一行若干词条组的总宽度（含组间列间距） */
+function lineWidth(ws: number[], gapX: number) {
+  return ws.reduce((s, w) => s + w, 0) + (ws.length - 1) * gapX;
+}
+
+/**
+ * 长句均衡分行：
+ *
+ * 旧实现是单个 flex-wrap 容器自然折行——浏览器把第一行塞到塞不下为止，
+ * 第二行只剩零星几个词，行数一多 LearningCard 就降档位，第一行字号被
+ * 压得过小（2026-09-13 用户反馈）。改为主动分行：
+ *   1. 贪心按词边界折行，确定最少行数 L（与自然折行一致，保证不溢出）；
+ *   2. 在 L 行内用 DP 把词条组按顺序切成 L 段，最小化 Σ(行宽)² ——
+ *      总宽固定时平方和最小 ⇔ 各行宽尽量均匀，第一行不再被塞满。
+ * 单词本身超行宽（极小屏 + 超长词）时返回 null，由调用方退回自然折行。
+ * 返回值为「行 → 词条组下标」的二维数组。
+ */
+function balancedLines(
+  groups: WordGroup[],
+  M: (typeof CELL_METRICS)[CellTier],
+  gapX: number,
+  availW: number
+): number[][] | null {
+  if (availW <= 0 || groups.length === 0) return null;
+  const widths = groups.map((g) => groupWidth(g, M));
+  if (widths.some((w) => w > availW)) return null;
+
+  // 第一步：贪心定行数
+  const greedy: number[][] = [];
+  let cur: number[] = [];
+  for (let i = 0; i < groups.length; i++) {
+    const test = [...cur, i];
+    if (cur.length > 0 && lineWidth(test.map((k) => widths[k]), gapX) > availW) {
+      greedy.push(cur);
+      cur = [i];
+    } else {
+      cur = test;
+    }
+  }
+  if (cur.length > 0) greedy.push(cur);
+  if (greedy.length <= 1) return [groups.map((_, i) => i)];
+
+  // 第二步：DP 均衡（切成恰好 L 段，最小化 Σ段宽²）
+  const L = greedy.length;
+  const n = groups.length;
+  const INF = Number.POSITIVE_INFINITY;
+  const dp: number[][] = Array.from({ length: n + 1 }, () => Array(L + 1).fill(INF));
+  const cut: number[][] = Array.from({ length: n + 1 }, () => Array(L + 1).fill(-1));
+  const segW = (i: number, j: number) => lineWidth(widths.slice(i, j + 1), gapX);
+  dp[0][0] = 0;
+  for (let l = 1; l <= L; l++) {
+    for (let i = 1; i <= n; i++) {
+      for (let j = 0; j < i; j++) {
+        if (dp[j][l - 1] === INF) continue;
+        const w = segW(j, i - 1);
+        if (w > availW) continue; // 超行宽的切法不要
+        const cost = dp[j][l - 1] + w * w;
+        if (cost < dp[i][l]) {
+          dp[i][l] = cost;
+          cut[i][l] = j;
+        }
+      }
+    }
+  }
+  if (dp[n][L] === INF) return greedy; // 词边界切不出 L 行 → 退回贪心
+  const lines: number[][] = [];
+  let i = n;
+  for (let l = L; l >= 1; l--) {
+    const j = cut[i][l];
+    lines.unshift(Array.from({ length: i - j }, (_, k) => j + k));
+    i = j;
+  }
+  return lines;
+}
 
 export default function SpellingInput({
   target,
@@ -341,6 +433,27 @@ export default function SpellingInput({
   let letterIdx = -1;
 
   /**
+   * 容器内容宽度实测（均衡分行的依据）：首次提交在绘制前（useLayoutEffect，
+   * 无闪跳），之后由 ResizeObserver 跟随旋转/字号等变化。
+   */
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [availW, setAvailW] = useState(0);
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => {
+      const cs = getComputedStyle(el);
+      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      setAvailW(el.clientWidth - padX);
+    };
+    update();
+    const ro =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    ro?.observe(el);
+    return () => ro?.disconnect();
+  }, [answering]);
+
+  /**
    * 字母格尺寸档位表。四档由大到小，实际用哪一档由 LearningCard 实测
    * 「内容是否溢出」决定（见 LearningCard 的 tier 注释）。
    *   normal  —— 单词、短句，布局与历史版本完全一致；
@@ -350,6 +463,12 @@ export default function SpellingInput({
    * 格子只需看清进度、不需点按（输入走自绘键盘），小字号不影响操作。
    */
   const M = CELL_METRICS[tier];
+  const { gapX, gapY } = TIER_GAPS[tier];
+  /** 均衡分行结果（null = 尚未量宽/单词超宽，退回自然折行） */
+  const lines = useMemo(
+    () => balancedLines(groups, M, gapX, availW),
+    [groups, M, gapX, availW]
+  );
   const {
     cellW,
     cellH,
@@ -371,11 +490,21 @@ export default function SpellingInput({
     <div className="w-full select-none">
       {answering && (
         <div
+          ref={wrapRef}
           role="textbox"
           aria-label="拼写输入"
-          className={`flex flex-wrap items-end justify-center ${M.gapClass} ${M.padClass}`}
+          className={`flex flex-col items-center ${M.padClass}`}
+          style={{ rowGap: gapY }}
         >
-          {groups.map((g, gi) => (
+          {(lines ?? [groups.map((_, i) => i)]).map((line, li) => (
+            <div
+              key={li}
+              className="flex flex-wrap items-end justify-center"
+              style={{ columnGap: gapX }}
+            >
+              {line.map((gi) => {
+                const g = groups[gi];
+                return (
             <div key={gi} className="flex flex-wrap items-end justify-center" style={{ gap: wordGap }}>
               {g.letters.map((ch, li) => {
                 letterIdx += 1;
@@ -476,6 +605,9 @@ export default function SpellingInput({
                   />
                 </div>
               )}
+            </div>
+                );
+              })}
             </div>
           ))}
         </div>

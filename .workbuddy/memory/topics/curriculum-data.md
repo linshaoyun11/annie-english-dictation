@@ -350,3 +350,18 @@ unit 编号 8-13，接 G3 上（unit 1-7）。6 单元 200 条。
   传 true，renjiao 保持旧行为。**任何"跨年级过滤/去重"对独立重建的教材段都是错删**。
 - CURRICULUM_VERSION 24（两条线 id 全变，进度重置）。音频 0 影响（文本哈希命名）。
 - oxford G6-G9 内容仍是占位级数据（标题"Module 1 "为空），等用户拍初中教材再补。
+
+## 专有词条清理判定（2026-09-13，六线完成）
+
+- **删除类别**：人名（含作者/名人）、地名/景点/机构、非课标缩写、书/电影/歌名。
+- **必保留**：①课标表内词（applyKebiaoTo 会补回：China/TV/PE/IT/OK/US/WHO/
+  X-ray/T-shirt/a.m./p.m. 及人名形普通词 Brown/Green/Wood/Bill/Rose/Miss/Sir/Dear）；
+  ②句子型条目（type=sentence，含人名的教材句型不动）；③行星天体（太阳系单元
+  词汇）；④国籍/语言（Finnish/Thai/Arab…）；⑤食物名（宫保鸡丁等）；⑥节日；
+  ⑦the Olympics/the Red Army/Nazi/WWII/Pulitzer Prize。
+- 六线清理状态：SL 三线 build 88/89 清（人名 127+地名缩写电影 78）；
+  grades4to9/waiyanshe/renai build 99 清（215 条）。扫描脚本
+  `.workbuddy/tmp/scan_proper3.py`（三种调用签名 + 课标对照）。
+- 教训：①混合类型集合（字符串 vs 元组）当匹配表必踩坑，分轮处理并核对
+  "名单未命中"输出；②大扫除后要复扫验证，America 首轮漏网就是没对全量
+  输出逐条复核。

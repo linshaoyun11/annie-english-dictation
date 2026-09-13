@@ -64,8 +64,8 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`。
   症状，那个秒失败）。**卡超 3 分钟就停掉直接推**，别当推送门禁，`tsc -b --noEmit` 过即可。
 - **`vite build` 约 2 分钟，用 run_in_background**，前台会超时。
 - 改 Capacitor 配置后务必跑 `npx tsc -b --noEmit`（`cap sync` 静默忽略未知字段）。
-- **`CURRICULUM_VERSION` 当前 = 9**（build 57 起的包）。已随 G4–G9 重建升版：
-  entry id 全偏移 ⇒ 老用户进度必然错位，升版触发 `freshProgress` 重置（积分保留、
+- **`CURRICULUM_VERSION` 当前 = 29**（build 99 起，2026-09-13 六线专有词条清理）。
+  每次删/动词条（id 全局递增）都必须升版触发 `freshProgress` 重置（积分保留、
   生词本按 `validIds` 自动过滤失效 id）。**再动 id 体系就要再升版。**
 
 ## 用户协作偏好
