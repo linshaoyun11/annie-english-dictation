@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { type WordEntry, gradeLabel } from "../data/curriculum";
 import { pointsForEntry } from "../lib/users";
 import { safeClearTimeout, safeTimeout } from "../lib/timer";
+import { workerCountdown } from "../lib/workerHeartbeat";
 import SoundWave from "./SoundWave";
 import SpellingInput, { type CellTier } from "./SpellingInput";
 
@@ -196,9 +197,11 @@ export default function LearningCard({
    *
    * 背景（2026-09-12 用户真机）：答对页进度条走完不自动跳题。桌面复现正常，
    * 定位为 iOS WKWebView 已知的「后台挂起后 JS 时钟冻结」——safeTimeout 的
-   * 墙钟定时器不再触发，且自动跳转场景没有用户触摸，runKicks 心跳无从补发；
-   * onAnimationEnd 兜底在冻结态下同样不可靠（animationend 派发依赖主线程任务队列）。
-   * 但 CSS 进度条仍在走 ⇒ 合成器渲染管线活着 ⇒ rAF 回调仍会被调度。
+   * 墙钟定时器不再触发，且自动跳转场景没有用户触摸，runKicks 心跳无从补发。
+   *
+   * ⚠️ 2026-09-13 修正：真机「后台唤醒」场景下 rAF 同样被冻结（用户实测
+   * 三路全失效），本路只在时钟正常/轻度节流时起作用；唤醒后唯一兜底是
+   * Worker 心跳（见下一个 effect）。
    *
    * 双条件触发：墙钟差 ≥1780ms（时钟正常时精确对齐进度条 1.8s）或
    * 帧数 ≥ framesNeeded（时钟冻结时靠帧数兜底）。framesNeeded 用模块级
@@ -243,6 +246,22 @@ export default function LearningCard({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completed, autoNext, frozen, entry.id]);
+
+  /**
+   * Worker 心跳倒计时（第四条路，2026-09-13 真机教训）：
+   *
+   * 用户实测：App 切后台再唤醒后，自动跳题依然失效——唤醒冻结不止杀
+   * safeTimeout，连 rAF 与 animationend 派发一起杀（进度条作为合成器
+   * 动画仍在走，但主线程渲染更新停摆），前三路在真机唤醒场景全部失效。
+   * 唯一确认存活的通道是用户输入事件；Worker postMessage 走同族的事件
+   * 通道且 Worker 定时器独立于主线程时钟，见 workerHeartbeat.ts。
+   * 统一走 fireAutoNext，与另三路互斥。
+   */
+  useEffect(() => {
+    if (!completed || !autoNext || frozen) return;
+    return workerCountdown(fireAutoNext, 1800);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [completed, autoNext, frozen, entry.id]);
 
@@ -329,9 +348,11 @@ export default function LearningCard({
           className="absolute top-0 left-0 h-[3px] bg-white/40"
           style={{ animation: "autoNextBar 1.8s linear forwards" }}
           onAnimationEnd={() => {
-            // CSS 动画跑在合成器线程，不受 iOS 后台 JS 时钟冻结影响。
-            // 后台唤醒后动画恢复并正常触发 animationend → 可靠跳题。
-            // safeTimeout 与 rAF 帧数为另两路兜底，fireAutoNext 内部互斥防双调用。
+            // 桌面/时钟正常时的第四道快路径。⚠️ 2026-09-13 真机实测：
+            // 后台唤醒冻结连 animationend 派发也一并杀掉（进度条作为
+            // 合成器动画仍在走，但主线程渲染更新停摆），此路在唤醒后
+            // 不可依赖——Worker 心跳（workerHeartbeat.ts）才是唤醒后
+            // 唯一兜底。fireAutoNext 内部互斥防多路双调用。
             fireAutoNext();
           }}
         />
