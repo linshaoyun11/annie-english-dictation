@@ -294,35 +294,83 @@ export default function LearningCard({
    */
   const contentRef = useRef<HTMLDivElement>(null);
   const [tier, setTier] = useState<CellTier>("normal");
+  /** SpellingInput 上报的「各档位格子的渲染高度」 */
+  const [gridHeights, setGridHeights] = useState<Partial<Record<CellTier, number>>>({});
+  const handleMeasured = useCallback(
+    (h: Partial<Record<CellTier, number>>) => setGridHeights(h),
+    []
+  );
 
-  // 换词条：回到 normal，保证每条词都从最舒服的尺寸开始重新判定
+  // 换词条：回到 normal，等待新一轮测量后一次性选档
   useLayoutEffect(() => {
     setTier("normal");
   }, [entry.id]);
 
-  const shrinkIfOverflow = useCallback(() => {
+  /**
+   * 档位选择（2026-09-14 重写，替代旧的单向逐级试探）：
+   * 旧逻辑「溢出才降档、只降不升」对瞬时误测极其脆弱——挂载首帧的兜底
+   * 布局、自绘键盘高度回写引起容器高度突变，任一次发生在陈旧内容上都会
+   * 把档位锁死在过小的档位（长句字号问题的根源之一）。
+   * 现改为确定性求解：格子高度 per 档位由 SpellingInput 离线算好上报，
+   * 非格子部分（声波/提示按钮/我不会及各自边距）用当前 DOM 实测，
+   * 直接选出「能放下的最大档位」，单次 setState、无迭代、无竞态。
+   * 若当前档位尚无测量数据（首帧 availW 未就绪），退回旧的降档兜底。
+   */
+  const chooseTier = useCallback(() => {
     const el = contentRef.current;
-    if (!el) return;
-    if (el.scrollHeight <= el.clientHeight + 1) return;
-    setTier((t) => {
-      const next = TIER_CHAIN[TIER_CHAIN.indexOf(t) + 1];
-      return next ?? t; // 已到 xxs（最后一档）：保持，收敛
-    });
-  }, []);
+    if (!el || completed || revealed) return;
+    const wrapper = el.firstElementChild as HTMLElement | null;
+    if (!wrapper) return;
+    const curH = gridHeights[tier];
+    if (curH == null) {
+      if (el.scrollHeight > el.clientHeight + 1) {
+        setTier((t) => TIER_CHAIN[TIER_CHAIN.indexOf(t) + 1] ?? t);
+      }
+      return;
+    }
+    // 各档位固定边距（须与下方 className 保持一致）：
+    //   gapClass（格子↔声波提示块、格子↔我不会，各一次）: 28/16/12/8
+    //   contentMt 是 contentRef 自身的 margin，不在 wrapper 高度内——
+    //   但换档后它也会变（mt-6/6/3/2 → 24/24/12/8），从可用高度中折算。
+    //   声波高度也随档位变（word: normal/compact 大波 112、xs 80、xxs 56；
+    //   sentence 恒 xxs 小波 56）——若不修正，小视口下选档方程在相邻档位
+    //   间互相矛盾，layoutEffect 里 setTier 乒乓振荡直至 React 崩溃
+    //   （Maximum update depth，2026-09-14 375×667 实测）。
+    const GAPS = (t: CellTier) =>
+      2 * (t === "normal" ? 28 : t === "compact" ? 16 : t === "xs" ? 12 : 8);
+    const CONTENT_MT: Record<CellTier, number> = { normal: 24, compact: 24, xs: 12, xxs: 8 };
+    const WAVE_H: Record<CellTier, number> = { normal: 112, compact: 112, xs: 80, xxs: 56 };
+    const sentence = entry.type === "sentence";
+    const nonGrid =
+      wrapper.getBoundingClientRect().height - curH - GAPS(tier);
+    let target: CellTier | null = null;
+    for (const t of TIER_CHAIN) {
+      const h = gridHeights[t];
+      if (h == null) continue;
+      // 目标档位的可用高度 = 当前 ch + 换档带来的 contentMt 差值
+      const avail = el.clientHeight + (CONTENT_MT[tier] - CONTENT_MT[t]);
+      const waveAdj = sentence ? 0 : WAVE_H[t] - WAVE_H[tier];
+      if (nonGrid + waveAdj + h + GAPS(t) <= avail - 4) {
+        target = t;
+        break;
+      }
+    }
+    if (!target) target = TIER_CHAIN[TIER_CHAIN.length - 1]; // 都放不下：最小档 + 滚动兜底
+    setTier((t) => (t === target ? t : (target as CellTier)));
+  }, [gridHeights, tier, completed, revealed, entry.type]);
 
-  // 降档后立即重测（deps 含 tier），直到不再溢出或已到 xxs（末档不再变化，收敛）
+  // 档位相关状态变化后重选（绘制前完成，无闪烁）
   useLayoutEffect(() => {
-    if (completed || revealed) return;
-    shrinkIfOverflow();
-  }, [shrinkIfOverflow, tier, entry.id, completed, revealed]);
+    chooseTier();
+  }, [chooseTier, entry.id, showHint]);
 
   useEffect(() => {
     const el = contentRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => shrinkIfOverflow());
+    const ro = new ResizeObserver(() => chooseTier());
     ro.observe(el);
     return () => ro.disconnect();
-  }, [shrinkIfOverflow]);
+  }, [chooseTier]);
 
   const gapClass = TIER_GAP[tier];
   const contentMt = tier === "xxs" ? "mt-2" : tier === "xs" ? "mt-3" : "mt-6";
@@ -517,20 +565,26 @@ export default function LearningCard({
         ) : (
           <div className="flex w-full flex-col items-center">
             <div
-              className="relative flex flex-col items-center"
+              className={
+                entry.type === "sentence"
+                  ? /* 句子：声波与提示按钮同行（省 ~62px 纵向给格子换行数/字号，
+                       是 normal 档能否容纳 6 行长句的关键），声波恒用最小号 */
+                    "relative flex w-full items-center justify-center gap-5"
+                  : "relative flex flex-col items-center"
+              }
               /* 阻止点击时选中文字、触发 iOS 长按菜单 */
               onMouseDown={(e) => e.preventDefault()}
             >
               <SoundWave
                 active={!completed && !revealed}
                 onClick={replay}
-                size={tier === "xxs" ? "xxs" : tier === "xs" ? "xs" : "normal"}
+                size={entry.type === "sentence" ? "xxs" : tier === "xxs" ? "xxs" : tier === "xs" ? "xs" : "normal"}
               />
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowHint((v) => !v)}
-                className="mt-4 flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-1.5 text-xs font-medium text-text2 shadow-sm transition-colors active:bg-primary-lighter"
+                className={`flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-1.5 text-xs font-medium text-text2 shadow-sm transition-colors active:bg-primary-lighter ${entry.type === "sentence" ? "" : "mt-4"}`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9.663 17h4.673M12 3v1M6.343 4.343l-.707-.707M18.364 4.343l.707-.707M4 12H3M21 12h-1M12 21v-1" />
@@ -569,6 +623,8 @@ export default function LearningCard({
               /* 屏幕空格键与物理空格键共用同一行为：切换提示 */
               onSpaceKey={() => setShowHint((v) => !v)}
               tier={tier}
+              variant={entry.type === "sentence" ? "sentence" : "word"}
+              onMeasured={handleMeasured}
             />
           </div>
         )}

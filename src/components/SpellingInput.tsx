@@ -68,6 +68,13 @@ interface SpellingInputProps {
    * 自绘键盘高度、提示面板等），只有持有滚动容器的 LearningCard 量得到。
    */
   tier?: CellTier;
+  /** sentence：格高压扁（字号/格宽不变），让长句级联停在大字档 */
+  variant?: "word" | "sentence";
+  /**
+   * 上报「各档位下本组件的渲染高度」，供 LearningCard 一次性确定档位
+   * （替代旧的单向逐级试探——那只降不升，瞬时误测会锁死在小字档）。
+   */
+  onMeasured?: (gridHeights: Partial<Record<CellTier, number>>) => void;
 }
 
 function parseTarget(target: string): WordGroup[] {
@@ -152,6 +159,20 @@ const TIER_GAPS: Record<CellTier, { gapX: number; gapY: number }> = {
   xxs: { gapX: 4, gapY: 4 },
 };
 
+/**
+ * 句子专用格高（2026-09-14）：折行长句的内容总高 ≈ 行数×格高，而行数又
+ * 由格宽决定——两项相乘后各档位几乎同高（≈ 字母总面积/行宽），级联降档
+ * 省不下高度，长句永远压在小字档。破局点：句子的字母格不必像单词格那么
+ * 高（单词格的高是为单行大字观感服务的），格宽与字号不动、只压格高，
+ * 同档位高度直接下降 1~2 行的量，级联就能停在更大档位。
+ */
+const CELL_HEIGHT_SENTENCE: Record<CellTier, number> = {
+  normal: 40,
+  compact: 38,
+  xs: 30,
+  xxs: 26,
+};
+
 /** 单个词条组（一个单词段 + 词尾标点）的估算宽度 */
 function groupWidth(g: WordGroup, M: (typeof CELL_METRICS)[CellTier]) {
   return (
@@ -166,96 +187,224 @@ function lineWidth(ws: number[], gapX: number) {
   return ws.reduce((s, w) => s + w, 0) + (ws.length - 1) * gapX;
 }
 
+/** 一行上的一个「块」：某词条组的连续若干字母（整词或词片段）+ 词尾标点 */
+interface LineSeg {
+  g: number; // 词条组下标
+  from: number; // 组内起始字母下标
+  count: number; // 字母数
+  suffix: boolean; // 是否带词尾标点（仅当该组字母在本行全部出现时为 true）
+}
+
+/** 字母级自由换行用的扁平 item 序列 */
+interface FlatItem {
+  g: number;
+  kind: "letter" | "suffix";
+  li: number; // 组内字母下标
+  w: number;
+  gapBefore: number; // 与前一 item 的间距（行首忽略）
+}
+
 /**
- * 长句均衡分行：
+ * 长句分行（2026-09-14 第三次反馈后的重写：允许在单词中间断行）：
  *
- * 旧实现是单个 flex-wrap 容器自然折行——浏览器把第一行塞到塞不下为止，
- * 第二行只剩零星几个词，行数一多 LearningCard 就降档位，第一行字号被
- * 压得过小（2026-09-13 用户反馈）。改为主动分行：
- *   1. 贪心按词边界折行，确定最少行数 L（与自然折行一致，保证不溢出）；
- *   2. 长句（贪心 ≥ 2 行）在 normal/compact 大字档强制至少均衡切成 3 行
- *      ——行数少了每个档位都「塞得进」，级联会一路收敛到 xs/xxs 小字档；
- *      强制 3 行后大字档纵向放得下，字号留在 20px+（2026-09-13 二次反馈：
- *      「上次修正似乎没效果」，根因正是贪心最少行数 + 档位级联合谋）。
- *      xs/xxs 小字档不强制：那是极矮视口的兜底区，多一行反而多占高度；
- *   3. 在 L 行内用 DP 把词条组按顺序切成 L 段，最小化 Σ(行宽)² ——
- *      总宽固定时平方和最小 ⇔ 各行宽尽量均匀，第一行不再被塞满。
- * 单词本身超行宽（极小屏 + 超长词）时返回 null，由调用方退回自然折行。
+ * 历史演变：自然折行（首行塞满）→ 整词均衡分行 + normal/compact 强制 3 行
+ * （build 102/106）→ 本次允许词中断行。
+ *
+ * 根因：整词折行时每行行尾都有零碎浪费，行数比理论上限多；行数一多纵向
+ * 超高，档位级联被迫收敛到 xs/xxs 小字档。字母级断行后每行都能填满，
+ * 行数 = 理论最小值，同一档位纵向更省，级联停在更大档位，字号更大。
+ *
+ * 策略（尽量不动单词/短句的既有布局）：
+ *   1. Lw = 整词贪心最少行数；Lf = 字母级贪心最少行数（<= Lw）；
+ *   2. Lf >= Lw（拆词省不出行）→ 整词均衡分行，与 build 102/106 布局一致；
+ *   3. Lf <  Lw（拆词能省行）→ 字母级 DP 均衡切成 Lf 行，最小化各行宽平方和，
+ *      并对「词中断行」加软惩罚（宽度接近时优先在词边界断），行首不得为
+ *      词尾标点；该行数切不开时逐级 +1 重试，最多退回整词方案。
+ * 单行短句两种策略结果相同，布局与历史版本逐像素一致。
  * 「我不会」按钮不被遮挡由 LearningCard 的溢出降档 + 底部可滚动兜底。
- * 返回值为「行 → 词条组下标」的二维数组。
  */
-function balancedLines(
+function buildFlatItems(
+  groups: WordGroup[],
+  M: (typeof CELL_METRICS)[CellTier],
+  gapX: number
+): FlatItem[] {
+  const items: FlatItem[] = [];
+  groups.forEach((g, gi) => {
+    g.letters.forEach((_, li) => {
+      items.push({
+        g: gi,
+        kind: "letter",
+        li,
+        w: M.cellW,
+        gapBefore: li === 0 ? (gi === 0 ? 0 : gapX) : M.wordGap,
+      });
+    });
+    if (g.suffix) {
+      items.push({ g: gi, kind: "suffix", li: -1, w: M.suffixW, gapBefore: M.wordGap });
+    }
+  });
+  return items;
+}
+
+function layoutLines(
   groups: WordGroup[],
   M: (typeof CELL_METRICS)[CellTier],
   gapX: number,
-  availW: number,
-  forceThreeLines: boolean
-): number[][] | null {
+  availW: number
+): LineSeg[][] | null {
   if (availW <= 0 || groups.length === 0) return null;
   const widths = groups.map((g) => groupWidth(g, M));
-  if (widths.some((w) => w > availW)) return null;
+  const items = buildFlatItems(groups, M, gapX);
+  const n = items.length;
+  const INF = Number.POSITIVE_INFINITY;
 
-  // 第一步：贪心定行数
-  const greedy: number[][] = [];
-  let cur: number[] = [];
-  for (let i = 0; i < groups.length; i++) {
-    const test = [...cur, i];
-    if (cur.length > 0 && lineWidth(test.map((k) => widths[k]), gapX) > availW) {
-      greedy.push(cur);
-      cur = [i];
+  // 前缀宽（prefix[i] = 前 i 个 item 的总占宽，含 item 间 gap）
+  const prefix: number[] = [0];
+  for (let i = 0; i < n; i++) {
+    prefix.push(prefix[i] + items[i].w + (i > 0 ? items[i].gapBefore : 0));
+  }
+  const lineW = (a: number, b: number) =>
+    prefix[b] - prefix[a] - (a > 0 ? items[a].gapBefore : 0);
+
+  // 第一步：两种策略各自的贪心最少行数
+  let lf = 1; // 字母级
+  let cur = 0;
+  for (let i = 0; i < n; i++) {
+    const add = cur === 0 ? items[i].w : items[i].gapBefore + items[i].w;
+    if (cur > 0 && cur + add > availW) {
+      lf += 1;
+      cur = items[i].w;
     } else {
-      cur = test;
+      cur += add;
     }
   }
-  if (cur.length > 0) greedy.push(cur);
-  if (greedy.length <= 1) return [groups.map((_, i) => i)];
+  const lwGreedy: number[][] = []; // 整词
+  let gcur: number[] = [];
+  for (let i = 0; i < groups.length; i++) {
+    const test = [...gcur, i];
+    if (gcur.length > 0 && lineWidth(test.map((k) => widths[k]), gapX) > availW) {
+      lwGreedy.push(gcur);
+      gcur = [i];
+    } else {
+      gcur = test;
+    }
+  }
+  if (gcur.length > 0) lwGreedy.push(gcur);
+  const lw = lwGreedy.length;
 
-  // 第二步：DP 均衡。长句（贪心 ≥ 2 行）在 normal/compact 大字档强制至少
-  // 3 行：行多一行、每行更短，大字档就能纵向放下，避免级联收敛到 xs/xxs
-  // 小字。贪心本就 ≥ 3 行的超长句维持原行数（max 不改变它）；小字档
-  // （xs/xxs）由调用方传 forceThreeLines=false，维持贪心行数兜底。
-  // 强制的行数切不开时（如仅 2 个词条组切不出 3 段）逐级回退重试，最少
-  // 退到贪心行数——任一层级的 DP 均衡都优于直接返回贪心（贪心首行塞满、
-  // 尾行零星，正是行宽不均的来源）。
-  const n = groups.length;
-  const INF = Number.POSITIVE_INFINITY;
-  const segW = (i: number, j: number) => lineWidth(widths.slice(i, j + 1), gapX);
-  const maxL = forceThreeLines ? Math.max(greedy.length, 3) : greedy.length;
+  const wholeSeg = (g: number): LineSeg => ({
+    g,
+    from: 0,
+    count: groups[g].letters.length,
+    suffix: !!groups[g].suffix,
+  });
 
-  for (let L = maxL; L >= 2; L--) {
-    const dp: number[][] = Array.from({ length: n + 1 }, () =>
-      Array(L + 1).fill(INF)
-    );
-    const cut: number[][] = Array.from({ length: n + 1 }, () =>
-      Array(L + 1).fill(-1)
-    );
+  // 第二步：Lf >= Lw —— 拆词省不出行，维持整词均衡（与旧版布局一致）
+  if (lf >= lw) {
+    if (lw <= 1) return [groups.map((_, i) => wholeSeg(i))];
+    const gn = groups.length;
+    const segW = (i: number, j: number) => lineWidth(widths.slice(i, j + 1), gapX);
+    for (let L = lw; L >= 2; L--) {
+      const dp: number[][] = Array.from({ length: gn + 1 }, () => Array(L + 1).fill(INF));
+      const cut: number[][] = Array.from({ length: gn + 1 }, () => Array(L + 1).fill(-1));
+      dp[0][0] = 0;
+      for (let l = 1; l <= L; l++) {
+        for (let i = 1; i <= gn; i++) {
+          for (let j = 0; j < i; j++) {
+            if (dp[j][l - 1] === INF) continue;
+            const w = segW(j, i - 1);
+            if (w > availW) continue;
+            const cost = dp[j][l - 1] + w * w;
+            if (cost < dp[i][l]) {
+              dp[i][l] = cost;
+              cut[i][l] = j;
+            }
+          }
+        }
+      }
+      if (dp[gn][L] === INF) continue;
+      const out: LineSeg[][] = [];
+      let i = gn;
+      for (let l = L; l >= 1; l--) {
+        const j = cut[i][l];
+        out.unshift(Array.from({ length: i - j }, (_, k) => wholeSeg(j + k)));
+        i = j;
+      }
+      return out;
+    }
+    return lwGreedy.map((gs) => gs.map(wholeSeg));
+  }
+
+  // 第三步：Lf < Lw —— 字母级 DP 均衡（软惩罚词中断行，行首禁标点）
+  const PEN = 800; // 词中断行软惩罚（px^2）：宽度接近时优先词边界，不强行
+  for (let L = lf; L < lw; L++) {
+    const dp: number[][] = Array.from({ length: n + 1 }, () => Array(L + 1).fill(INF));
+    const cut: number[][] = Array.from({ length: n + 1 }, () => Array(L + 1).fill(-1));
     dp[0][0] = 0;
     for (let l = 1; l <= L; l++) {
-      for (let i = 1; i <= n; i++) {
-        for (let j = 0; j < i; j++) {
-          if (dp[j][l - 1] === INF) continue;
-          const w = segW(j, i - 1);
-          if (w > availW) continue; // 超行宽的切法不要
-          const cost = dp[j][l - 1] + w * w;
-          if (cost < dp[i][l]) {
-            dp[i][l] = cost;
-            cut[i][l] = j;
+      for (let b = 1; b <= n; b++) {
+        for (let a = 0; a < b; a++) {
+          if (dp[a][l - 1] === INF) continue;
+          if (items[a].kind === "suffix") continue; // 行首不能是词尾标点
+          const w = lineW(a, b);
+          if (w > availW) continue;
+          const mid = a > 0 && items[a - 1].g === items[a].g ? PEN : 0;
+          const cost = dp[a][l - 1] + w * w + mid;
+          if (cost < dp[b][l]) {
+            dp[b][l] = cost;
+            cut[b][l] = a;
           }
         }
       }
     }
-    if (dp[n][L] === INF) continue; // 词边界切不出 L 行 → 降一档行数重试
-    const lines: number[][] = [];
+    if (dp[n][L] === INF) continue; // 该行数切不开（如标点约束）→ 多一行重试
+    const bounds: number[] = [n];
     let i = n;
     for (let l = L; l >= 1; l--) {
-      const j = cut[i][l];
-      lines.unshift(Array.from({ length: i - j }, (_, k) => j + k));
-      i = j;
+      const a = cut[i][l];
+      bounds.unshift(a);
+      i = a;
     }
-    return lines;
+    const out: LineSeg[][] = [];
+    for (let l = 0; l < L; l++) {
+      const a = bounds[l];
+      const b = bounds[l + 1];
+      const segs: LineSeg[] = [];
+      for (let k = a; k < b; k++) {
+        const it = items[k];
+        if (it.kind === "letter") {
+          const last = segs[segs.length - 1];
+          if (last && last.g === it.g) {
+            last.count += 1;
+          } else {
+            segs.push({ g: it.g, from: it.li, count: 1, suffix: false });
+          }
+        } else {
+          segs[segs.length - 1].suffix = true;
+        }
+      }
+      out.push(segs);
+    }
+    return out;
   }
-  return greedy; // 理论不可达（贪心行数必然可切），纯兜底
+  return lwGreedy.map((gs) => gs.map(wholeSeg)); // 理论不可达，纯兜底
 }
+
+/** 单档位完整尺寸：word 用标准表；sentence 压格高、收紧行距（字号不动） */
+function metricsFor(tier: CellTier, variant: "word" | "sentence") {
+  const base: { cellH: number; caretH: number; [k: string]: string | number } = {
+    ...CELL_METRICS[tier],
+  };
+  let gapY = TIER_GAPS[tier].gapY;
+  if (variant === "sentence") {
+    base.cellH = CELL_HEIGHT_SENTENCE[tier];
+    base.caretH = Math.min(base.caretH, base.cellH - 16);
+    gapY = Math.min(gapY, 10);
+  }
+  return { M: base as (typeof CELL_METRICS)[CellTier], gapY };
+}
+
+const ALL_TIERS = Object.keys(CELL_METRICS) as CellTier[];
 
 export default function SpellingInput({
   target,
@@ -267,6 +416,9 @@ export default function SpellingInput({
   onStrike5,
   onSpaceKey,
   tier = "normal",
+  /** 词条类型变体：sentence 用压扁格高（见 CELL_HEIGHT_SENTENCE），其余不变 */
+  variant = "word",
+  onMeasured,
 }: SpellingInputProps) {
   const groups = useMemo(() => parseTarget(target), [target]);
   const totalLetters = useMemo(
@@ -452,25 +604,28 @@ export default function SpellingInput({
   const answering = !done && !revealed;
   const showKeyboard = kbVisible && answering;
   let letterIdx = -1;
+  /** 量宽前的兜底：单行整词（layoutLines 返回 null 时使用） */
+  const fallbackSegs: LineSeg[][] = [
+    groups.map((_, i) => ({ g: i, from: 0, count: groups[i].letters.length, suffix: !!groups[i].suffix })),
+  ];
 
   /**
-   * 容器内容宽度实测（均衡分行的依据）：首次提交在绘制前（useLayoutEffect，
+   * 容器宽度实测（均衡分行的依据）：首次提交在绘制前（useLayoutEffect，
    * 无闪跳），之后由 ResizeObserver 跟随旋转/字号等变化。
+   * 存「含 padding 的基准宽」而非净宽：各档位 padClass 的 padding 不同
+   * （0/16/16/8px），净宽需按档位各自推导，否则档位高度表与实际渲染
+   * 不符（2026-09-14 选档振荡的根源）。
    */
   const wrapRef = useRef<HTMLDivElement | null>(null);
-  const [availW, setAvailW] = useState(0);
+  const [baseW, setBaseW] = useState(0);
   useLayoutEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const update = () => {
-      const cs = getComputedStyle(el);
-      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-      setAvailW(el.clientWidth - padX);
-    };
+    const update = () => setBaseW(el.clientWidth);
     update();
     const ro =
       typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
-    ro?.observe(el);
+    if (ro) ro.observe(el);
     return () => ro?.disconnect();
   }, [answering]);
 
@@ -483,23 +638,36 @@ export default function SpellingInput({
    *   xxs     —— xs 仍放不下（小屏 iPhone SE 上的长句），最后一档兜底。
    * 格子只需看清进度、不需点按（输入走自绘键盘），小字号不影响操作。
    */
-  const M = CELL_METRICS[tier];
-  const { gapX, gapY } = TIER_GAPS[tier];
+  const { M, gapY } = useMemo(() => metricsFor(tier, variant), [tier, variant]);
+  const gapX = TIER_GAPS[tier].gapX;
+  /** 各档位 padClass 的水平 padding 总量（须与 CELL_METRICS.padClass 一致） */
+  const PAD_W: Record<CellTier, number> = { normal: 0, compact: 16, xs: 16, xxs: 8 };
+  const availW = Math.max(0, baseW - PAD_W[tier]);
   /**
-   * 均衡分行结果（null = 尚未量宽/单词超宽，退回自然折行）。
-   * 仅 normal/compact 大字档强制长句 3 行（保字号），xs/xxs 兜底档不强制。
+   * 分行结果（null = 尚未量宽，退回单行整词兜底）。
+   * 整词省不出行时保持整词均衡；拆词能省一行时用字母级断行换更大字号。
    */
   const lines = useMemo(
-    () =>
-      balancedLines(
-        groups,
-        M,
-        gapX,
-        availW,
-        tier === "normal" || tier === "compact"
-      ),
-    [groups, M, gapX, availW, tier]
+    () => layoutLines(groups, M, gapX, availW),
+    [groups, M, gapX, availW]
   );
+  /**
+   * 四个档位各自「如果用这个档位渲染会是多高」——availW 与档位无关
+   * （padClass 的 padding 已在量宽时扣除，元素宽度由父级决定），
+   * 因此各档位行数可以离线算出，供 LearningCard 一次性选档。
+   */
+  useLayoutEffect(() => {
+    if (!onMeasured || baseW <= 0) return;
+    const heights: Partial<Record<CellTier, number>> = {};
+    for (const t of ALL_TIERS) {
+      const { M: Mt, gapY: gy } = metricsFor(t, variant);
+      const w = baseW - PAD_W[t];
+      if (w <= 0) continue;
+      const segs = layoutLines(groups, Mt, TIER_GAPS[t].gapX, w);
+      if (segs) heights[t] = segs.length * Mt.cellH + (segs.length - 1) * gy;
+    }
+    onMeasured(heights);
+  }, [groups, variant, baseW, onMeasured]);
   const {
     cellW,
     cellH,
@@ -527,116 +695,116 @@ export default function SpellingInput({
           className={`flex flex-col items-center ${M.padClass}`}
           style={{ rowGap: gapY }}
         >
-          {(lines ?? [groups.map((_, i) => i)]).map((line, li) => (
+          {(lines ?? fallbackSegs).map((line, li) => (
             <div
               key={li}
-              className="flex flex-wrap items-end justify-center"
+              className="flex flex-nowrap items-end justify-center"
               style={{ columnGap: gapX }}
             >
-              {line.map((gi) => {
-                const g = groups[gi];
+              {line.map((seg, si) => {
+                const g = groups[seg.g];
                 return (
-            <div key={gi} className="flex flex-wrap items-end justify-center" style={{ gap: wordGap }}>
-              {g.letters.map((ch, li) => {
-                letterIdx += 1;
-                const i = letterIdx;
-                const isTyped = i < typed.length;
-                const typedChar = typed[i];
-                const correct =
-                  isTyped &&
-                  (typedChar?.toLowerCase() ?? "") === ch.toLowerCase();
-                const isCurrent = i === typed.length && !done;
+                  <div key={si} className="flex flex-nowrap items-end justify-center" style={{ gap: wordGap }}>
+                    {g.letters.slice(seg.from, seg.from + seg.count).map((ch, k) => {
+                      letterIdx += 1;
+                      const i = letterIdx;
+                      const isTyped = i < typed.length;
+                      const typedChar = typed[i];
+                      const correct =
+                        isTyped &&
+                        (typedChar?.toLowerCase() ?? "") === ch.toLowerCase();
+                      const isCurrent = i === typed.length && !done;
 
-                const underlineColor = revealed
-                  ? "#534AB7"
-                  : isTyped
-                  ? correct
-                    ? "#1D9E75"
-                    : "#E24B4A"
-                  : "#D8D6E8";
-                const charColor = revealed
-                  ? "#534AB7"
-                  : isTyped
-                  ? correct
-                    ? "#0F6E56"
-                    : "#A32D2D"
-                  : "#1F1D2E";
-                const display = isTyped
-                  ? revealed
-                    ? ch
-                    : correct
-                    ? ch
-                    : (typedChar ?? "").toLowerCase()
-                  : "";
+                      const underlineColor = revealed
+                        ? "#534AB7"
+                        : isTyped
+                        ? correct
+                          ? "#1D9E75"
+                          : "#E24B4A"
+                        : "#D8D6E8";
+                      const charColor = revealed
+                        ? "#534AB7"
+                        : isTyped
+                        ? correct
+                          ? "#0F6E56"
+                          : "#A32D2D"
+                        : "#1F1D2E";
+                      const display = isTyped
+                        ? revealed
+                          ? ch
+                          : correct
+                          ? ch
+                          : (typedChar ?? "").toLowerCase()
+                        : "";
 
-                return (
-                  <div
-                    key={li}
-                    className="flex flex-col items-center justify-between"
-                    style={{ width: cellW, height: cellH, gap: cellGap }}
-                  >
-                    <div className="flex flex-1 items-center justify-center w-full">
-                      {display ? (
-                        <span
-                          className="font-semibold leading-none"
-                          style={{
-                            color: charColor,
-                            fontSize: revealed ? `${fontRevealed}px` : `${fontTyped}px`,
-                            textShadow: revealed
-                              ? "0 0 14px rgba(83,74,183,0.25)"
-                              : "none",
-                            animation: revealed
-                              ? "revealPop .35s ease"
-                              : undefined,
-                          }}
+                      return (
+                        <div
+                          key={k}
+                          className="flex flex-col items-center justify-between"
+                          style={{ width: cellW, height: cellH, gap: cellGap }}
                         >
-                          {display}
-                        </span>
-                      ) : isCurrent ? (
+                          <div className="flex flex-1 items-center justify-center w-full">
+                            {display ? (
+                              <span
+                                className="font-semibold leading-none"
+                                style={{
+                                  color: charColor,
+                                  fontSize: revealed ? `${fontRevealed}px` : `${fontTyped}px`,
+                                  textShadow: revealed
+                                    ? "0 0 14px rgba(83,74,183,0.25)"
+                                    : "none",
+                                  animation: revealed
+                                    ? "revealPop .35s ease"
+                                    : undefined,
+                                }}
+                              >
+                                {display}
+                              </span>
+                            ) : isCurrent ? (
+                              <span
+                                className="block w-[2px] rounded-sm"
+                                style={{
+                                  height: caretH,
+                                  backgroundColor: "#534AB7",
+                                  animation: "caretBlink 0.9s steps(1) infinite",
+                                }}
+                              />
+                            ) : null}
+                          </div>
+                          <span
+                            className="block rounded-full shrink-0"
+                            style={{
+                              width: isCurrent ? underlineWCur : underlineW,
+                              height: isCurrent ? underlineHCur : underlineH,
+                              backgroundColor: underlineColor,
+                              transition: "background-color .15s, width .15s",
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
+                    {seg.suffix && (
+                      <div
+                        className="flex flex-col items-center justify-between"
+                        style={{ width: suffixW, height: cellH, gap: cellGap }}
+                      >
+                        <div
+                          className="flex flex-1 items-center justify-center w-full font-medium text-text3 leading-none"
+                          style={{ fontSize: `${suffixFont}px` }}
+                        >
+                          {g.suffix}
+                        </div>
                         <span
-                          className="block w-[2px] rounded-sm"
+                          className="block rounded-full shrink-0"
                           style={{
-                            height: caretH,
-                            backgroundColor: "#534AB7",
-                            animation: "caretBlink 0.9s steps(1) infinite",
+                            width: suffixUnderlineW,
+                            height: underlineH,
+                            backgroundColor: "#E8E6F0",
                           }}
                         />
-                      ) : null}
-                    </div>
-                    <span
-                      className="block rounded-full shrink-0"
-                      style={{
-                        width: isCurrent ? underlineWCur : underlineW,
-                        height: isCurrent ? underlineHCur : underlineH,
-                        backgroundColor: underlineColor,
-                        transition: "background-color .15s, width .15s",
-                      }}
-                    />
+                      </div>
+                    )}
                   </div>
-                );
-              })}
-              {g.suffix && (
-                <div
-                  className="flex flex-col items-center justify-between"
-                  style={{ width: suffixW, height: cellH, gap: cellGap }}
-                >
-                  <div
-                    className="flex flex-1 items-center justify-center w-full font-medium text-text3 leading-none"
-                    style={{ fontSize: `${suffixFont}px` }}
-                  >
-                    {g.suffix}
-                  </div>
-                  <span
-                    className="block rounded-full shrink-0"
-                    style={{
-                      width: suffixUnderlineW,
-                      height: underlineH,
-                      backgroundColor: "#E8E6F0",
-                    }}
-                  />
-                </div>
-              )}
-            </div>
                 );
               })}
             </div>
