@@ -42,6 +42,14 @@
   5分17秒 零失败。文本清洗：`*` 前缀、弯引号、" ... " 省略号（`clean_tts_text()`）。
 - 注意：1.0 资源（seed-tts-1.0，含 en_female_samc 等）该账号未授权（403）。
   体积 64kbps，最长句 64KB，略超 60KB 审计阈值属正常。
+- **⚠️ 响度对齐（2026-09-14 build 111 教训）**：豆包原生输出比有道单词音频轻
+  （美 −7.3dB、英 Stokie 达 −13.1dB）。换任何音色/音源后必须归一：目标=
+  单词对照组活跃语音 RMS 中位（美 −13.47 / 英 −15.01 dBFS），逐文件
+  gain=目标−实测RMS（cap +16dB）+ 峰值保护 cap −1.0dBFS（2542/3956 触发峰值
+  约束 ⇒ 全局增益必削波，必须逐文件）。管线：miniaudio 解码 + numpy + lameenc
+  重编码 64k/24k/mono（脚本 .workbuddy/tmp/measure_loudness.py /
+  normalize_loudness.py；npm ffmpeg-static 下载超时不可依赖）。终态峰值若
+  仍 >−1dBFS（LAME 解码过冲），从 git 恢复原文件加 1.5dB 余量重编码。
 
 ### 有道可用性：两次结论反转（都要知道）
 
