@@ -48,7 +48,7 @@ const CURRICULUM_GROUPS: {
     },
   },
   {
-    title: "三年级起点（按教材原样）",
+    title: "三年级起点",
     versions: ["renjiao3", "waiyanshe3"],
     accent: {
       bar: "#A855F7", // purple-500
