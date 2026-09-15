@@ -123,3 +123,68 @@
 - `z-20` < 「关于」弹窗 `z-50`。`data-topbar` 属性供探针/测试定位（同 `data-dictation-keyboard`）。
 - ⚠️ 吸顶会把元素提升为独立图层，文字抗锯齿由次像素变灰度 ⇒ 像素比对时会在字形边缘
   出现 ~0.05% 的差异（区域平均色不变）。**这是正常的，不是位移**，别当回归。
+
+## 数字密码键盘 `NumberPad.tsx`（build 119，RegisterPage）
+
+**问题**：创建角色页原来用系统数字键盘（`inputMode="numeric"`），iOS WKWebView 把它当**浮层**，
+不自动把 input 滚进可视区 ⇒ 密码框被整个盖住（用户截图证据）。旧实现在 `revealInput()` 里
+用 `--kb-h`（Capacitor `keyboardWillShow` 写入）+ 两次 `scrollBy` 补偿，**实测仍然挡**。
+
+**结论：要输入就自绘键盘。** 文本走 `SpellingInput` 的 A–Z 键盘，数字走 `NumberPad`。
+
+### 页面结构（必须两段式，这是"不遮挡"的全部秘密）
+
+```tsx
+<div className="flex h-full flex-col">
+  <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-6 pt-8 pb-6">…内容…</div>
+  {field && <NumberPad onDigit={…} onBackspace={…} />}
+</div>
+```
+
+键盘 `shrink-0`、在**文档流内** ⇒ 键盘占多高、内容区就少多高，**不需要任何高度计算**。
+对比旧链路（`--kb-h` 事件是否到达 → 键盘升起动画期间量高度 → 两次 scroll 时机）三个环节
+都可能失效。`min-h-0` 不能漏（否则 flex 子项不会收缩，内容区不会出现滚动条）。
+
+- 输入框用 `readOnly` + `inputMode="none"` **两个一起**挡住系统键盘
+  （只写 `readOnly` 在 iOS 上仍可能弹）。保留原生 `<input>` 是为可访问性（VoiceOver 能读）。
+  **readOnly 的 input 不触发 onChange**，输入完全由自绘键盘 setState 驱动。
+- 焦点只用来标记「当前写哪一格」：`onFocus={() => setField("pwd")}`。
+  收起键盘时记得 `blur()`，否则 `:focus` 高亮一直亮着。
+- 点内容区空白收起键盘，但**必须放行 `input,button`**（`e.target.closest("input,button")`），
+  否则点头像/切换输入框/点提交按钮都会顺带收起。
+- 键盘展开后要主动滚到底（`scrollTo({top: scrollHeight})`）：布局变更与 `scrollHeight` 更新
+  不在同一帧，**必须套两层 `requestAnimationFrame`**，否则量到的还是旧高度。
+- 交互：第一格满 4 位自动跳第二格；第二格满 4 位**自动收起**（把提交按钮让出来）；
+  ⌫ 删空第二格退回第一格。
+- 出字用 `pointerdown` + `preventDefault()`（与系统键盘同速）。本键盘**没有**答对判定，
+  不存在 LearningCard 那类「手指还按着就判定」的问题。
+
+### 几何规格（按用户 iOS 截图逐像素量取，390pt 屏）
+
+| 项 | 值 | 项 | 值 |
+|---|---|---|---|
+| 面板底色 | `#403F44` | 键帽色 | `#5E5D62` |
+| 面板顶部圆角 | 24px | 键帽圆角 | 10px |
+| 面板上内边距 | 22px | 面板左右内边距 | 5px |
+| 键帽高 | 47px | 键帽宽 | 等分（390 屏上 122.9px） |
+| 行 / 列间距 | 5.7px | 数字 | 21px 纯白 |
+| 小字母（ABC…） | 9.5px `#D4D3D8`，距数字 5px | 底部留白 | `env(safe-area-inset-bottom) + 38px` |
+| 面板总高（390×844 屏） | ≈299px（系统键盘实测 298.6） | | |
+
+- 第 4 行：左侧留空、`0` 与第 2 列对齐、**⌫ 没有键帽底**（图标直接画在面板上）——
+  与截图一致；1 和 0 没有小字母标注。
+- ⌫ 图标复用 `SpellingInput` 里那枚 iOS 删除键 path（22→24px），保持一致。
+
+### 探针与验证
+
+- 探针：`probe-register.html` / `src/probe/registerProbe.tsx`（untracked，不进构建）。
+  `?step=pad` 聚焦第一个密码框（键盘展开）、`?step=full` 选头像 + 填满两格。**均需 Playwright
+  真实点击来验证交互**（探针里同步连发 8 次 pointerdown 会被 React 批处理合并成一次，
+  必须每次隔一帧）。
+- 网页里 `env(safe-area-inset-bottom)` = 0，真机是 34px ⇒ 探针注入
+  `<style>[data-number-pad]{padding-bottom:72px!important}</style>` 才能与真机截图严格可比。
+- 量法脚本：`.workbuddy/tmp/numpad_compare.py`（把两张不同缩放的截图都换算成 pt 再逐项比）。
+  ⚠️ **两个判据坑**：① 取色要用整块区域的**中位数**，按边缘单点采样会偏（我因此把面板色
+  误判成 `#3A3C49`，偏蓝 15 个色阶）；② 键帽列宽要**按列取并集**（整行 y 范围内该列曾是
+  键帽色即算），只看一条水平线会被数字的白色笔画切断，而笔画像素宽度随截图缩放变化
+  ⇒ 固定像素的「合并相邻段」阈值必然在某个缩放上失效。

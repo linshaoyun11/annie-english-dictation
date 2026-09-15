@@ -13,7 +13,7 @@ Windows 开发、Codemagic 云端 CI、TestFlight 分发。构建号在 `codemag
 | `topics/official-sources.md` | CIP 反查 / 人教社官网 / 第三方 / 新教材推进时间表 | 核单元标题、判版次前 |
 | `topics/rebuild-pipeline.md` | patch 四坑 / 流水线 / 常用脚本 | 录入教材前 |
 | `topics/build-config.md` | 构建与发布配置 / 4 个暂不修复的已知问题 | 推送发版前 |
-| `topics/ui-conventions.md` | 自绘键盘几何 / 图标三要素 / TrophyIcon | 改键盘或图标前 |
+| `topics/ui-conventions.md` | 自绘键盘几何（A–Z 与 NumberPad）/ 图标三要素 / TrophyIcon / 吸顶栏 | 改键盘、图标、列表页壳层前 |
 | `topics/audio-pipeline.md` | **有道 TTS 已死** / Edge·谷歌·百度实测 / 码率 / 代理 / 生成脚本 | 生成音频前 |
 
 日志：`.workbuddy/memory/YYYY-MM-DD.md`（append-only，按天）。
@@ -50,6 +50,11 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
   吸顶、自带「滚动后才出现的发丝线+投影」。**不要**再手写
   `<div className="flex items-center gap-3 pt-8">`（那是改前的写法）。
   滚动容器固定是 `<div className="h-full overflow-y-auto px-5 pb-10">`。详见 topics/ui-conventions.md。
+- **要输入就自绘键盘，不弹系统键盘（build 119 起推广到数字）**：
+  文本 → `SpellingInput` 的 A–Z 键盘；**4 位数字密码 → `NumberPad`**
+  (`src/components/NumberPad.tsx`)。页面必须是「内容区 `flex-1 min-h-0 overflow-y-auto`
+  ＋ 键盘 `shrink-0`」两段式 —— 键盘在**文档流内**，不靠 `--kb-h` 避让。
+  **不要**再用 `inputMode="numeric"`（iOS 浮层键盘会把输入框整个盖住）。详见 topics/ui-conventions.md。
 - **⚠️ 音频查表区分大小写（build 114 起）**：`manifest.get(raw) ?? manifest.get(小写)`。
   `IT`/`it`、`US`/`us`、`AM`/`am`、`WHO`/`who` 是四个**读音不同的词对**，大字有独立键与文件
   ⇒ 改音频链路时三处必须同步：`audio.ts` 缓存键、`regen_audio_by_text.py` 的 `fname()`、
@@ -59,20 +64,12 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
 
 - **本机 `npm run build` 必然失败于清空 dist**（沙箱 safe-delete 拦截）。
   **本地冒烟一律 `npx vite build --emptyOutDir=false`**（增量，不等价 CI 全量）。
-- **⚠️ Codemagic 触发（2026-09-06 已纠正，此前记反了）**：
-  有 `codemagic.yaml` 时，**网页端 App settings → Build triggers 的勾选项会被完全忽略**，
-  只认 yaml 的 `triggering` 段。官方原文：「If no events are defined, you can only
-  start builds manually」⇒ **没有 `triggering` 段 = 只能手动点「Start new build」**，
-  不是"任何 push 都触发"。本项目 2026-09-06 前从未配过（查全部 20 个历史版本均为 0 行），
-  所以一直是手动点。
-  **⚠️ 2026-09-15 复核（此前这行记反了，已纠正）**：yaml 里现在**只有
-  `triggering.branch_patterns: main`，没有 `events`** ⇒ 按官方规则仍然是
-  **只能手动点「Start new build」**，自动触发是**用户主动关掉的**（控制构建次数）。
-  **不要"顺手"把 `events` 加回去。** 详见 topics/build-config.md。
-- **推送后不要再单独 commit+push 文档补记**：`APP_BUILD` 没变 ⇒ 第二个包因 **build 号
-  重复被 ASC 拒绝上传**。⇒ **memory 补记必须在推送前写完、与代码一起提交**。
-  （注：自动触发是关的、手工点构建，所以"多跑一个包"其实不会发生；
-  但攒着一起推仍然是对的——省构建时长、避免手动点漏看。）
+- **⚠️ Codemagic 只能手动点「Start new build」**：有 `codemagic.yaml` 时，网页端
+  Build triggers 的勾选项**被完全忽略**，只认 yaml 的 `triggering` 段；本项目的 yaml
+  **只有 `branch_patterns: main`、没有 `events`** ⇒ 按官方规则不自动触发，这是
+  **用户主动关掉的**（控制构建次数）。**不要"顺手"把 `events` 加回去。**
+- **memory 补记必须在推送前写完、与代码一起提交**（`APP_BUILD` 没变时第二个包会因
+  build 号重复被 ASC 拒收；攒着一起推也省构建时长）。
 - **本地 `vite build` 在沙箱会卡死**（2026-09-06 新踩坑）：卡在
   `transforming... 56 modules transformed.` 无限挂起（与上面"清空 dist 被拦截"是不同
   症状，那个秒失败）。**卡超 3 分钟就停掉直接推**，别当推送门禁，`tsc -b --noEmit` 过即可。
