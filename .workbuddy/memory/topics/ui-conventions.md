@@ -74,3 +74,19 @@
 
 ⇒ 录入教材时**可以放心保留原文的大小写与弯引号**，不必改写成小写或直引号 `'`。
    ⚠️ 但要注意：改成直引号也不影响判定（都当后缀），**改了反而偏离教材原文**，别改。
+
+## 静态 HTML 预览的高清截图（改 UI 出预览图用）
+`~/.workbuddy/binaries/node/workspace/shot-page.mjs`，用法：
+`node shot-page.mjs <html路径> <out.png> [宽] [高] [port] [scale]`
+
+- **必须走裸 CDP**：playwright 的 `page.setViewportSize` / `page.screenshot` 会自己下发
+  `Emulation.setDeviceMetricsOverride` 把 `deviceScaleFactor` 覆盖成 1，
+  所以 `--force-device-scale-factor=2`、`newContext({deviceScaleFactor:2})` 全都无效。
+  正确姿势：`ctx.newCDPSession(page)` → `Emulation.setDeviceMetricsOverride({deviceScaleFactor:2})`
+  → `Page.getLayoutMetrics` 取 contentSize → `Page.captureScreenshot({captureBeyondViewport:true,
+  clip:{x:0,y:0,width,height,scale:1}})`。**clip.scale 保持 1**，否则与 dsf 叠乘成 4x。
+- 另起一个 9223 端口的 Edge 专供截图（9222 留给布局探针，两边互不干扰）。
+- 预览页放 `.workbuddy/preview/`，命名 `<页面>-redesign-vN.html` + 同名 png；
+  多方案/备选一次画齐，便于用户一轮拍板。改版类需求**先出预览图确认再动代码**。
+- 局部放大看小图标/小字：`shot-clip.mjs <url> <out.png> <x> <y> <w> <h> [scale=4] [port] [vw] [vh]`
+  （同样裸 CDP，`clip.scale` 放大；小图标 6x、数据条 5x 足够看清有没有糊/偏心）。

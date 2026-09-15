@@ -3,6 +3,8 @@ import { flushSync } from "react-dom";
 import { avatarById, type User } from "../lib/users";
 import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "../components/AvatarImg";
+import { BookIcon, KeyIcon } from "../components/Icons";
+import { StarIcon } from "../components/RoundsStars";
 
 interface ProfilePageProps {
   user: User;
@@ -207,48 +209,76 @@ export default function ProfilePage({
         )}
       </div>
 
-      {/* 用户信息卡片 */}
-      <div className="mt-6 flex items-center gap-4 rounded-3xl border border-border bg-surface p-5">
-        <div
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-3xl ring-4 ring-white shadow-sm"
-          style={{ backgroundColor: avatar.color }}
-        >
-          <AvatarImg id={avatar.id} alt={avatar.name} />
+      {/* 用户信息卡片：上半身份区、下半双列数据条，中间 1px 细分隔线 */}
+      <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-card">
+        <div className="flex items-center gap-4 p-5">
+          <div
+            className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full text-3xl"
+            style={{
+              backgroundColor: avatar.color,
+              // 浅紫描边环 + 轻投影：卡片本身是白的，用 ring-white 看不见
+              boxShadow:
+                "0 0 0 3px var(--color-primary-lighter), 0 2px 10px rgba(83,74,183,0.10)",
+            }}
+          >
+            <AvatarImg id={avatar.id} alt={avatar.name} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[19px] font-semibold text-text">{avatar.name}</p>
+            <p className="mt-1 text-xs text-text3">
+              加入于 {new Date(user.createdAt).toLocaleDateString("zh-CN")}
+            </p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-lg font-semibold text-text">{avatar.name}</p>
-          <p className="mt-1 text-xs text-text3">
-            加入于 {new Date(user.createdAt).toLocaleDateString("zh-CN")}
-          </p>
-          <div className="mt-2 flex gap-4 text-xs text-text2">
-            <span>⭐ {user.points} 积分</span>
-            <span>📖 已学 {user.learnedCount} 词</span>
+
+        <div className="mx-5 h-px bg-border-light" />
+
+        {/* 积分 / 已学单词：图标 + 数字 + 标签，等宽两列 */}
+        <div className="grid grid-cols-2 py-3.5">
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-1.5 text-[17px] font-bold tabular-nums text-text">
+              <StarIcon size={16} />
+              <span>{user.points}</span>
+            </div>
+            <span className="text-[11px] text-text3">积分</span>
+          </div>
+          <div className="flex flex-col items-center gap-1 border-l border-border-light">
+            <div className="flex items-center gap-1.5 text-[17px] font-bold tabular-nums text-text">
+              <BookIcon size={17} className="text-primary" />
+              <span>{user.learnedCount}</span>
+            </div>
+            <span className="text-[11px] text-text3">已学单词</span>
           </div>
         </div>
       </div>
 
       {/* 修改密码：列表项 / 内嵌流程 */}
       {pwdStep === null ? (
-        <div className="mt-6 flex flex-col gap-2.5">
-          <button
-            type="button"
-            onClick={() => setPwdStep("old")}
-            className="flex items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3.5 text-left transition-all active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-lighter text-base">
-                🔑
+        <>
+          <h2 className="mb-2.5 mt-6 px-1 text-xs font-semibold tracking-[0.04em] text-text3">
+            账号安全
+          </h2>
+          <div className="overflow-hidden rounded-[20px] border border-border bg-surface shadow-card">
+            <button
+              type="button"
+              onClick={() => setPwdStep("old")}
+              className="flex h-[60px] w-full items-center gap-3 px-4 text-left transition-colors active:bg-primary-lighter"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-primary-lighter">
+                <KeyIcon size={20} className="text-primary" />
               </span>
-              <span className="text-sm font-semibold text-text">修改密码</span>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text3">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </button>
-        </div>
+              <span className="flex-1 text-[15px] font-semibold text-text">
+                修改密码
+              </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text3">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </>
       ) : (
         <div
-          className={`mt-6 rounded-3xl border border-border bg-surface p-6 text-center ${
+          className={`mt-6 rounded-3xl border border-border bg-surface p-6 text-center shadow-card ${
             wrong || mismatch ? "animate-[shake_.45s_ease]" : ""
           }`}
         >
