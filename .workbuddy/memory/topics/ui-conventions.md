@@ -93,3 +93,26 @@
   不要试图 `git add`（会静默失败）。
 - 局部放大看小图标/小字：`shot-clip.mjs <url> <out.png> <x> <y> <w> <h> [scale=4] [port] [vw] [vh]`
   （同样裸 CDP，`clip.scale` 放大；小图标 6x、数据条 5x 足够看清有没有糊/偏心）。
+- **滚动后截图**：`shot-scrolled.mjs <url> <out.png> <scrollTop> [x] [y] [w] [h] [dsf] [port] [vw] [vh]`
+  —— 先在页面里找纵向滚动容器（`overflow-y:auto|scroll` 且内容溢出）并真的滚到指定位置，
+  等 600ms（scroll 事件 + 200ms 阴影过渡）再截视口。**验证 sticky / fixed / 吸顶 / 滚动显隐
+  这类「滚动才发生」的效果必须用它**，静态全页截图（shot-page）永远看不出差别。
+  探针页约定：`?mode=old` + 首屏注入 `<style>[data-xxx]{position:relative!important}</style>`
+  就能生成「改前」对照，**不必 git checkout 旧代码**（本仓页面的滚动容器统一是
+  `<div className="h-full overflow-y-auto px-5 pb-10">`，探针外壳用
+  `<div className="mx-auto h-[100dvh] w-full max-w-[430px] bg-bg">`）。
+
+## 列表页统一用吸顶顶部栏（build 115）
+
+`src/components/PageTopBar.tsx`：`sticky top-0 z-20 -mx-5 bg-bg px-5 pt-8`，内容即
+「返回键 + 标题 + 右侧操作」，三页共用（设置 / 用户资料 / 重点记忆 = 全部带
+`h-full overflow-y-auto` 的页）。**新增列表页照用，别手写普通 flex 行。**
+
+- 组件内部向上找最近的 `overflow-y:auto|scroll` 祖先来监听滚动（**必须是滚动容器的子元素**）；
+  `stuck` 只在跨 2px 阈值时 setState ⇒ 不随每帧滚动重渲染。
+- 下沿分隔全用 `box-shadow`（`inset` 发丝线 + 外投影），**不占布局** ⇒ 显隐不顶动内容 1px；
+  静止在顶部时没有这道线（首屏零变化）。
+- `-mx-5 px-5` 是必需的：父容器带 `px-5`，不铺满横向背景的话，滚动内容会从两侧 20px 缝里露出。
+- `z-20` < 「关于」弹窗 `z-50`。`data-topbar` 属性供探针/测试定位（同 `data-dictation-keyboard`）。
+- ⚠️ 吸顶会把元素提升为独立图层，文字抗锯齿由次像素变灰度 ⇒ 像素比对时会在字形边缘
+  出现 ~0.05% 的差异（区域平均色不变）。**这是正常的，不是位移**，别当回归。

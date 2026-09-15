@@ -46,6 +46,10 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
   `LearnPage` 的 `answeredAtRef` / `touchStartAtRef` + `SETTLE_MS = 300`。
 - **touch 手势起点用 `e.changedTouches[0]`，不能用 `e.touches[0]`**（多指时后者不是抬起的那根），
   并检查 `e.touches.length` 排除多指。
+- **列表页顶部栏一律用 `<PageTopBar>`（build 115 起）**：`src/components/PageTopBar.tsx`，
+  吸顶、自带「滚动后才出现的发丝线+投影」。**不要**再手写
+  `<div className="flex items-center gap-3 pt-8">`（那是改前的写法）。
+  滚动容器固定是 `<div className="h-full overflow-y-auto px-5 pb-10">`。详见 topics/ui-conventions.md。
 - **⚠️ 音频查表区分大小写（build 114 起）**：`manifest.get(raw) ?? manifest.get(小写)`。
   `IT`/`it`、`US`/`us`、`AM`/`am`、`WHO`/`who` 是四个**读音不同的词对**，大字有独立键与文件
   ⇒ 改音频链路时三处必须同步：`audio.ts` 缓存键、`regen_audio_by_text.py` 的 `fname()`、

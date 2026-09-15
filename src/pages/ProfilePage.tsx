@@ -5,6 +5,7 @@ import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "../components/AvatarImg";
 import { BookIcon, KeyIcon } from "../components/Icons";
 import { StarIcon } from "../components/RoundsStars";
+import PageTopBar from "../components/PageTopBar";
 
 interface ProfilePageProps {
   user: User;
@@ -179,8 +180,8 @@ export default function ProfilePage({
       className="h-full overflow-y-auto px-5 pb-10"
       style={{ paddingBottom: pwdStep ? "calc(var(--kb-h, 0px) + 2.5rem)" : undefined }}
     >
-      {/* 顶部导航 */}
-      <div className="flex items-center gap-3 pt-8">
+      {/* 顶部导航（吸顶：滚动时返回键 / 标题固定不动） */}
+      <PageTopBar>
         <button
           type="button"
           onClick={() => {
@@ -207,7 +208,7 @@ export default function ProfilePage({
             ✓ 密码已修改
           </span>
         )}
-      </div>
+      </PageTopBar>
 
       {/* 用户信息卡片：上半身份区、下半双列数据条，中间 1px 细分隔线 */}
       <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-card">
