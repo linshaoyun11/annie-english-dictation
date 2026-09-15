@@ -18,7 +18,9 @@ Windows 开发、Codemagic 云端 CI、TestFlight 分发。构建号在 `codemag
 
 日志：`.workbuddy/memory/YYYY-MM-DD.md`（append-only，按天）。
 重建计划：`docs/textbook-rebuild-plan.md`；拍照清单：`.workbuddy/preview/screenshot-checklist.html`。
-Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`。
+Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材线）、
+`~/.workbuddy/skills/annie-audio-repair/SKILL.md`（**音频异常排查修复：判据选择、pre-108 快照、
+大小写敏感、响度归一、A/B 试听页** —— 用户报「音频不对」时先读它）。
 
 ⚠️ **维护规则**：本文件控制在 8KB 以内。新增长内容一律写进 `topics/` 对应文件，
 只在这里加一行索引。超过 8KB 会在注入时被截断 ⇒ 又会出现"记忆丢失"的假象。
@@ -44,11 +46,10 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`。
   `LearnPage` 的 `answeredAtRef` / `touchStartAtRef` + `SETTLE_MS = 300`。
 - **touch 手势起点用 `e.changedTouches[0]`，不能用 `e.touches[0]`**（多指时后者不是抬起的那根），
   并检查 `e.touches.length` 排除多指。
-- **⚠️ 音频查表区分大小写（build 114 起，2026-09-15）**：`manifest.get(raw) ?? manifest.get(小写)`。
-  教材里 `IT`(信息技术)/`it`(它)、`US`/`us`、`AM`/`am`、`WHO`/`who` 是**四个读音不同的词对**，
-  大写字形有独立键与文件。⇒ **改音频链路时三处必须同步**：`audio.ts` 缓存键用原样文本、
-  `regen_audio_by_text.py` 的 `fname()` 不 `lower()`、`dump_all_texts.mjs` 去重键用原样文本
-  （**build 108 丢大小写就是它 `toLowerCase()` 造成的**）。详见 topics/audio-pipeline.md。
+- **⚠️ 音频查表区分大小写（build 114 起）**：`manifest.get(raw) ?? manifest.get(小写)`。
+  `IT`/`it`、`US`/`us`、`AM`/`am`、`WHO`/`who` 是四个**读音不同的词对**，大字有独立键与文件
+  ⇒ 改音频链路时三处必须同步：`audio.ts` 缓存键、`regen_audio_by_text.py` 的 `fname()`、
+  `dump_all_texts.mjs` 去重键（**都必须是原样文本，不 lower**）。详见 annie-audio-repair 技能。
 
 ## 构建与配置（推送前必读，详见 topics/build-config.md）
 
