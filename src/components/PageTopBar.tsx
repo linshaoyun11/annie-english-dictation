@@ -21,6 +21,13 @@ interface PageTopBarProps {
  * 阴影只在「已滚过阈值」时出现：`stuck` 只在跨过阈值的那一刻 setState，
  * 不随每一帧滚动触发重渲染；且阴影用 box-shadow（不占布局），
  * 所以切换时版面不会跳动 1px。
+ *
+ * `pb-3 -mb-3`（成对出现，缺一不可）：给下沿那条发丝线留 12px 呼吸位 ——
+ * 否则返回键 / 头像这两个 36px 圆按钮的**圆底正好压在线身上**。
+ * 负 margin 抵消 padding 对流内占位的影响，所以后续内容的 y 坐标**不变**：
+ * 相邻 margin 塌陷后 28 + (−12) = 16px，而盒底由 68 落到 80，相加仍是 96。
+ * ⚠️ 也别改成「只在 stuck 时加 pb-3」——那会让顶栏盒高在滚动的一瞬间长高 12px，
+ * 底部 12px 的内容突然被盖住，出现一次可见的跳动。
  */
 export default function PageTopBar({ children, className = "" }: PageTopBarProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -58,7 +65,7 @@ export default function PageTopBar({ children, className = "" }: PageTopBarProps
     <div
       ref={ref}
       data-topbar=""
-      className={`sticky top-0 z-20 -mx-5 flex items-center gap-3 bg-bg px-5 pt-8 transition-shadow duration-200 ${
+      className={`sticky top-0 z-20 -mx-5 -mb-3 flex items-center gap-3 bg-bg px-5 pt-8 pb-3 transition-shadow duration-200 ${
         stuck
           ? "shadow-[0_8px_16px_-10px_rgba(83,74,183,0.35),inset_0_-1px_0_rgba(83,74,183,0.10)]"
           : ""
