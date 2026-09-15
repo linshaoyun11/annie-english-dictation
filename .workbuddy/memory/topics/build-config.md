@@ -51,8 +51,15 @@
   `developer/system_status_en_US.js`（**curl 必须加 `--compressed`**，Windows 别写 `/tmp`）。
   **日志为空 = 实例没起来 ⇒ 点 Retry，不要 push**（并发则同号撞 duplicate）。
 
-## 已知问题 · 暂不修复（有意为之）
+## App Store 截图（改 UI 就要重拍）
 
+发布/发版前若动过页面外观，必须重跑截图：`bash scripts/appstore_shots_run.sh`
+（需另开终端跑 `npx vite --port 5180 --strictPort`）。产物 `appstore-screenshots/`，
+**本地生成物、已 gitignore、不进 dist**。规格与四个坑见技能
+`~/.workbuddy/skills/annie-appstore-shots/SKILL.md`。
+注意 `screenshots/`（60 张桌面/手机档）**不是 ASC 规格**，别拿去提交。
+
+## 已知问题 · 暂不修复（有意为之）
 均已定位根因、影响可控，用户决定暂缓。动手前先确认是否已改变主意。
 
 1. **冷启动首次朗读保温无效**（build 48）：`start()` 里 `startAudioWarm()` 后紧跟

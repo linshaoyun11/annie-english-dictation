@@ -21,7 +21,9 @@ Windows 开发、Codemagic 云端 CI、TestFlight 分发。构建号在 `codemag
 重建计划：`docs/textbook-rebuild-plan.md`；拍照清单：`.workbuddy/preview/screenshot-checklist.html`。
 Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材线）、
 `~/.workbuddy/skills/annie-audio-repair/SKILL.md`（**音频异常排查修复：判据选择、pre-108 快照、
-大小写敏感、响度归一、A/B 试听页** —— 用户报「音频不对」时先读它）。
+大小写敏感、响度归一、A/B 试听页** —— 用户报「音频不对」时先读它）、
+`~/.workbuddy/skills/annie-appstore-shots/SKILL.md`（**App Store 提交截图：槽位规格核实、
+无头 Edge 拍真机版式、逐张校验** —— 用户问「发布要求的截屏怎么处理」时读它）。
 
 ⚠️ **维护规则**：本文件控制在 8KB 以内。新增长内容一律写进 `topics/` 对应文件，
 只在这里加一行索引。超过 8KB 会在注入时被截断 ⇒ 又会出现"记忆丢失"的假象。

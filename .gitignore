@@ -108,5 +108,13 @@ scripts/male_candidates.json
 generated-images/
 screenshots/
 
+# 本地布局探针页（annie-layout-probe 技能用，长期留在仓库外、不进构建）
+probe.html
+probe-*.html
+src/probe/
+
+# App Store 提交用截图（本地生成物，改 UI 后重跑 scripts/appstore_shots.mjs 即可）
+appstore-screenshots/
+
 __pycache__/
 .tmp-verifycache/
