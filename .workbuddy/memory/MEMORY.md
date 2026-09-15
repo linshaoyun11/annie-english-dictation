@@ -15,6 +15,7 @@ Windows 开发、Codemagic 云端 CI、TestFlight 分发。构建号在 `codemag
 | `topics/build-config.md` | 构建与发布配置 / 4 个暂不修复的已知问题 | 推送发版前 |
 | `topics/ui-conventions.md` | 自绘键盘几何（A–Z 与 NumberPad）/ 图标三要素 / TrophyIcon / 吸顶栏 | 改键盘、图标、列表页壳层前 |
 | `topics/audio-pipeline.md` | **有道 TTS 已死** / Edge·谷歌·百度实测 / 码率 / 代理 / 生成脚本 | 生成音频前 |
+| `topics/iap-planning.md` | **内购/付费**：Apple 政策事实（付费协议·订阅 UI 硬要求·EULA）/ 本项目落点 / 待决策 | 谈商业化、加付费前 |
 
 日志：`.workbuddy/memory/YYYY-MM-DD.md`（append-only，按天）。
 重建计划：`docs/textbook-rebuild-plan.md`；拍照清单：`.workbuddy/preview/screenshot-checklist.html`。
@@ -75,7 +76,7 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
   症状，那个秒失败）。**卡超 3 分钟就停掉直接推**，别当推送门禁，`tsc -b --noEmit` 过即可。
 - **`vite build` 约 2 分钟，用 run_in_background**，前台会超时。
 - 改 Capacitor 配置后务必跑 `npx tsc -b --noEmit`（`cap sync` 静默忽略未知字段）。
-- **`CURRICULUM_VERSION` 当前 = 29**（build 99 起，2026-09-13 六线专有词条清理）。
+- **`CURRICULUM_VERSION` 当前 = 30**（2026-09-15 核对 `curriculum.ts:102`；29 = build 99 六线专有词条清理）。
   每次删/动词条（id 全局递增）都必须升版触发 `freshProgress` 重置（积分保留、
   生词本按 `validIds` 自动过滤失效 id）。**再动 id 体系就要再升版。**
 
