@@ -19,7 +19,7 @@
 | `.gitignore` | 已忽略 `ios/`、`android/` 原生平台目录，避免把生成文件提交到仓库 |
 | `assets/app-icon*.png` | App Store 图标资源（1024×1024 及常见 iOS 尺寸） |
 | `docs/ios-appstore-release-guide.md` | 完整 App Store 上架流程、成本、审核注意事项 |
-| `docs/privacy-policy.html` | 可直接部署的隐私政策静态页面 |
+| `privacy-policy.html` / `support.html` | App Store 元数据用的隐私政策与技术支持页，已上线（地址见上架手册 §3.5；`privacy-deploy/` 是部署副本） |
 
 ### 1.1 验证 Capacitor CLI
 
@@ -246,7 +246,7 @@ npx cap open ios
    - 演示账户：无需登录（本应用使用本地账号）
    - 备注：说明这是一个离线英语听写学习应用，无广告、无第三方 SDK、数据本地存储
    - 联系信息：填写真实手机号
-6. 隐私政策 URL：托管 `docs/privacy-policy.html` 后的公开链接
+6. 隐私政策 URL：`https://linshaoyun11.github.io/annie-english-dictation/privacy-deploy/index.html`（备用：`https://annie-policy.app.workbuddy.host/`；技术支持 URL 同理换成 `.../support.html`）
 
 ### 5.3 隐私标签
 

@@ -109,10 +109,26 @@ StoreKit 的 `Transaction.currentEntitlements` / `restorePurchases()` 本身就�
 - `entitlement.ts` 未被 import ⇒ 被 rolldown tree-shake，不进 bundle；
 - ⇒ **`dist` 内容不变 ⇒ 不需要重新构建、`APP_BUILD` 保持 120**。`npx tsc -b --noEmit` 通过。
 
-⚠️ **两件仍需用户处理的收尾**：
+✅ **三项收尾均已于 2026-09-15 完成**：
 
-1. **政策页要重新部署 `privacy-deploy/` 才会在线上生效**（本机没做部署，也没找到部署脚本）。
-2. **首发应用描述里那句「无广告、无内购」建议改掉** —— 见
-   `docs/ios-appstore-release-guide.md` §3.4。那是公开承诺，以后加内购必改。
-3. `docs/privacy-policy.html` / `.md` / `-en.*` 是 2026-08-20 的**废弃草稿**
-   （正文还留着「[开发者/公司名，请填写]」），与线上版本不一致，**建议清理**，别当权威源。
+1. **政策页已上线**（见下方「政策页线上地址」）。
+2. **「无内购」字样已全部去掉** —— `docs/ios-appstore-release-guide.md` 应用描述示例
+   现在只写「无广告、不收集任何个人信息」；`support.html` 改为「当前版本全部功能免费开放，无广告」。
+   并在上架手册 §3.5 加了「措辞红线」一段，防止以后有人又写回去。
+3. `docs/privacy-policy.html` / `.md` / `-en.*`（2026-08-20 废弃草稿，正文还留着
+   「[开发者/公司名，请填写]」）**已从仓库删除**；权威源只剩仓库根的
+   `privacy-policy.html` / `support.html`。
+
+## 政策页线上地址（2026-09-15 核实）
+
+| 用途 | 地址 | 说明 |
+|---|---|---|
+| **主（填 ASC）** | `https://linshaoyun11.github.io/annie-english-dictation/privacy-deploy/index.html` | GitHub Pages，服务 `main`/root，**push 即自动更新** |
+| 主（技术支持） | `…/privacy-deploy/support.html` | 同上 |
+| 备用 | `https://annie-policy.app.workbuddy.host/` 与 `/support.html` | WorkBuddy 静态托管，需手动重新部署 |
+| ❌ 已废弃 | `https://169a57c265b0409ea5f26702f1433b81.app.workbuddy.link` | 2026-08-27 的 CloudStudio 部署，**不随仓库更新**，内容停在加内购条款之前，不要再用 |
+
+- **源文件 = 仓库根 `privacy-policy.html` / `support.html`；`privacy-deploy/` 是部署副本，两者必须逐字节一致**（改完 `md5sum` 核对）。
+- GitHub Pages 是主地址（自有账号、永久、自动更新）；WorkBuddy 托管在「设置—数据管理—应用」里管理。
+- ⚠️ `privacy-deploy/` 那次 CloudStudio 部署**不受本工作区 sites 工具管理**（工具报 "no existing app"），
+  所以重新部署会新建一个应用/新链接，不会覆盖旧 CloudStudio 链接。

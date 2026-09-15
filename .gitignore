@@ -59,6 +59,10 @@ scripts/male_candidates.json
 .workbuddy/proofread/
 .workbuddy/preview/
 
+# 发布应用（sites）生成的本地状态：应用标记 + 应用清单（含本机绝对路径，不入库）
+.wbapp_*.genie
+.workbuddy/applications.yaml
+
 # 教材重建过程中的临时 dump 与待办清单
 .workbuddy/tmp-*
 .workbuddy/audio-todo/

@@ -54,10 +54,11 @@ Business → **Tax Forms** → **Add Tax Info** → 选 Paid Apps → 完成 **W
 | 支持页加内购 FAQ | `support.html` / `privacy-deploy/support.html` | 新增第 6 条「App 是免费的吗？以后会收费吗？」 |
 | 权益判定骨架 | `src/lib/entitlement.ts` | **零引用**，首发恒为「全部解锁」，不进构建产物 |
 
-> ⚠️ `docs/privacy-policy.html`、`docs/privacy-policy.md`、`docs/privacy-policy-en.*`
-> 是 **2026-08-20 的废弃草稿**（正文里还留着「[开发者/公司名，请填写]」），
-> 与线上版本内容不一致，**不要拿它当权威源**。建议清理。
-> ⚠️ 政策页改完必须**重新部署** `privacy-deploy/` 才会在线上生效。
+> ✅ `docs/privacy-policy.html`、`docs/privacy-policy.md`、`docs/privacy-policy-en.*`
+> 是 **2026-08-20 的废弃草稿**（正文里还留着「[开发者/公司名，请填写]」占位符），
+> 已于 2026-09-15 **从仓库删除**。权威源是仓库根的 `privacy-policy.html` / `support.html`。
+> ⚠️ 政策页改完必须**重新部署**（GitHub Pages 随 push 自动更新；WorkBuddy 静态托管需手动触发）
+> 才会在线上生效。
 
 ---
 
