@@ -270,10 +270,12 @@ if (!seedUsers || !seedProgress) {
   process.exit(1);
 }
 
-/* 把进度调成「学了一半、有几条重点记忆」的样子 —— 比空状态好看，也仍是真实使用痕迹 */
+/* 进度调成「已经用了一阵子」的样子 —— 空状态或刚开始的进度放进商店截图没有说服力 */
 const gs = seedProgress.grades?.[String(seedProgress.activeGrade)];
 const unitIds = (gs?.unitOrder || []).slice();
-say(`  年级 ${seedProgress.activeGrade}，当前单元词条数 ${unitIds.length}`);
+const done = Math.min(18, unitIds.length);
+const cursor = Math.min(done, Math.max(0, unitIds.length - 1));
+say(`  年级 ${seedProgress.activeGrade}，当前单元词条数 ${unitIds.length}，进度种子 ${done}`);
 
 const progress = {
   ...seedProgress,
@@ -281,19 +283,51 @@ const progress = {
     ...seedProgress.grades,
     [String(seedProgress.activeGrade)]: {
       ...gs,
-      entryIndex: Math.min(2, Math.max(0, unitIds.length - 1)),
-      completedEntryIds: unitIds.slice(0, Math.min(4, unitIds.length)),
-      skippedEntryIds: unitIds.slice(4, 5),
+      entryIndex: cursor,
+      completedEntryIds: unitIds.slice(0, done),
+      skippedEntryIds: unitIds.slice(done, done + 1),
       rounds: 0,
     },
   },
-  difficultEntryIds: unitIds.slice(1, Math.min(7, unitIds.length)),
-  difficultAwardedIds: unitIds.slice(1, 3),
-  mistakeEntryIds: unitIds.slice(1, Math.min(7, unitIds.length)),
-  errorCounts: Object.fromEntries(unitIds.slice(1, 4).map((id) => [id, 2])),
+  difficultEntryIds: unitIds.slice(2, Math.min(8, unitIds.length)),
+  difficultAwardedIds: unitIds.slice(2, 4),
+  mistakeEntryIds: unitIds.slice(2, Math.min(8, unitIds.length)),
+  errorCounts: Object.fromEntries(unitIds.slice(2, 6).map((id) => [id, 2])),
   lastLearnedAt: Date.now(),
 };
-const users = [{ ...seedUsers[0], points: 66, learnedCount: 12 }];
+
+/* 多档案：单机版允许一台设备注册多个用户（一家人共用一台 iPad），
+   排行榜正是围绕这个场景做的 —— 只有 1 个用户时会剩下一大片空白，不能当商店截图。
+   真实那一个（seedUsers[0]）保留 App 自己生成的 id / config，其余按同一结构补齐。
+   挑靠后几排的头像，免得把「创建角色」页第一排都变灰。
+
+   ⚠️ 必须让「我」是积分榜第一。用户选择页和排行榜都按积分降序排
+   （`[...users].sort((a,b) => b.points - a.points)`），而登录只能点页面上的头像
+   （currentUser 只存在 React state 里，没有 localStorage 键可以预写）。
+   把「我」顶到第一 ⇒ 登录时点第一个头像就一定登到带进度的那个档案。
+   给「我」降低名次会让首页变成 0/31「开始学习」的空状态。下方有登录后断言兜底。 */
+const ME_POINTS = 215;
+const ROSTER = [
+  { avatarId: "tiger", points: 148, learnedCount: 28, ago: 9 },
+  { avatarId: "monkey", points: 112, learnedCount: 22, ago: 7 },
+  { avatarId: "pig", points: 82, learnedCount: 16, ago: 5 },
+  { avatarId: "rabbit", points: 64, learnedCount: 13, ago: 4 },
+  { avatarId: "bear", points: 43, learnedCount: 9, ago: 3 },
+  { avatarId: "penguin", points: 26, learnedCount: 5, ago: 2 },
+  { avatarId: "chick", points: 12, learnedCount: 2, ago: 1 },
+];
+const me = { ...seedUsers[0], points: ME_POINTS, learnedCount: 41 };
+const others = ROSTER.filter((r) => r.avatarId !== me.avatarId).map((r, i) => ({
+  id: `u-seed-${i}`,
+  avatarId: r.avatarId,
+  password: PASSWORD,
+  points: r.points,
+  learnedCount: r.learnedCount,
+  createdAt: Date.now() - r.ago * 86400000,
+  config: { ...me.config },
+}));
+const users = [me, ...others];
+say(`  档案数 ${users.length}（我 ${me.points} 分居首，其余最高 ${others[0].points} 分）`);
 
 let failures = 0;
 
@@ -377,6 +411,18 @@ for (const dev of DEVICES) {
     // 3) 登录 → 首页
     if (!(await login(page))) {
       say("  ❌ 登录失败，跳过。可点按钮=" + JSON.stringify(await dumpButtons(page)));
+      failures += 1;
+      await page.close();
+      continue;
+    }
+    /* 兜底断言：登错档案时首页会显示别人的积分 ⇒ 也就没有进度种子，
+       拍出来是 0/31「开始学习」的空状态。这种图不能交，直接算失败。 */
+    const loggedInAsMe = await page.evaluate(
+      (p) => (document.body.innerText || "").includes(`${p} 积分`),
+      ME_POINTS
+    );
+    if (!loggedInAsMe) {
+      say(`  ❌ 登进了别的档案（首页没有「${ME_POINTS} 积分」），跳过该设备`);
       failures += 1;
       await page.close();
       continue;
