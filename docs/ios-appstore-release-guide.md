@@ -162,12 +162,16 @@
 - 应用内无广告、无第三方统计/追踪 SDK、无外部链接；
 - 联系人邮箱（用于问题反馈）。
 
-**已上线的页面地址**（App Store Connect 元数据直接填这两个）：
+**已上线的页面地址**（App Store Connect 里两个字段各填一条，**不要填错位置**）：
 
-| 用途          | URL                                                                   |
-| ----------- | --------------------------------------------------------------------- |
-| 隐私政策 URL（主） | `https://linshaoyun11.github.io/annie-english-dictation/privacy-deploy/index.html` |
-| 技术支持 URL（主） | `https://linshaoyun11.github.io/annie-english-dictation/privacy-deploy/support.html` |
+| ASC 字段                | 所属层级 / 在哪一页                            | 填这个 URL                                                               |
+| --------------------- | -------------------------------------- | --------------------------------------------------------------------- |
+| **隐私政策网址（URL）**（必填）   | **App 级** → 侧边栏「App 信息」的「隐私政策网址」行，或「App 隐私」页 →「隐私政策」→ 编辑 | `https://linshaoyun11.github.io/annie-english-dictation/privacy-deploy/index.html` |
+| **技术支持网址（URL）**（必填）   | **版本级** → 该版本页的「平台版本信息」里的「技术支持网址」    | `https://linshaoyun11.github.io/annie-english-dictation/privacy-deploy/support.html` |
+| 用户隐私选择网址（URL）（选填）     | 同隐私政策，在「App 隐私」页                         | 留空                                                                    |
+| 营销网址（URL）（选填）         | 同技术支持，在「平台版本信息」里                        | 留空                                                                    |
+
+> 注意两条：① 「隐私政策网址」是 **App 级**字段（填一次、所有版本共用），「技术支持网址」是 **版本级**（每个新版本都要确认还在）；② 按 Apple 说明，隐私政策网址的改动**随下一个 App 版本一同发布**，所以要在提交审核前就填好。
 
 备用地址（WorkBuddy 静态托管，同一份内容，主地址不可用时切换）：
 
