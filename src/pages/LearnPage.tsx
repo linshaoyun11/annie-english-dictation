@@ -655,7 +655,7 @@ export default function LearnPage({
         return { ...prev, difficultEntryIds: difficult, grades };
       });
       addMistake(id); // "我不会"也计入拼错/不会统计
-      showToast("📝 已加入重点记忆列表");
+      // 不弹 toast：学习卡上已显示"已加入重点记忆列表"提示卡，再弹一次是重复反馈
     },
     [setProgress, addMistake, unit, allEntriesMap, difficultMode, practiceMode]
   );
@@ -670,7 +670,7 @@ export default function LearnPage({
         if (prev.difficultEntryIds.includes(id)) return prev;
         return { ...prev, difficultEntryIds: [...prev.difficultEntryIds, id] };
       });
-      showToast("📝 已加入重点记忆列表");
+      // 不弹 toast：同上，提示卡已给出明确反馈
     },
     [setProgress]
   );
