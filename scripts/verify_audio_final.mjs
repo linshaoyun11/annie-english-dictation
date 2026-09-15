@@ -53,14 +53,18 @@ function fileOk(name) {
 }
 
 // ---- 收集运行时全部文本 ----
-const all = new Map(); // key -> {text, lines:Set, grades:Set}
+// ⚠️ 键用**原样文本**：App 端解析是 `manifest.get(raw) ?? manifest.get(raw.toLowerCase())`
+//    （2026-09-15 build 114 起区分大小写）。若这里仍按小写收集，会漏验 `IT`/`US`/`AM`/`WHO`
+//    这类「大写字形独立成词」的条目，报出的 100% 覆盖率并不是 App 真实的解析结果。
+const all = new Map(); // rawText -> {text, lines:Set, grades:Set}
+const lookup = (m, t) => m[t] ?? m[t.toLowerCase()];
 for (const [line, units] of Object.entries(CURRICULA)) {
   for (const u of units) {
     for (const e of u.entries) {
-      const key = (e.english ?? "").trim().toLowerCase();
+      const key = (e.english ?? "").trim();
       if (!key) continue;
       let r = all.get(key);
-      if (!r) { r = { text: (e.english ?? "").trim(), lines: new Set(), grades: new Set() }; all.set(key, r); }
+      if (!r) { r = { text: key, lines: new Set(), grades: new Set() }; all.set(key, r); }
       r.lines.add(line); r.grades.add(u.grade);
     }
   }
@@ -77,8 +81,8 @@ const badSamples = [];
 const missSamples = [];
 
 for (const [key, rec] of all) {
-  const idUs = manifest[key];
-  const idUk = manifestUk[key];
+  const idUs = lookup(manifest, key);
+  const idUk = lookup(manifestUk, key);
   if (!idUs) { missUs++; if (missSamples.length < 10) missSamples.push(`[缺美音] ${rec.text}`); }
   if (!idUk) { missUk++; if (missSamples.length < 10) missSamples.push(`[缺英音] ${rec.text}`); }
 
@@ -113,17 +117,24 @@ console.log("  教材线         文本数   缺美音  缺英音   覆盖");
 for (const [line, units] of Object.entries(CURRICULA)) {
   const s = new Set();
   for (const u of units) for (const e of u.entries) {
-    const k = (e.english ?? "").trim().toLowerCase(); if (k) s.add(k);
+    const k = (e.english ?? "").trim(); if (k) s.add(k);
   }
-  const mu = [...s].filter((k) => !(k in manifest)).length;
-  const mk = [...s].filter((k) => !(k in manifestUk)).length;
+  const mu = [...s].filter((k) => !lookup(manifest, k)).length;
+  const mk = [...s].filter((k) => !lookup(manifestUk, k)).length;
   const cov = (((s.size - Math.max(mu, mk)) / s.size) * 100).toFixed(1);
   console.log(`  ${line.padEnd(13)} ${String(s.size).padStart(6)}  ${String(mu).padStart(6)}  ${String(mk).padStart(6)}  ${cov.padStart(6)}%`);
 }
 
 // ---- 4. 孤儿键 ----
-const orphanUs = [...Object.keys(manifest)].filter((k) => !all.has(k));
-const orphanUk = [...Object.keys(manifestUk)].filter((k) => !all.has(k));
+// 定义：该键指向的**音频文件没有任何词条会解析到**（含"同一文件被多个键指向"的情形）。
+// 注：`IT`/`US`/`AM`/`WHO` 这类大写键由对应的大写词条解析到，不算孤儿。
+const usedUs = new Set(), usedUk = new Set();
+for (const t of all.keys()) {
+  const a = lookup(manifest, t); if (a) usedUs.add(a);
+  const b = lookup(manifestUk, t); if (b) usedUk.add(b);
+}
+const orphanUs = Object.keys(manifest).filter((k) => !usedUs.has(manifest[k]));
+const orphanUk = Object.keys(manifestUk).filter((k) => !usedUk.has(manifestUk[k]));
 console.log("\n── 4. manifest 孤儿键（无教材在用，可回收）──");
 console.log(`  美音 ${orphanUs.length} / 英音 ${orphanUk.length}`);
 

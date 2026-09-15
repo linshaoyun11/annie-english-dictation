@@ -85,8 +85,11 @@
   正确姿势：`ctx.newCDPSession(page)` → `Emulation.setDeviceMetricsOverride({deviceScaleFactor:2})`
   → `Page.getLayoutMetrics` 取 contentSize → `Page.captureScreenshot({captureBeyondViewport:true,
   clip:{x:0,y:0,width,height,scale:1}})`。**clip.scale 保持 1**，否则与 dsf 叠乘成 4x。
-- 另起一个 9223 端口的 Edge 专供截图（9222 留给布局探针，两边互不干扰）。
+- 截图用的调试实例直接用 9222 那个（探针实例）即可，**不必另起**——dsf 由脚本自己下发；
+  但**每个脚本跑完要 `page.close()`**，否则遗留页面会拖垮浏览器（探针那轮的教训）。
 - 预览页放 `.workbuddy/preview/`，命名 `<页面>-redesign-vN.html` + 同名 png；
   多方案/备选一次画齐，便于用户一轮拍板。改版类需求**先出预览图确认再动代码**。
+- ⚠️ `.workbuddy/preview/` 整个目录在 `.gitignore` 里：预览图是纯本地交付物，
+  不要试图 `git add`（会静默失败）。
 - 局部放大看小图标/小字：`shot-clip.mjs <url> <out.png> <x> <y> <w> <h> [scale=4] [port] [vw] [vh]`
   （同样裸 CDP，`clip.scale` 放大；小图标 6x、数据条 5x 足够看清有没有糊/偏心）。

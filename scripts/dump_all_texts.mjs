@@ -23,13 +23,16 @@ const agg = new Map();
 for (const [line, units] of Object.entries(CURRICULA)) {
   for (const u of units) {
     for (const e of u.entries) {
+      // ⚠️ 去重键必须用**原样文本**，不能用 toLowerCase()。
+      // 2026-09-15（build 114）教训：按小写去重会把 `IT`(信息技术) 与 `it`(它)
+      // 折叠成一条，音频只生成一份 ⇒ 必有一个读错。`US/us`、`AM/am`、`WHO/who` 同理。
+      // 音频文件名与 manifest 键也一律按原样文本（见 scripts/regen_audio_by_text.py 的 fname）。
       const raw = (e.english ?? "").trim();
-      const key = raw.toLowerCase();
-      if (!key) continue;
-      let rec = agg.get(key);
+      if (!raw) continue;
+      let rec = agg.get(raw);
       if (!rec) {
-        rec = { key, text: raw, types: new Set() };
-        agg.set(key, rec);
+        rec = { key: raw, text: raw, types: new Set() };
+        agg.set(raw, rec);
       }
       rec.types.add(e.type);
     }

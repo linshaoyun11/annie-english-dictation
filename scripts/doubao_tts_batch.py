@@ -101,7 +101,11 @@ items = []
 for r in items_raw:
     if r["key"] in done:
         continue
-    fid = manifest_us.get(r["key"])
+    # ⚠️ 与 App 端 resolveLocalAudio 完全同构：**原样键优先，小写键兜底**。
+    # 2026-09-15（build 114）起 manifest/文件名按原样文本，`IT`/`it`、`US`/`us`、
+    # `AM`/`am`、`WHO`/`who` 各有独立键；只有原样键不存在时才回退小写
+    # （例：`PE` 无独立键 → 落到 `pe` 的同一个文件）。
+    fid = manifest_us.get(r["key"]) or manifest_us.get(r["key"].lower())
     if not fid:
         print(f"!! manifest 无 key: {r['key']!r}", flush=True)
         continue

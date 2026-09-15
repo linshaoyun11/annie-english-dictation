@@ -25,7 +25,7 @@ export interface AudioResult {
   source: "local";
 }
 
-/** 元素级缓存：key="{accent}:{小写文本}"，value=音频结果（含已加载元素） */
+/** 元素级缓存：key="{accent}:{原样文本}"，value=音频结果（含已加载元素） */
 const audioCache = new Map<string, AudioResult>();
 // URL 映射上限（仅字符串，极省内存）。元素不再驻留缓存，此上限无内存压力。
 const MAX_CACHE_ENTRIES = 48;
@@ -94,6 +94,13 @@ function ensureLocalManifest(
  * 历史教训：旧版 value 用的就是 entry.id，而 entry.id 会随词库重建整体位移，
  * 实测造成 5331 条映射里 1874 条（35%）音频与文本不符（例：显示 name 却念 point）。
  * 改成文本哈希后，词表怎么改都不会再错位。见 scripts/regen_audio_by_text.py。
+ *
+ * ⚠️ 从 2026-09-15（build 114）起**查表区分大小写**（原样优先，小写兜底）：
+ * 教材里 `IT`(信息技术) 与 `it`(它)、`US`(美国) 与 `us`(我们)、`AM`(上午) 与
+ * `am`(是)、`WHO`(世卫组织) 与 `who`(谁) 是**不同读音的两个词**，共用一个音频
+ * 必有一个错。数据里大小写本就是区分的，故让大写字形走独立键。
+ * 只对小写键存在的文本走兜底 ⇒ 对既有音频完全向后兼容。
+ * 对应文件名哈希规则也已同步为「按原样哈希」（scripts/regen_audio_by_text.py）。
  */
 async function resolveLocalAudio(
   text: string,
@@ -101,7 +108,8 @@ async function resolveLocalAudio(
 ): Promise<AudioResult | null> {
   const manifest = await ensureLocalManifest(variant);
   if (!manifest) return null;
-  const id = manifest.get(text.trim().toLowerCase());
+  const raw = text.trim();
+  const id = manifest.get(raw) ?? manifest.get(raw.toLowerCase());
   if (!id) return null;
   return {
     url: `${import.meta.env.BASE_URL}audio/${id}${
@@ -119,7 +127,9 @@ export async function resolveAudio(
   text: string,
   accent: Accent = "us"
 ): Promise<AudioResult | null> {
-  const cacheKey = `${accent}:${text.trim().toLowerCase()}`;
+  // ⚠️ 缓存键必须用**原样文本**：`it`(它) 与 `IT`(信息技术) 是两个不同的音频，
+  // 若仍按小写做键，先解析的那个会把另一个的结果顶掉。
+  const cacheKey = `${accent}:${text.trim()}`;
   const cached = audioCache.get(cacheKey);
   if (cached) return cached;
 

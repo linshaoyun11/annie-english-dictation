@@ -50,9 +50,15 @@ MP3_MAGIC = (b"ID3", b"\xff\xfb", b"\xff\xf3", b"\xff\xf2", b"\xff\xfa", b"\xff\
 
 
 def fname(text: str) -> str:
-    """文件名（不含扩展名）：归一化文本的 blake2b-64bit 哈希。"""
-    norm = text.strip().lower()
-    return "t" + hashlib.blake2b(norm.encode("utf-8"), digest_size=8).hexdigest()
+    """文件名（不含扩展名）：**原样文本**（仅 strip）的 blake2b-64bit 哈希。
+
+    ⚠️ 2026-09-15（build 114）起不再 lower()：
+    `IT`(信息技术) 与 `it`(它)、`US`(美国) 与 `us`(我们)、`AM`(上午) 与 `am`(是)、
+    `WHO`(世卫组织) 与 `who`(谁) 是四个读音不同的词对，必须落在不同文件上。
+    小写文本的哈希与旧规则结果完全一致 ⇒ 存量文件名与 manifest 不受影响。
+    """
+    raw = text.strip()
+    return "t" + hashlib.blake2b(raw.encode("utf-8"), digest_size=8).hexdigest()
 
 
 def sanitize(text: str) -> str:

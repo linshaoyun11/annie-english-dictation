@@ -234,7 +234,8 @@ return `${BASE_URL}audio/${id}${variant==="uk"?"-uk":""}.mp3`;
 
 ## 音频查表机制（关键）
 
-`src/lib/audio.ts:96` = `manifest.get(text.trim().toLowerCase())`
+`src/lib/audio.ts` = `manifest.get(raw) ?? manifest.get(raw.toLowerCase())`
+⇒ **原样文本优先、小写兜底**（2026-09-15 build 114 起区分大小写，见文末专节）。
 ⇒ **音频只按文本查，不碰 entry.id**。改词库 id 不会让音频失配。
 ⇒ 新音频只需一个不与现有文件名冲突的新 id 命名空间（已分配 `n00001…n01592`）。
 
@@ -348,8 +349,9 @@ US 与 UK 是**两次独立 TTS 生成**。同一 text 若两个文件时长差 
 ### 已知残留（非错位，未修）
 - `skier`(wy-g5u7e1003) 3.02s、`swing`(ra-g8u23e1753) 2.66s：音频偏长，US/UK 一致，
   判定为 TTS 拖长音/静音特性
-- `am` / `it` / `mm`：english 是缩写，音标念全称（am→/ˌeɪ ˈem/、it→/ˌaɪ ˈtiː/、
-  mm→/mɪlɪmiːtər/）；音频按缩写生成，轻微不一致
+- ~~`am` / `it` / `mm`：english 是缩写，音标念全称…音频按缩写生成，轻微不一致~~
+  **【2026-09-15 已作废】** `am`/`it` 的问题已在 build 114 用「查表区分大小写」彻底解决
+  （见下方「🔑 大小写敏感查表」一节）；`mm` 需另核。
 
 ### 定位单元时的坑
 「Making friends」= **renjiao3** G3U1（curriculum.ts:533，首条 name /neɪm/）
@@ -545,3 +547,75 @@ key = 归一化文本、value = 文本哈希 ⇒ **六条线共用同一份 mp3 
 - OK 特例：O-K 字母名本就是 "oh-kay"=/əʊˈkeɪ/，读字母=读词，无需修。
   a.m./p.m. 字母名读法即标准读法，英音核验正常。
 - 全库 16 个缩写词条（14 全大写 + AI + OK）美英共 32 文件全部核验通过（build 107 后）。
+
+---
+
+## 🔑 大小写敏感查表（2026-09-15 build 114，彻底解掉「同形异读」）
+
+### 问题
+manifest 键与音频文件名哈希**都按小写归一** ⇒ `IT`(信息技术) 与 `it`(它)、`US`(美国) 与
+`us`(我们)、`AM`(上午) 与 `am`(是)、`WHO`(世卫组织) 与 `who`(谁) **各只有一个音频，必有一个错**。
+用户两次报过两端：build 96 报 `Ms` 读字母（要整读）、build 104 报 `US` 读成「我们」、
+`WHO` 读成「谁」（要字母读）——**单音频方案无解，改回单词读就是重犯旧错**。
+
+### 关键事实：数据里大小写本来就是区分的
+| 大写字形（缩写义） | 小写字形（单词义） |
+|---|---|
+| `IT` 信息技术 ×3（grades4to9 G7U7 / oxfordSL G5U6 / renjiaoSL G7U7） | `it` 它 ×8（G1U3…） |
+| `US` 美国 ×2（grades4to9 G7U4 / renjiaoSL G7U4） | `us` 我们 ×5 |
+| `AM` 上午 ×1（renjiaoSL G7U7） | `am` 是（动词）×4 |
+| `WHO` 世卫组织 ×1（grades4to9 G7U1） | `who` 谁 ×8 |
+
+⇒ 是**哈希/查表把大小写抹平了**，不是数据缺信息。故解法 = 让键与哈希按原样。
+
+### 落地（不可只改一半）
+1. `src/lib/audio.ts`：`manifest.get(raw) ?? manifest.get(raw.toLowerCase())`。
+   **缓存键也必须改原样文本**（`${accent}:${text.trim()}`），否则 `it`/`IT` 撞缓存。
+2. `scripts/regen_audio_by_text.py` 的 `fname()`：**去掉 `.lower()`**。
+   小写文本的哈希结果与旧规则完全一致 ⇒ **存量文件名与 manifest 零迁移**。
+3. 两份 manifest 加原始大小写键（本项目只加了 `IT`/`US`/`AM`/`WHO` 共 8 条）。
+   **其余大小写混合文本（`PE`/`TV`/`Ms`/`I`/`Monday`/`the UK`/`X-ray`…）不必加** ——
+   原样键查不到会自动落到小写键的同一个文件，行为不变。
+4. `scripts/dump_all_texts.mjs`：去重键 `toLowerCase()` → **原样文本**。
+   ⚠️ **这就是 build 108 丢掉大小写的根因**，不改它下次批量生成必复发。
+5. `scripts/doubao_tts_batch.py`：fid 解析改为与 App 端同构（原样 → 小写兜底）。
+6. ⚠️ **新增词条时若要用大写缩写义，必须确认 manifest 里有对应的大写键**，
+   否则会静默落到小写（单词）音频上。
+
+### 素材来源（零合成造假）
+大写拼读版**直接复制**已核验文件，不重新合成：
+`it`/`am` 取自 pre-108 快照（build 104/107 修好的字母读），`us`/`who` 现网未被 build 108 动过。
+小写 `it`/`us`/`who` 用有道重取单词读音（type=2/1）；`am` 现网已是豆包单词读 ⇒ 保留。
+大写文件为 Edge 输出、比全库轻 5~7dB ⇒ 用 build 111 管线归一（美 −13.47 / 英 −15.01，
+峰值保护 −1.0 dBFS）。
+
+---
+
+## ⚠️ build 108 豆包批次的三类损伤（2026-09-15 复盘）
+
+触发：用户报「`a` 词条音频不对」（人教一线 G1U1 `/ə/` art. 一(个)）。
+
+| 类别 | 表现 | 修复 |
+|---|---|---|
+| ① 单条跑飞 | 豆包对极短输入自回归跑飞：`a` 英 **2.71s**、`to go` 美 8.09s/17 声段、`along with sb` 美 7.70s、`at the end of` 美 5.54s、`junior high` 英 4.32s、`weld quay` 美 2.09s | pre-108 快照恢复 |
+| ② 缩写回归 | build 104/107 刚修好的字母读被覆盖成整词读（`it`/`us`/`am`/`who` 时长掉到 0.43~0.61 倍） | 大小写敏感查表（上节） |
+| ③ 音标自相矛盾 | `renjiaoSL.ts` 4 条：`it/它` 标 /ˌaɪ ˈtiː/、`who/谁` 标字母名、`IT/信息技术` 标 /ɪt/、`AM/上午` 标 /æm/ | 按释义改正 |
+
+### 判据血泪（本次又踩两处）
+- **「活跃语音时长」判据被响度归一破坏**：build 111 归一放大底噪后，
+  `a` 英音总时长 0.99s 却报 active=**1.95s**（> 总时长，一眼假）。⇒ 改用
+  **声段数**（能量包络连续有声段个数，<80ms 段忽略）：`to go` 现网 17 段 vs 正常 2 段。
+- **「音标含 ≥2 个字母名」判据噪声极大**：`Chinese` 的 `aɪ`/`iː`、短语里的冠词 `a`
+  （课本音标写作 `eɪ`）全被误命中 ⇒ 22 条清单实测只有 4 条真回归。
+  **永远不要凭音标回滚，必须看音频实体（时长 + 声段）。**
+- **魔数判据（第 4 次栽）**：写成 `buf[:3] in MAGIC`，而 `\xff\xfb` 是 2 字节 ⇒ 永远为假。
+  必须 `any(buf[:len(m)] == m for m in MAGIC)`；且 `len>=1024` 不能与魔数混在一个只吃 4
+  字节入参的函数里。安全写法：`f.read(3).startswith(MP3_MAGIC)`（沿用 `regen_audio_by_text.py`）。
+
+### 可复用工具（本轮新增，均在 `.workbuddy/tmp/`）
+- `cmp_spelled.py` —— 逐条对比「现网 vs pre-108」时长/声段，判是否被改坏
+- `migrate_case_audio.py` —— 大小写音频迁移（`--dry-run` 先看；直接写目标不用 tmp+move）
+- `conflict_scan.py` —— 扫「同形异读」候选：同一文本的大小写字形各自的释义/音标
+- `normalize_loudness_argv.py` —— 原归一脚本的入参化变体
+- `gen_case_fix_preview.py` —— 生成 **base64 内嵌音频的可试听 A/B 对比页**（我无法听，
+  必须交用户耳朵判；产出 `.workbuddy/preview/audio-case-fix.html`）

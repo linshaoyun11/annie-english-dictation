@@ -44,6 +44,11 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`。
   `LearnPage` 的 `answeredAtRef` / `touchStartAtRef` + `SETTLE_MS = 300`。
 - **touch 手势起点用 `e.changedTouches[0]`，不能用 `e.touches[0]`**（多指时后者不是抬起的那根），
   并检查 `e.touches.length` 排除多指。
+- **⚠️ 音频查表区分大小写（build 114 起，2026-09-15）**：`manifest.get(raw) ?? manifest.get(小写)`。
+  教材里 `IT`(信息技术)/`it`(它)、`US`/`us`、`AM`/`am`、`WHO`/`who` 是**四个读音不同的词对**，
+  大写字形有独立键与文件。⇒ **改音频链路时三处必须同步**：`audio.ts` 缓存键用原样文本、
+  `regen_audio_by_text.py` 的 `fname()` 不 `lower()`、`dump_all_texts.mjs` 去重键用原样文本
+  （**build 108 丢大小写就是它 `toLowerCase()` 造成的**）。详见 topics/audio-pipeline.md。
 
 ## 构建与配置（推送前必读，详见 topics/build-config.md）
 
@@ -54,10 +59,14 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`。
   只认 yaml 的 `triggering` 段。官方原文：「If no events are defined, you can only
   start builds manually」⇒ **没有 `triggering` 段 = 只能手动点「Start new build」**，
   不是"任何 push 都触发"。本项目 2026-09-06 前从未配过（查全部 20 个历史版本均为 0 行），
-  所以一直是手动点。现已补上：监听 `main` 分支 push + `cancel_previous_builds: true`。
+  所以一直是手动点。
+  **⚠️ 2026-09-15 复核（此前这行记反了，已纠正）**：yaml 里现在**只有
+  `triggering.branch_patterns: main`，没有 `events`** ⇒ 按官方规则仍然是
+  **只能手动点「Start new build」**，自动触发是**用户主动关掉的**（控制构建次数）。
+  **不要"顺手"把 `events` 加回去。** 详见 topics/build-config.md。
 - **推送后不要再单独 commit+push 文档补记**：`APP_BUILD` 没变 ⇒ 第二个包因 **build 号
   重复被 ASC 拒绝上传**。⇒ **memory 补记必须在推送前写完、与代码一起提交**。
-  （注：这条在"自动触发"生效后才成立；此前手动点时代其实不会自动多跑，
+  （注：自动触发是关的、手工点构建，所以"多跑一个包"其实不会发生；
   但攒着一起推仍然是对的——省构建时长、避免手动点漏看。）
 - **本地 `vite build` 在沙箱会卡死**（2026-09-06 新踩坑）：卡在
   `transforming... 56 modules transformed.` 无限挂起（与上面"清空 dist 被拦截"是不同
