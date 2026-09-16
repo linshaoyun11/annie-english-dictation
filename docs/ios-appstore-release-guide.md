@@ -152,8 +152,15 @@ bash scripts/appstore_shots_run.sh         # 16 张，两套尺寸
 > 脚本用真实鼠标事件驱动（本项目多处交互绑在 `onPointerDown`，合成 click 无效），
 > 并会自动检测横向溢出。详见 `scripts/appstore_shots.mjs` 头部注释。
 >
-> ⚠️ 抓出来的是**浏览器渲染**：没有 iOS 状态栏与刘海，Apple 不要求截图带状态栏，这是通行做法。
-> 想更像真机，可事后叠一条状态栏（非必需）。
+> ✅ 默认带**真机外观层**：iOS 状态栏（9:41 / 信号 / Wi-Fi / 电池）、刘海、底部手势条，
+> 以及**真机安全区**（iPhone 14 Plus 上 47 / 34，iPad Pro 13" 上 24 / 20）。
+>
+> 安全区那一步是**修正、不是装饰**：`src/index.css` 给 `body` 写了
+> `padding: env(safe-area-inset-*)`，自绘键盘里还有行内版本；而浏览器不支持 `env()` 取值，
+> 恒为 **0**。不模拟的话内容整体偏高、可用高度多出 81pt，版式与真机不一致。
+>
+> 手势条与状态栏前景色是**现场探测背景亮度**自动选的（深色键盘上自动反白），与 iOS 自身行为一致。
+> 需要「干净」的裸截图（只要 Web 内容）就加 `SHOTS_CHROME=0`；想换输出目录加 `SHOTS_OUT=<dir>`。
 >
 > ⚠️ iPad 槽位是否必填，取决于 App 是否声明支持 iPad。Capacitor 生成的工程默认是通用
 > （iPhone + iPad），且本项目根容器写了 `max-w-md` 做宽屏居中 ⇒ 按「支持 iPad」准备。

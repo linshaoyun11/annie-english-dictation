@@ -18,6 +18,13 @@
  *   2. 本项目多处交互绑在 onPointerDown/onPointerUp（自绘键盘、年级卡片），
  *      合成 element.click() 完全不生效 —— 一律用 page.mouse.click 发真实指针事件。
  *   3. 截图不参与构建；改了 UI 就要重跑（Apple 要求截图与 App 实际一致）。
+ *
+ * 真机外观层（默认开，SHOTS_CHROME=0 可关）：
+ *   这两个尺寸其实就是真机尺寸 —— 428×926@3x 是 iPhone 14 Plus，1032×1376@2x 是
+ *   iPad Pro 13"(M4)。所以补上「状态栏 / 刘海 / 手势条 + 安全区」之后，
+ *   看起来就是在真机上拍的。安全区那一步不是装饰：src/index.css 给 body 写了
+ *   `padding: env(safe-area-inset-*)`（键盘组件里还有行内版本），浏览器里 env() 恒为 0，
+ *   不模拟的话内容会贴顶、可用高度还多出 81pt，与真机不符。
  */
 import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -26,13 +33,53 @@ const require = createRequire(import.meta.url);
 const puppeteer = require("C:/Users/huawei/.workbuddy/binaries/node/workspace/node_modules/puppeteer-core");
 
 const BASE = process.env.SHOTS_BASE || "http://127.0.0.1:5180/";
-const ROOT = "C:/Users/huawei/WorkBuddy/2026-08-17-22-58-27/appstore-screenshots";
+/** SHOTS_OUT 可指定输出目录 —— 用来把「真机外观层」版与「裸截图」版分别留档做对比 */
+const ROOT =
+  process.env.SHOTS_OUT || "C:/Users/huawei/WorkBuddy/2026-08-17-22-58-27/appstore-screenshots";
 const PASSWORD = "1234";
 
+/**
+ * 设备定义。width/height 是**逻辑 pt**，乘 dpr 才是上传的物理像素。
+ * insets 是 iOS 安全区（竖屏），必须按真机数值模拟 —— 浏览器里
+ * `env(safe-area-inset-*)` 恒为 0，不模拟的话内容会贴顶，与真机不符。
+ */
 const DEVICES = [
-  { name: "iphone-6.5", width: 428, height: 926, dpr: 3, expect: "1284x2778" },
-  { name: "ipad-13", width: 1032, height: 1376, dpr: 2, expect: "2064x2752" },
+  {
+    name: "iphone-6.5",
+    model: "iPhone 14 Plus",
+    width: 428,
+    height: 926,
+    dpr: 3,
+    expect: "1284x2778",
+    insets: { top: 47, right: 0, bottom: 34, left: 0 },
+    statusBar: 47,
+    // 刘海：宽 162pt / 高 30pt / 底部圆角 12pt，垂直居中、贴屏幕顶边
+    notch: { width: 162, height: 30, radius: 12 },
+    // 状态栏文字：刘海机型时间不做居中，而是居中于「刘海左侧那块」
+    time: { anchor: "middle", x: 55 },
+    iconsRight: 413,
+    homeBar: true,
+  },
+  {
+    name: "ipad-13",
+    model: "iPad Pro 13\" (M4)",
+    width: 1032,
+    height: 1376,
+    dpr: 2,
+    expect: "2064x2752",
+    insets: { top: 24, right: 0, bottom: 20, left: 0 },
+    statusBar: 24,
+    notch: null,
+    // 无刘海 ⇒ 时间左对齐靠边
+    time: { anchor: "start", x: 20 },
+    iconsRight: 1012,
+    homeBar: true,
+  },
 ];
+
+/** SHOTS_CHROME=0 退回「裸截图」（只截 Web 内容，无状态栏/刘海） */
+const CHROME = process.env.SHOTS_CHROME !== "0";
+
 
 /** 上传到 ASC 时的展示顺序（前 3 张最重要，决定搜索结果里的第一印象） */
 const ORDER = {
@@ -210,6 +257,205 @@ async function overflow(page) {
   });
 }
 
+/* ─────────────── 真机外观层（安全区 / 状态栏 / 刘海 / 手势条） ─────────────── */
+
+/** 状态栏右侧图标组：信号 / Wi-Fi / 电池，按 SF Symbols 比例手绘 */
+function statusIcons(right, cy, ink) {
+  // 信号：4 根圆角竖条，底对齐
+  const sigBottom = cy + 6;
+  const bars = [4.5, 7.2, 9.9, 12.6]
+    .map(
+      (h, i) =>
+        `<rect x="${right - 70 + i * 5}" y="${sigBottom - h}" width="3" height="${h}" rx="1" fill="${ink}"/>`
+    )
+    .join("");
+
+  // Wi-Fi：三段同心弧 + 底点，圆心落在图标底部
+  const cx = right - 39;
+  /* 弧的角度必须取 ±45° 这种「上半圆附近」的值 —— 用 140° 时 cos 为负，
+     算出来的端点在圆心下方，弧会朝下凸、三段糊成一个实心拱形。 */
+  const arc = (r) => {
+    const a = (45 * Math.PI) / 180;
+    const dx = r * Math.sin(a);
+    const dy = r * Math.cos(a);
+    return `M${(cx - dx).toFixed(2)} ${(sigBottom - dy).toFixed(2)} A${r} ${r} 0 0 1 ${(cx + dx).toFixed(2)} ${(sigBottom - dy).toFixed(2)}`;
+  };
+  const wifi =
+    [11, 8, 5.5]
+      .map(
+        (r) =>
+          `<path d="${arc(r)}" fill="none" stroke="${ink}" stroke-width="1.7" stroke-linecap="round"/>`
+      )
+      .join("") + `<circle cx="${cx}" cy="${sigBottom - 1.5}" r="1.4" fill="${ink}"/>`;
+
+  // 电池：外框（描边）+ 内充（实心，满电）+ 右侧凸点
+  const btW = 22.5;
+  const btH = 11.5;
+  const btX = right - 25;
+  const btY = cy - btH / 2;
+  const battery =
+    `<rect x="${btX}" y="${btY}" width="${btW}" height="${btH}" rx="3.4" fill="none" stroke="${ink}" stroke-width="1.1" stroke-opacity="0.42"/>` +
+    `<rect x="${btX + 1.9}" y="${btY + 1.9}" width="${btW - 3.8}" height="${btH - 3.8}" rx="1.6" fill="${ink}"/>` +
+    `<rect x="${right - 1.4}" y="${cy - 2}" width="1.4" height="4" rx="0.7" fill="${ink}" fill-opacity="0.42"/>`;
+
+  return bars + wifi + battery;
+}
+
+/** 整块真机外观层：一张覆盖全屏、pointer-events:none 的 SVG */
+function chromeSvg(dev, { inkTop = "#000", inkHome = "#000" } = {}) {
+  const { width, height, statusBar, notch, time, iconsRight, homeBar } = dev;
+  const cy = statusBar / 2;
+
+  const notchPath = notch
+    ? (() => {
+        const l = width / 2 - notch.width / 2;
+        const r = width / 2 + notch.width / 2;
+        const rr = notch.radius;
+        return (
+          `<path d="M${l} 0 H${r} V${notch.height - rr} ` +
+          `A${rr} ${rr} 0 0 1 ${r - rr} ${notch.height} H${l + rr} ` +
+          `A${rr} ${rr} 0 0 1 ${l} ${notch.height - rr} Z" fill="#000"/>`
+        );
+      })()
+    : "";
+
+  // Home Indicator：宽 134pt / 高 5pt，距屏幕底 8pt
+  const home = homeBar
+    ? `<rect x="${(width - 134) / 2}" y="${height - 13}" width="134" height="5" rx="2.5" fill="${inkHome}" fill-opacity="0.32"/>`
+    : "";
+
+  const font =
+    "-apple-system,'SF Pro Text','Segoe UI Variable Text','Segoe UI',Roboto,sans-serif";
+
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" ` +
+    `viewBox="0 0 ${width} ${height}" ` +
+    `style="position:fixed;top:0;left:0;pointer-events:none;z-index:2147483647">` +
+    notchPath +
+    `<text x="${time.x}" y="${(cy + 6.1).toFixed(2)}" text-anchor="${time.anchor}" ` +
+    `font-family="${font}" font-size="17" font-weight="600" fill="${inkTop}">9:41</text>` +
+    statusIcons(iconsRight, cy, inkTop) +
+    home +
+    `</svg>`
+  );
+}
+
+/**
+ * 探测某点下方的**实际背景亮度** —— 用来决定状态栏文字 / 手势条该用黑还是白。
+ * iOS 自己就是这么做的：深色键盘上的状态栏文字与手势条会自动反白。
+ * 从命中元素往上找第一个「基本不透明」的 background-color（透明的跳过）。
+ */
+async function probeLum(page, x, y) {
+  return page.evaluate(
+    ({ x, y }) => {
+      const el = document.elementFromPoint(x, y);
+      let node = el;
+      let lum = 0.97; // 兜底：App 主题色 #f8f7ff 是浅色
+      while (node && node !== document.documentElement) {
+        const bg = getComputedStyle(node).backgroundColor || "";
+        const m = bg.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/);
+        if (m && (m[4] === undefined || parseFloat(m[4]) > 0.5)) {
+          lum = (0.2126 * +m[1] + 0.7152 * +m[2] + 0.0722 * +m[3]) / 255;
+          break;
+        }
+        node = node.parentElement;
+      }
+      return lum;
+    },
+    { x, y }
+  );
+}
+
+/**
+ * 把 CSS 里 `env(safe-area-inset-*)` 的语义补上。两件事缺一不可：
+ *
+ *  1. `body` 上的 `padding-*: env(safe-area-inset-*)`（见 src/index.css）在浏览器里
+ *     恒为 0 ⇒ 直接写死真机数值，内容区的高度与起始位置才和真机一致。
+ *  2. 组件里**行内**写的 `env(safe-area-inset-bottom)`（自绘键盘的内边距）不受
+ *     外部 CSS 覆盖影响 —— 只能把 style 属性文本里的 `env(...)` 就地换成 px 再写回。
+ *
+ * 第 2 步必须在**每次截图前**重做：React 重渲染会把它还原成原始的 env() 串。
+ */
+async function applyInsets(page, dev) {
+  const { insets } = dev;
+  const tagged = await page.evaluate(
+    () => document.documentElement.dataset.insetsPatched === "1"
+  );
+  if (!tagged) {
+    await page.addStyleTag({
+      content:
+        `body{padding-top:${insets.top}px!important;padding-bottom:${insets.bottom}px!important;` +
+        `padding-left:${insets.left}px!important;padding-right:${insets.right}px!important}`,
+    });
+    await page.evaluate(() => {
+      document.documentElement.dataset.insetsPatched = "1";
+    });
+  }
+  return page.evaluate((ins) => {
+    const map = {
+      "safe-area-inset-top": ins.top,
+      "safe-area-inset-right": ins.right,
+      "safe-area-inset-bottom": ins.bottom,
+      "safe-area-inset-left": ins.left,
+    };
+    let patched = 0;
+    for (const el of document.querySelectorAll("[style]")) {
+      let s = el.getAttribute("style");
+      if (!s || !s.includes("safe-area-inset")) continue;
+      for (const [name, px] of Object.entries(map)) {
+        s = s
+          .split(`env(${name}, 0px)`)
+          .join(`${px}px`)
+          .split(`env(${name})`)
+          .join(`${px}px`);
+      }
+      el.setAttribute("style", s);
+      patched += 1;
+    }
+    return patched;
+  }, insets);
+}
+
+/**
+ * 注入外观层。挂在 body 下、不在 React 树里；每次 reload 都会被清掉，故按需补。
+ * 前景色由 probeLum 现场探测 —— 换了颜色就重建这张 SVG。
+ */
+async function ensureChrome(page, dev) {
+  if (!CHROME) return null;
+
+  const sb = dev.statusBar;
+  // 状态栏文字取「刘海左侧 / 时间所在处」的背景；手势条取屏幕底部中央
+  const lumTop = await probeLum(page, Math.round(dev.width * 0.08), Math.round(sb / 2));
+  const lumHome = await probeLum(page, Math.round(dev.width / 2), dev.height - 10);
+  const inkTop = lumTop < 0.5 ? "#fff" : "#000";
+  const inkHome = lumHome < 0.5 ? "#fff" : "#000";
+  const sig = `${inkTop}|${inkHome}`;
+
+  const cur = await page.evaluate(() => {
+    const el = document.querySelector("svg[data-dev-chrome]");
+    return el ? el.dataset.ink : null;
+  });
+  if (cur === sig) return { inkTop, lumTop, lumHome };
+
+  await page.evaluate(() => document.querySelector("svg[data-dev-chrome]")?.remove());
+  await page.evaluate(
+    ({ svg, model, statusBar, insets, ink }) => {
+      const tpl = document.createElement("template");
+      tpl.innerHTML = svg.trim();
+      const node = tpl.content.firstChild;
+      node.setAttribute("data-dev-chrome", "1");
+      node.dataset.model = model;
+      node.dataset.statusBar = String(statusBar);
+      node.dataset.insets = JSON.stringify(insets);
+      node.dataset.ink = ink;
+      document.body.appendChild(node);
+      return true;
+    },
+    { svg: chromeSvg(dev, { inkTop, inkHome }), model: dev.model, statusBar: sb, insets: dev.insets, ink: sig }
+  );
+  return { inkTop, lumTop, lumHome };
+}
+
 /* ─────────────── 主流程 ─────────────── */
 
 const CDP = process.env.SHOTS_CDP || "";
@@ -334,7 +580,10 @@ let failures = 0;
 for (const dev of DEVICES) {
   const out = `${ROOT}/${dev.name}`;
   mkdirSync(out, { recursive: true });
-  say(`\n===== ${dev.name} (${dev.width}×${dev.height} @${dev.dpr}x → ${dev.expect}) =====`);
+  say(
+    `\n===== ${dev.name} — ${dev.model} (${dev.width}×${dev.height} @${dev.dpr}x → ${dev.expect})` +
+      `${CHROME ? ` 状态栏 ${dev.statusBar}pt 安全区 ${dev.insets.top}/${dev.insets.bottom}` : " 裸截图"} =====`
+  );
 
   const page = await browser.newPage();
   await page.setViewport({
@@ -346,10 +595,18 @@ for (const dev of DEVICES) {
   });
 
   const shot = async (key) => {
+    await applyInsets(page, dev);
+    const chrome = await ensureChrome(page, dev);
     await sleep(450);
     await page.screenshot({ path: `${out}/${ORDER[key]}-${key}.png` });
     const o = await overflow(page);
-    say(`  [${ORDER[key]}-${key}] ${o.bad ? `❌ 横向溢出 ${o.sw}>${o.iw}` : "✓"}`);
+    const notes = [];
+    if (chrome && chrome.lumHome < 0.5) notes.push("手势条反白");
+    if (chrome && chrome.inkTop === "#fff") notes.push("状态栏反白");
+    say(
+      `  [${ORDER[key]}-${key}] ${o.bad ? `❌ 横向溢出 ${o.sw}>${o.iw}` : "✓"}` +
+        (notes.length ? ` · ${notes.join(" / ")}` : "")
+    );
   };
 
   try {

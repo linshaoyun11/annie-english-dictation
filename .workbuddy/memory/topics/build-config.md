@@ -55,9 +55,15 @@
 
 发布/发版前若动过页面外观，必须重跑截图：`bash scripts/appstore_shots_run.sh`
 （需另开终端跑 `npx vite --port 5180 --strictPort`）。产物 `appstore-screenshots/`，
-**本地生成物、已 gitignore、不进 dist**。规格与四个坑见技能
+**本地生成物、已 gitignore、不进 dist**。规格与全部坑见技能
 `~/.workbuddy/skills/annie-appstore-shots/SKILL.md`。
 注意 `screenshots/`（60 张桌面/手机档）**不是 ASC 规格**，别拿去提交。
+
+⚠️ **截图默认带「真机外观层」**（状态栏/刘海/手势条 + 真机安全区），因为
+`env(safe-area-inset-*)` 在浏览器里恒为 0、真机是 47/34 ⇒ 不模拟就有 81pt 版式偏差。
+该 1284×2778 即 **iPhone 14 Plus**、2064×2752 即 **iPad Pro 13"(M4)**。
+`SHOTS_CHROME=0` 可退裸截图，`SHOTS_OUT=<dir>` 可换输出目录。
+核验用 `node scripts/png_peek.mjs scan|crop|bars`。详见 2026-09-16 日志。
 
 ## 已知问题 · 暂不修复（有意为之）
 均已定位根因、影响可控，用户决定暂缓。动手前先确认是否已改变主意。
