@@ -469,10 +469,11 @@ async function ensureChrome(page, dev) {
 
 /* ─────────────── 主流程 ─────────────── */
 
-const CDP = process.env.SHOTS_CDP || "";
+const CDP = process.env.SHOTS_CDP || process.env.EDGE_CDP || "";
 if (!CDP) {
-  console.error("缺少 SHOTS_CDP。请先拉起无头 Edge，再用 SHOTS_CDP=http://127.0.0.1:<port> 运行；");
-  console.error("推荐直接跑： bash .workbuddy/tmp/run_shots.sh");
+  console.error("缺少 CDP 地址。请用启动器运行（它负责拉起无头 Edge）：");
+  console.error("  bash scripts/appstore_shots_run.sh");
+  console.error("或自行拉起 Edge 后：SHOTS_CDP=http://127.0.0.1:<port> node scripts/appstore_shots.mjs");
   process.exit(2);
 }
 const browser = await puppeteer.connect({ browserURL: CDP, defaultViewport: null });

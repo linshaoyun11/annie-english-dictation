@@ -3,8 +3,9 @@ import { flushSync } from "react-dom";
 import { avatarById, type User } from "../lib/users";
 import { safeTimeout } from "../lib/timer";
 import { AvatarImg } from "../components/AvatarImg";
-import { BookIcon, KeyIcon } from "../components/Icons";
+import { BookIcon, KeyIcon, TrashIcon } from "../components/Icons";
 import { StarIcon } from "../components/RoundsStars";
+import NumberPad from "../components/NumberPad";
 import PageTopBar from "../components/PageTopBar";
 
 interface ProfilePageProps {
@@ -12,6 +13,8 @@ interface ProfilePageProps {
   onBack: () => void;
   /** 修改当前用户密码（旧密码已在本页校验） */
   onChangePassword: (newPassword: string) => void;
+  /** 删除当前用户（已在本页完成密码校验与二次确认） */
+  onDeleteUser: () => void;
 }
 
 type PwdStep = "old" | "new" | "confirm";
@@ -27,6 +30,7 @@ export default function ProfilePage({
   user,
   onBack,
   onChangePassword,
+  onDeleteUser,
 }: ProfilePageProps) {
   const avatar = avatarById(user.avatarId);
 
@@ -168,6 +172,98 @@ export default function ProfilePage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pwd, pwdStep, wrong, mismatch]);
 
+  /* ── 删除本用户：先验密码 → 再二次确认 → 回调父组件执行删除 ──────────
+   *
+   * 与「清空学习进度」（HomePage）的顺序**相反**：那边是先弹确认框、再验密码，
+   * 这边按用户要求先验密码、密码正确才弹确认框。
+   * 密码用自绘 NumberPad（build 119 约定：数字输入一律自绘，系统数字键盘在
+   * WKWebView 里是浮层，会把输入控件盖住）。
+   */
+
+  /** "auth" = 正在输入密码；null = 不在删除流程里 */
+  const [delStep, setDelStep] = useState<"auth" | null>(null);
+  const [delPwd, setDelPwd] = useState("");
+  const [delWrong, setDelWrong] = useState(false);
+  /** 密码通过后的二次确认弹窗 */
+  const [delConfirm, setDelConfirm] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const delCardRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * 键盘占位后把密码卡片滚进可视区。
+   * 双 rAF：键盘挂载引起的布局变更与 scrollHeight 更新不在同一帧，
+   * 单次 rAF 时量到的还是旧位置（同 RegisterPage 的处理）。
+   */
+  useEffect(() => {
+    if (delStep !== "auth") return;
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => {
+        delCardRef.current?.scrollIntoView({ block: "center" });
+      });
+    });
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [delStep]);
+
+  const shakeDel = () => {
+    setDelWrong(true);
+    navigator.vibrate?.(120);
+    safeTimeout(() => {
+      setDelPwd("");
+      setDelWrong(false);
+    }, 500);
+  };
+
+  const submitDel = (value: string) => {
+    if (value === user.password) {
+      // flushSync：后台唤醒后 React 调度器可能异常，同步 flush 保证
+      // 「收键盘 + 弹确认框」一起生效，不出现键盘还留着、弹窗不出的中间态
+      flushSync(() => {
+        setDelStep(null);
+        setDelPwd("");
+        setDelConfirm(true);
+      });
+    } else {
+      shakeDel();
+    }
+  };
+
+  const handleDelDigit = (d: string) => {
+    if (delWrong) return;
+    const next = (delPwd + d).slice(0, 4);
+    setDelPwd(next);
+    if (next.length === 4) submitDel(next);
+  };
+
+  const handleDelBackspace = () => {
+    if (delWrong) return;
+    setDelPwd(delPwd.slice(0, -1));
+  };
+
+  /** 物理键盘兜底（桌面预览 / iPad 外接键盘）：自绘键盘只在屏幕上点得动 */
+  useEffect(() => {
+    if (delStep !== "auth") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (delWrong) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        const next = (delPwd + e.key).slice(0, 4);
+        setDelPwd(next);
+        if (next.length === 4) submitDel(next);
+      } else if (e.key === "Backspace" && delPwd.length > 0) {
+        e.preventDefault();
+        setDelPwd(delPwd.slice(0, -1));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [delStep, delPwd, delWrong]);
+
   const stepText =
     pwdStep === "old"
       ? "请输入旧密码"
@@ -176,10 +272,16 @@ export default function ProfilePage({
         : "请再次输入新密码";
 
   return (
-    <div
-      className="h-full overflow-y-auto px-5 pb-10"
-      style={{ paddingBottom: pwdStep ? "calc(var(--kb-h, 0px) + 2.5rem)" : undefined }}
-    >
+    /* 两段式布局：上半可滚动内容 + 下半自绘数字键盘。
+       键盘在文档流内（flex 第二行）⇒ 结构上不可能遮住输入区。
+       改密码流程仍用系统键盘（沿用旧实现），它靠 --kb-h 让位；
+       两套并存：delStep 非空时才会渲染 NumberPad。 */
+    <div className="flex h-full flex-col">
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto px-5 pb-10"
+        style={{ paddingBottom: pwdStep ? "calc(var(--kb-h, 0px) + 2.5rem)" : undefined }}
+      >
       {/* 顶部导航（吸顶：滚动时返回键 / 标题固定不动） */}
       <PageTopBar>
         <button
@@ -190,6 +292,10 @@ export default function ProfilePage({
               setPwdStep(null);
               setPwd("");
               setNewPwd("");
+            } else if (delStep) {
+              // 正在验密码 → 先退回列表，不要直接离开本页
+              setDelStep(null);
+              setDelPwd("");
             } else {
               onBack();
             }
@@ -253,8 +359,63 @@ export default function ProfilePage({
         </div>
       </div>
 
-      {/* 修改密码：列表项 / 内嵌流程 */}
-      {pwdStep === null ? (
+      {/* 三个互斥状态：删除流程的密码卡片 / 分组列表 / 改密码卡片 */}
+      {delStep === "auth" ? (
+        <div
+          ref={delCardRef}
+          className={`mt-6 rounded-3xl border border-border bg-surface p-6 text-center shadow-card ${
+            delWrong ? "animate-[shake_.45s_ease]" : ""
+          }`}
+        >
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-error-light">
+            <TrashIcon size={26} className="text-error" />
+          </div>
+          <p className="mt-3 text-base font-semibold text-text">
+            删除 {avatar.name}？
+          </p>
+          <p className="mt-1 text-xs text-text3">
+            这是危险操作，请先输入 4 位数字密码确认身份
+          </p>
+
+          <div
+            className="mt-5 flex justify-center gap-3"
+            role="status"
+            aria-label={`已输入 ${delPwd.length} 位密码，共 4 位`}
+          >
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={`flex h-12 w-12 items-center justify-center rounded-2xl border-2 text-xl font-bold transition-colors ${
+                  delWrong
+                    ? "border-error bg-error-light text-error"
+                    : delPwd.length > i
+                      ? "border-success bg-success-light text-success"
+                      : "border-border bg-bg text-text3"
+                }`}
+              >
+                {delPwd.length > i ? "•" : ""}
+              </div>
+            ))}
+          </div>
+
+          {delWrong && (
+            <p className="mt-3 text-xs font-medium text-error animate-[fadeIn_.2s_ease]">
+              密码不对，再试一次
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              setDelStep(null);
+              setDelPwd("");
+            }}
+            className="mt-5 text-sm font-medium text-text3 transition-colors hover:text-text2"
+          >
+            取消
+          </button>
+        </div>
+      ) : pwdStep === null ? (
         <>
           <h2 className="mb-2.5 mt-6 px-1 text-xs font-semibold tracking-[0.04em] text-text3">
             账号安全
@@ -270,6 +431,30 @@ export default function ProfilePage({
               </span>
               <span className="flex-1 text-[15px] font-semibold text-text">
                 修改密码
+              </span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text3">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <h2 className="mb-2.5 mt-6 px-1 text-xs font-semibold tracking-[0.04em] text-text3">
+            危险操作
+          </h2>
+          <div className="overflow-hidden rounded-[20px] border border-border bg-surface shadow-card">
+            <button
+              type="button"
+              onClick={() => {
+                setPwdStep(null); // 保险：两个内嵌流程互斥
+                setDelStep("auth");
+              }}
+              className="flex h-[60px] w-full items-center gap-3 px-4 text-left transition-colors active:bg-error-light"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-error-light">
+                <TrashIcon size={20} className="text-error" />
+              </span>
+              <span className="flex-1 text-[15px] font-semibold text-error">
+                删除本用户
               </span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text3">
                 <path d="M9 18l6-6-6-6" />
@@ -356,6 +541,62 @@ export default function ProfilePage({
             取消
           </button>
         </div>
+      )}
+      </div>
+
+      {/* 二次确认：密码已经过了，这一步才是真正不可逆的 */}
+      {delConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-8 animate-[fadeIn_.2s_ease]"
+          onClick={() => setDelConfirm(false)}
+        >
+          <div
+            className="w-full max-w-xs animate-[slideUp_.25s_ease] rounded-3xl bg-surface p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-error-light text-2xl">
+              ⚠️
+            </div>
+            <h2 className="mt-3 text-center text-base font-semibold text-text">
+              删除「{avatar.name}」？
+            </h2>
+            <div className="mt-4 rounded-2xl bg-error-light px-4 py-3">
+              <p className="text-sm font-semibold text-error">
+                该用户的所有资料、积分与学习进度都会被删除！
+              </p>
+              <p className="mt-1 text-xs leading-5 text-error/80">
+                ⭐ {user.points} 积分、{user.learnedCount} 个已学单词，以及<span className="whitespace-nowrap">全部学习进度</span>都会被清除，且无法恢复。
+              </p>
+            </div>
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setDelConfirm(false)}
+                className="flex-1 rounded-xl border border-border py-2.5 text-sm font-medium text-text2 transition-colors active:bg-primary-lighter"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDelConfirm(false);
+                  onDeleteUser();
+                }}
+                className="flex-1 rounded-xl bg-error py-2.5 text-sm font-semibold text-white transition-transform active:scale-[0.97]"
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {delStep === "auth" && (
+        <NumberPad
+          onDigit={handleDelDigit}
+          onBackspace={handleDelBackspace}
+          className="animate-[slideUp_.22s_cubic-bezier(.22,1,.36,1)]"
+        />
       )}
     </div>
   );

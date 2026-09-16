@@ -188,3 +188,33 @@
   误判成 `#3A3C49`，偏蓝 15 个色阶）；② 键帽列宽要**按列取并集**（整行 y 范围内该列曾是
   键帽色即算），只看一条水平线会被数字的白色笔画切断，而笔画像素宽度随截图缩放变化
   ⇒ 固定像素的「合并相邻段」阈值必然在某个缩放上失效。
+
+## 用户资料页：两个密码流程并存（build 121）
+
+根容器是**两段式**：`flex h-full flex-col` ＋ 内容区 `min-h-0 flex-1 overflow-y-auto` ＋ 键盘 `shrink-0`
+（build 121 从「整页一个滚动容器」改过来，为的是让删除流程的 NumberPad 参与布局）。
+
+⚠️ **同页两种数字输入方式**（已知不一致，本轮未统一）：
+
+| 流程 | 输入方式 | 状态变量 |
+|---|---|---|
+| 修改密码 | **系统键盘**（透明覆盖 input + `inputMode="numeric"`）+ `--kb-h` padding | `pwdStep` |
+| 删除本用户 | **自绘 `NumberPad`**（build 119 约定） | `delStep` |
+
+两者互斥：`delStep` 非空才渲染 NumberPad。改密码流程之所以一直没报障，只是因为
+它的密码框在页面中部、没被系统键盘盖住 —— 不是因为它没问题。**要统一就把改密码也换成
+NumberPad**，别反过来把新的改回系统键盘。
+
+删除流程的顺序是**先验密码 → 再弹确认框**（与 HomePage「清空学习进度」的先确认后密码相反，
+是用户明确要求的）。要点：
+
+- 密码错：抖动 + 圆点变红 + 提示，**500ms 后复位**（与全站一致）⇒ 自动化断言必须
+  在最后一位点完**立刻**读，晚了提示已复位（e2e 第一版就栽在这）。
+- 密码对：`flushSync` 里同时 `setDelStep(null)`（收键盘）+ `setDelConfirm(true)`（弹框），
+  避免"键盘还留着、弹窗没出"的中间态。
+- 键盘展开后 `scrollIntoView({block:"center"})` 把密码卡片滚进视野，**套两层 rAF**（同 RegisterPage）。
+- 确认框文案里用 `whitespace-nowrap` 包住「全部学习进度」—— 否则会在"进/度"之间断行。
+- 删除后跳 `select`（App 初始 view），`setCurrentUser(null)` 与 `setView(...)` 必须同批，
+  否则 profile 分支会渲染成空白。
+
+e2e 回归：`bash scripts/headless_edge_run.sh scripts/test_delete_user.mjs`（22 项断言）。

@@ -1,4 +1,5 @@
 import {
+  CURRICULUM_LABELS,
   CURRICULUM_VERSION,
   getAllEntries,
   getCurriculum,
@@ -490,6 +491,24 @@ export function saveProgress(userId: string, p: Progress) {
 export function resetProgress(userId: string, version: CurriculumVersion) {
   storageRemove(storageKey(userId, version));
   // 旧版 v2 数据一并清除，避免重复迁移
+  storageRemove(`${LEGACY_PREFIX}:${userId}`);
+}
+
+/**
+ * 删除用户专用：清掉该用户在**所有教材线**下的进度。
+ *
+ * 与 resetProgress 的区别：后者只清传入的那一条教材线（"清空学习进度"只针对
+ * 当前教材，是对的）。但用户可能在设置里切换过教材，各版本进度是独立存储的，
+ * 删除用户时必须逐条清干净 —— 否则残留数据会在同一个 userId 再次出现时
+ * （id 由时间戳生成，概率极低但并非不可能）被重新读出来。
+ *
+ * 遍历用 CURRICULUM_LABELS 的键：它是 Record<CurriculumVersion, string>，
+ * 将来新增教材线时 TS 会强制补全，这里不会漏。
+ */
+export function clearUserProgress(userId: string) {
+  for (const version of Object.keys(CURRICULUM_LABELS) as CurriculumVersion[]) {
+    storageRemove(storageKey(userId, version));
+  }
   storageRemove(`${LEGACY_PREFIX}:${userId}`);
 }
 

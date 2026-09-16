@@ -15,6 +15,7 @@ import { flushStorage } from "./lib/storage";
 import { primeSpeech } from "./hooks/useSpeechLoop";
 import {
   type Progress,
+  clearUserProgress,
   findResumePosition,
   freshGradeState,
   freshProgress,
@@ -389,6 +390,30 @@ export default function App() {
     [users, currentUser, commitUsers]
   );
 
+  /**
+   * 删除当前用户（密码校验与二次确认已在资料页完成）：
+   * 移除档案 → 清掉该用户在**所有教材线**下的进度 → 登出回初始页。
+   *
+   * 「头像恢复可选」不需要额外处理：创建角色页的禁用判定是
+   * takenAvatarIds(users)，档案一旦从列表移除，该头像自然回到可选状态。
+   */
+  const handleDeleteUser = useCallback(() => {
+    if (!currentUser) return;
+    const userId = currentUser.id;
+
+    commitUsers(users.filter((u) => u.id !== userId));
+    // 必须遍历全部教材线：用户可能切换过教材，各版本进度独立存储
+    clearUserProgress(userId);
+
+    // 登出并把 view 一并切回初始页 —— 两者放在同一批更新里，
+    // 否则 currentUser 先变 null 会让 profile 视图渲染成空白
+    setCurrentUser(null);
+    setProgressState(null);
+    setLearnMode("normal");
+    setDifficultOrder([]);
+    setView("select");
+  }, [currentUser, users, commitUsers]);
+
   // iOS 左缘右滑返回手势。系统级的边缘返回属于 UINavigationController，
   // Capacitor 应用只有一个 ViewController（无导航栈），系统手势天然无效，
   // 因此在 Web 层模拟：从屏幕左缘（28px 内）起手、右滑超过 55px 且垂直
@@ -534,6 +559,7 @@ export default function App() {
           user={currentUser}
           onBack={() => setView(profileFrom)}
           onChangePassword={handleChangePassword}
+          onDeleteUser={handleDeleteUser}
         />
       )}
 

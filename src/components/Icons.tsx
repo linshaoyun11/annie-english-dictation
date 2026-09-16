@@ -81,3 +81,34 @@ export function BookIcon({ size = 20, className = "" }: IconProps) {
     </svg>
   );
 }
+
+/**
+ * 垃圾桶：盖子横线 + 提手 + 梯形桶身（14% 同色填充）+ 2 条桶内竖纹。
+ * 用于用户资料页「删除本用户」（红色危险操作），与 KeyIcon 同规格。
+ */
+export function TrashIcon({ size = 20, className = "" }: IconProps) {
+  /** 桶身轮廓（填充与描边各用一次，避免描边叠加变粗） */
+  const bin =
+    "M6.35 6.6h11.3l-.89 12.35a1.2 1.2 0 0 1-1.2 1.1H8.44a1.2 1.2 0 0 1-1.2-1.1z";
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <path d={bin} fill="currentColor" fillOpacity={0.14} stroke="none" />
+      <path d={bin} />
+      <path d="M4.3 6.6h15.4" />
+      <path d="M9.7 6.6V4.85c0-.47.38-.85.85-.85h2.9c.47 0 .85.38.85.85V6.6" />
+      <path d="M10.4 10.4v6.2" />
+      <path d="M13.6 10.4v6.2" />
+    </svg>
+  );
+}
