@@ -19,12 +19,13 @@
  *      合成 element.click() 完全不生效 —— 一律用 page.mouse.click 发真实指针事件。
  *   3. 截图不参与构建；改了 UI 就要重跑（Apple 要求截图与 App 实际一致）。
  *
- * 真机外观层（默认开，SHOTS_CHROME=0 可关）：
+ * 可选的真机外观层（**默认关**，见下方 CHROME / INSETS）：
  *   这两个尺寸其实就是真机尺寸 —— 428×926@3x 是 iPhone 14 Plus，1032×1376@2x 是
  *   iPad Pro 13"(M4)。所以补上「状态栏 / 刘海 / 手势条 + 安全区」之后，
  *   看起来就是在真机上拍的。安全区那一步不是装饰：src/index.css 给 body 写了
  *   `padding: env(safe-area-inset-*)`（键盘组件里还有行内版本），浏览器里 env() 恒为 0，
- *   不模拟的话内容会贴顶、可用高度还多出 81pt，与真机不符。
+ *   打开后内容位置才与真机一致（不打开则贴顶、可用高度多出 81pt）。
+ *   2026-09-16 用户要求默认输出**不带**这层，故两项都改成显式开启。
  */
 import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -77,8 +78,17 @@ const DEVICES = [
   },
 ];
 
-/** SHOTS_CHROME=0 退回「裸截图」（只截 Web 内容，无状态栏/刘海） */
-const CHROME = process.env.SHOTS_CHROME !== "0";
+/**
+ * 默认 = 干干净净的 Web 截图（上一个版本，2026-09-16 用户指定）。
+ * 两个可选增强都得显式打开：
+ *
+ *   SHOTS_INSETS=1  按真机数值模拟 iOS 安全区（内容位置与真机一致）
+ *   SHOTS_CHROME=1  再叠一层外观层（状态栏 / 刘海 / 手势条）
+ *
+ * 外观层强制带上安全区 —— 否则内容贴顶，画上去的状态栏会压在标题上。
+ */
+const CHROME = process.env.SHOTS_CHROME === "1";
+const INSETS = CHROME || process.env.SHOTS_INSETS === "1";
 
 
 /** 上传到 ASC 时的展示顺序（前 3 张最重要，决定搜索结果里的第一印象） */
@@ -377,6 +387,7 @@ async function probeLum(page, x, y) {
  * 第 2 步必须在**每次截图前**重做：React 重渲染会把它还原成原始的 env() 串。
  */
 async function applyInsets(page, dev) {
+  if (!INSETS) return 0;
   const { insets } = dev;
   const tagged = await page.evaluate(
     () => document.documentElement.dataset.insetsPatched === "1"
@@ -582,7 +593,7 @@ for (const dev of DEVICES) {
   mkdirSync(out, { recursive: true });
   say(
     `\n===== ${dev.name} — ${dev.model} (${dev.width}×${dev.height} @${dev.dpr}x → ${dev.expect})` +
-      `${CHROME ? ` 状态栏 ${dev.statusBar}pt 安全区 ${dev.insets.top}/${dev.insets.bottom}` : " 裸截图"} =====`
+      `${CHROME ? ` 外观层 · 状态栏 ${dev.statusBar}pt 安全区 ${dev.insets.top}/${dev.insets.bottom}` : INSETS ? ` 安全区 ${dev.insets.top}/${dev.insets.bottom}` : " 裸截图（默认）"} =====`
   );
 
   const page = await browser.newPage();
