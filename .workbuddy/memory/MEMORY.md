@@ -12,7 +12,7 @@ Windows 开发、Codemagic 云端 CI、TestFlight 分发。构建号在 `codemag
 | `topics/curriculum-data.md` | 教材线结构 / id 与音频映射 / 课标级联效应 / renjiao3 现状 / 各线判定 | 动教材数据前 |
 | `topics/official-sources.md` | CIP 反查 / 人教社官网 / 第三方 / 新教材推进时间表 | 核单元标题、判版次前 |
 | `topics/rebuild-pipeline.md` | patch 四坑 / 流水线 / 常用脚本 | 录入教材前 |
-| `topics/build-config.md` | 构建与发布配置 / 4 个暂不修复的已知问题 | 推送发版前 |
+| `topics/build-config.md` | 构建发布配置 / **App Store 元数据文案** / 4 个已知问题 | 推送发版前、填商店文案前 |
 | `topics/ui-conventions.md` | 自绘键盘几何（A–Z 与 NumberPad）/ 图标三要素 / TrophyIcon / 吸顶栏 | 改键盘、图标、列表页壳层前 |
 | `topics/audio-pipeline.md` | **有道 TTS 已死** / Edge·谷歌·百度实测 / 码率 / 代理 / 生成脚本 | 生成音频前 |
 | `topics/iap-planning.md` | **内购/付费**：Apple 政策事实（付费协议·订阅 UI 硬要求·EULA）/ 本项目落点 / 待决策 | 谈商业化、加付费前 |
