@@ -108,3 +108,19 @@
 - **首版没有「新功能 / What's New」字段**，第二个版本起才有。
 - 对外宣传统一用 **「654 个单元、5000+ 词条」**：用跨 6 线去重后的 5491，
   **不要**用各线累加的 18001（同词跨线重复计算，站不住）。
+
+## 原生（iOS）配置改动的唯一入口 = codemagic.yaml
+
+**`ios/` 不在仓库里**（已 gitignore，CI 里 `npx cap add ios --packagemanager CocoaPods`
+现场生成）⇒ **本地根本没有 Info.plist / AppDelegate.swift / project.pbxproj 可改**，
+任何原生配置都只能在 `codemagic.yaml` 的脚本步骤里做。当前有 5 个注入步骤：
+版本号+状态栏（含出口合规键）、App 图标、Storyboard 安全区约束、音频会话、隐私清单。
+
+- **出口合规已自动化，不要重复劳动**：`ITSAppUsesNonExemptEncryption = false`
+  自 **`1893c7a`（2026-09-09）** 起写入 ⇒ ASC 直接跳过出口合规问卷，
+  不再出现 Missing Compliance 黄条。判定依据见
+  `docs/ios-appstore-release-guide.md` §6.6。**无 `src/` 改动时不必为它重新构建。**
+- **Capacitor 模板不带这个键**（框架层两个 Info.plist 都查过，均为 0 处）⇒ 必须靠脚本注入。
+- 脚本里的 `PlistBuddy` 写键一律「先 `Delete`（带 `|| true` 保底）再 `Add`」——
+  键已存在时 `Add` 会失败，进而中断整个构建步骤，这个前置 Delete 不是冗余。
+- ⚠️ 验证原生配置是否生效**不能看本地**，只能看 CI 构建产物或提审页面。
