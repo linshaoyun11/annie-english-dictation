@@ -16,15 +16,16 @@ Windows 开发、Codemagic 云端 CI、TestFlight 分发。构建号在 `codemag
 | `topics/ui-conventions.md` | 自绘键盘几何（A–Z 与 NumberPad）/ 图标三要素 / TrophyIcon / 吸顶栏 | 改键盘、图标、列表页壳层前 |
 | `topics/audio-pipeline.md` | **有道 TTS 已死** / Edge·谷歌·百度实测 / 码率 / 代理 / 生成脚本 | 生成音频前 |
 | `topics/iap-planning.md` | **内购/付费**：Apple 政策事实（付费协议·订阅 UI 硬要求·EULA）/ 本项目落点 / 待决策 | 谈商业化、加付费前 |
+| `topics/promotion.md` | **推广/获客**：先修的 4 个产品短板 / 精选提名与 App 内活动 / 小红书红线 / 统一话术 | 谈推广、做内容、投广告前 |
 
-日志：`.workbuddy/memory/YYYY-MM-DD.md`（append-only，按天）。
-重建计划：`docs/textbook-rebuild-plan.md`；拍照清单：`.workbuddy/preview/screenshot-checklist.html`。
-Skill（都在 `~/.workbuddy/skills/`）：`annie-rebuild-curriculum`（重建教材线）、
-`annie-audio-repair`（**音频异常排查修复** —— 报「音频不对」先读它）、
-`annie-appstore-shots`（**App Store 提交截图** —— 问「截屏怎么处理」读它）。
+日志 `memory/YYYY-MM-DD.md`（append-only）。重建计划 `docs/textbook-rebuild-plan.md`；
+拍照清单 `.workbuddy/preview/screenshot-checklist.html`。
+Skill（`~/.workbuddy/skills/`）：`annie-rebuild-curriculum` 重建教材线 /
+`annie-audio-repair` **音频异常排查**（报「音频不对」先读）/
+`annie-appstore-shots` **提交截图**（问「截屏怎么处理」读）。
 
-⚠️ **维护规则**：本文件控制在 8KB 以内。新增长内容一律写进 `topics/` 对应文件，
-只在这里加一行索引。超过 8KB 会在注入时被截断 ⇒ 又会出现"记忆丢失"的假象。
+⚠️ **维护规则**：本文件 ≤8KB。新增长内容一律写进 `topics/` 对应文件，这里只加一行索引 ——
+超 8KB 会在注入时被截断，又会出现"记忆丢失"的假象。
 
 ## 关键设计约定（改动前必读）
 
