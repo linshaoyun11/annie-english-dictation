@@ -70,7 +70,8 @@ Skill（都在 `~/.workbuddy/skills/`）：`annie-rebuild-curriculum`（重建�
 - **⚠️ Codemagic 只能手动点「Start new build」**（用户主动关掉自动触发，
   **不要"顺手"把 `events` 加回去**）。原理与踩坑史详见 topics/build-config.md。
 - **✅ v1.0 已上架（2026-09-25）**：218.5MB / 免费 / 教育 / 4+ / 首发 9 天。
-  线上核验 `node scripts/verify_live.mjs cn`（版本/截图缺漏/体积；**build 号查不到**）。
+  线上核验 `node scripts/verify_live.mjs cn`（版本/截图/体积/**搜索索引**；build 号查不到）。
+  ⚠️ **「已上架」≠「能被搜到」**：lookup 与 search 两套索引（全名 ≤24h、通用词 2-4 周）。
   ⚠️ **元数据改动规则**：描述、关键词、截图、**名称/副标题**都要发新版本才生效
   （名称/副标题仅在存在未发布版本时可编辑，否则 ASC 里**灰色只读**）；
   只有推广文本与类目/分级/隐私政策 URL 能立即改。
