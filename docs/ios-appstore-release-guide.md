@@ -653,6 +653,54 @@ node scripts/verify_live.mjs cn --expect 1.0.1      # 断言版本，不符则�
 - **每次改教材线后重跑 `node scripts/aso_stats.mjs`**，同步更新描述/推广文本里的
   「单元数、词条数」—— 对外统一用去重后的数字（见 §3.4 说明）。
 
+### 9.5 上线后的长期义务：协议状态与账号续费
+
+过审邮件末尾那两句是**每封都带的标准附注**，不是在说你的 App 有问题：
+
+> Please note that it can take up to 24 hours for apps to become available on the App Store after release.
+> If your contracts are not yet in effect, your app cannot be distributed. Check the status of your
+> contracts in the Agreements, Tax, and Banking module in App Store Connect.
+
+| 句子 | 含义 | 本项目的判定 |
+| --- | --- | --- |
+| 最长 24 小时可用 | 过审 ≠ 立刻全球可见，商店边缘节点传播有延迟 | **判据是实测，不是等够 24 小时**：`node scripts/verify_live.mjs cn`。本项目 2026-09-25 05:38（北京）发布，4 小时后已可查 ⇒ 早已生效 |
+| 协议未生效则不能分发 | 协议有问题时版本页仍可显示 `Ready for Sale`，但**商店里搜不到、下不了** | 实测已上架且可查询 ⇒ **协议必然处于生效状态**，这条无需处理 |
+
+#### ⚠️ 免费 App 要盯的是哪一份协议（容易找错）
+
+ASC 的 **Business（商务）→ Agreements（协议）** 页主要呈现的是**《付费应用程序协议》
+（Paid Applications Agreement）**—— 那是付费 App / 内购用的。而管着**免费 App 分发**的
+**《Free Apps Agreement》，按 Apple 官方说明就是《Apple Developer Program License
+Agreement》本身**，要在 **developer.apple.com → Account → Membership（会员资格）→
+Show Agreements** 查看。
+
+⇒ **两个地方都看一眼，都没有待签横幅即可。** 本项目免费无内购 ⇒ Agreements 页里
+Paid Apps 那行的状态与本 App 无关，**不需要签**（一旦签了不可撤销，见 `docs/iap-readiness.md` §1.1）。
+
+#### 协议状态速查（Apple 官方状态词）
+
+| 状态 | 含义 | 要做什么 |
+| --- | --- | --- |
+| `Active` | 生效中 | ✅ 正常，无需操作 |
+| `Active (New Agreement Available)` | 主体有效，但**有新版本待签** | ⚠️ 尽快签 —— 不签会导致**无法提交新版本**（Apple 会发多轮提醒邮件） |
+| `Active (Pending User)` | 生效中，但有必填信息未补 | 补 Business 里的资料 |
+| `New` / `Processing` / `Verifying` | 已签，正在补资料 / Apple 审核中 | 等 |
+| `Pending (New / Update Legal Entity)` | 变更过法律实体 ⇒ 需重签，可能重交银行 / 税表 | 换主体才会遇到 |
+| **`Expired` / `Disabled`** | 协议失效 / 被停用 | 🚨 **App 会从 App Store 下架**；补交资料并经 Apple 接受后才恢复 |
+
+#### 免费 App 用不到的（看到提示可忽略）
+
+- **银行账户**、**税务表格**：只在收钱时才需要；税表未填**只影响打款，不影响上架**
+  （`docs/iap-readiness.md` §1.3）。
+- ⚠️ 但**以后加内购就必须办** —— 那时先签《付费应用程序协议》+ 银行账户 + W-8BEN，
+  步骤见 `docs/iap-readiness.md` §1。
+
+#### 账号年费 $99/年 —— 到期未续同样会下架
+
+Apple Developer Program 会员资格**按年续费**：**到期未续会让 App 从商店隐藏，直到续费完成**。
+这比协议过期更隐蔽（常见是收到用户反馈才发现）。建议开启**自动续费**，并记下续费月份、
+提前留意 Apple 的提醒邮件（发往注册开发者账号时的那个邮箱）。
+
 ---
 
 ## 10. 安卓市场发布预告（后续）
@@ -742,3 +790,11 @@ iOS 走通后，安卓发布相对简单（无需 Mac）：
 - [ ] 让 App Store 的「语言」显示中文（当前只显示 EN，需在 Info.plist 声明本地化）
 - [ ] 清孤儿音频（约 463 个文件 / 5.6MB）
 - [ ] 软著申请（安卓用，可全程并行）
+
+### 上线后长期维护（与版本迭代无关）
+
+- [ ] 确认**没有待签的协议**：ASC → Business → Agreements 页，以及
+      developer.apple.com → Account → Membership → Show Agreements
+      （免费 App 看的是后者，见 §9.5）
+- [ ] 开启 Apple Developer 会员**自动续费**（$99/年；到期未续 App 会被隐藏）
+- [ ] 定期跑 `node scripts/verify_live.mjs cn` 复核线上（截图是否漏传、体积、分级、版本）

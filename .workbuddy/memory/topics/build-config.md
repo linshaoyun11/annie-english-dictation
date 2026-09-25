@@ -32,6 +32,19 @@ node scripts/verify_live.mjs cn --expect 1.0.1  # 断言版本，不符则退出
 单声道对语音已是合理低码率，再降到 32kbps 会损伤齿音（/s/ /ʃ/ /θ/），
 **而齿音恰恰是听写要练的东西**。真要减体积的性价比排序见发布指南 §4.4。
 
+**上线后的两项长期义务（与版本迭代无关，最容易被忘）**
+
+- **协议状态**：免费 App 真正生效的那份是 **《Free Apps Agreement》= Apple Developer
+  Program License Agreement**，按 Apple 官方说明要在 **developer.apple.com → Account →
+  Membership → Show Agreements** 看；**ASC 的 Business → Agreements 页主要呈现的是
+  《付费应用程序协议》**（付费 / 内购用，本项目**不需要签**，且签了不可撤销）。
+  ⚠️ 状态 `Active (New Agreement Available)` = **有新版本待签，不签就无法提交新版本**；
+  `Expired` / `Disabled` = **App 直接下架**。
+- **会员年费 $99**：**到期未续会让 App 从商店隐藏**（比协议过期更隐蔽）⇒ 开自动续费。
+- 银行账户 / 税务表格免费 App **用不到**（税表未填只影响打款、不影响上架）；加内购时才必须办。
+- 过审邮件末尾那两句（「最长 24 小时可用」「协议未生效不能分发」）是**标准附注**，
+  不是故障提示；判据用 `verify_live.mjs` **实测**，不要靠等 24 小时。详见发布指南 §9.5。
+
 ## ⚠️ 元数据一经上线即锁定（改之前必读）
 
 **App 处于 `Ready for Sale` 后，该版本的描述、关键词、截图全部锁定**，改它们
