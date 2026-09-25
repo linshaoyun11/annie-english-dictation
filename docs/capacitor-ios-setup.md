@@ -233,7 +233,7 @@ npx cap open ios
    - Bundle ID：`com.annie.dictation`
    - SKU：建议 `annie-dictation-001`
 3. 填写 App 信息：
-   - 副标题：小学到初中英语单词听写
+   - 副标题：最后实际填的是 `英语单词听写·拼写练习`（19/30 字符）。⚠️ 该字段**只在存在未发布版本时才能编辑**，App 上线后即为灰色只读；下个版本的修改建议与配套的关键词调整见 `docs/appstore-aso-copy.md` §5.3
    - 类别：教育
    - 年龄分级：4+
    - 价格：免费

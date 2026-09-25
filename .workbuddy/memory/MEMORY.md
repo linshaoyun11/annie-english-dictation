@@ -12,18 +12,16 @@ Windows 开发、Codemagic 云端 CI、TestFlight 分发。构建号在 `codemag
 | `topics/curriculum-data.md` | 教材线结构 / id 与音频映射 / 课标级联效应 / renjiao3 现状 / 各线判定 | 动教材数据前 |
 | `topics/official-sources.md` | CIP 反查 / 人教社官网 / 第三方 / 新教材推进时间表 | 核单元标题、判版次前 |
 | `topics/rebuild-pipeline.md` | patch 四坑 / 流水线 / 常用脚本 | 录入教材前 |
-| `topics/build-config.md` | 构建发布配置 / **App Store 元数据文案** / 4 个已知问题 | 推送发版前、填商店文案前 |
+| `topics/build-config.md` | 构建发布配置 / **App Store 元数据文案与改动规则** / 已知问题 | 推送发版前、填商店文案前 |
 | `topics/ui-conventions.md` | 自绘键盘几何（A–Z 与 NumberPad）/ 图标三要素 / TrophyIcon / 吸顶栏 | 改键盘、图标、列表页壳层前 |
 | `topics/audio-pipeline.md` | **有道 TTS 已死** / Edge·谷歌·百度实测 / 码率 / 代理 / 生成脚本 | 生成音频前 |
 | `topics/iap-planning.md` | **内购/付费**：Apple 政策事实（付费协议·订阅 UI 硬要求·EULA）/ 本项目落点 / 待决策 | 谈商业化、加付费前 |
 
 日志：`.workbuddy/memory/YYYY-MM-DD.md`（append-only，按天）。
 重建计划：`docs/textbook-rebuild-plan.md`；拍照清单：`.workbuddy/preview/screenshot-checklist.html`。
-Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材线）、
-`~/.workbuddy/skills/annie-audio-repair/SKILL.md`（**音频异常排查修复：判据选择、pre-108 快照、
-大小写敏感、响度归一、A/B 试听页** —— 用户报「音频不对」时先读它）、
-`~/.workbuddy/skills/annie-appstore-shots/SKILL.md`（**App Store 提交截图：槽位规格核实、
-无头 Edge 拍真机版式、逐张校验** —— 用户问「发布要求的截屏怎么处理」时读它）。
+Skill（都在 `~/.workbuddy/skills/`）：`annie-rebuild-curriculum`（重建教材线）、
+`annie-audio-repair`（**音频异常排查修复** —— 报「音频不对」先读它）、
+`annie-appstore-shots`（**App Store 提交截图** —— 问「截屏怎么处理」读它）。
 
 ⚠️ **维护规则**：本文件控制在 8KB 以内。新增长内容一律写进 `topics/` 对应文件，
 只在这里加一行索引。超过 8KB 会在注入时被截断 ⇒ 又会出现"记忆丢失"的假象。
@@ -65,18 +63,19 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
 
 ## 构建与配置（推送前必读，详见 topics/build-config.md）
 
-- **本机 `npm run build` 必然失败于清空 dist**（沙箱 safe-delete 拦截）。
-  **本地冒烟一律 `npx vite build --emptyOutDir=false`**（增量，不等价 CI 全量）。
+- **本机 `npm run build` 有两种失败**：① 清空 dist 被沙箱 safe-delete 拦截（秒失败）；
+  ② `vite build` 卡在 `transforming...` 无限挂起。⇒ **冒烟一律用
+  `npx vite build --emptyOutDir=false`**（增量，不等价 CI 全量）；**卡超 3 分钟就停掉直接推**，
+  `tsc -b --noEmit` 过即可。
 - **⚠️ Codemagic 只能手动点「Start new build」**（用户主动关掉自动触发，
   **不要"顺手"把 `events` 加回去**）。原理与踩坑史详见 topics/build-config.md。
-- **✅ v1.0 已上架（2026-09-25）**：218.5MB / 免费 / 教育 / 4+ / 首发审核 9 天。
-  核验线上真实状态用 `node scripts/verify_live.mjs cn`（版本、截图缺漏、体积）。
-  ⚠️ **已上线版本的描述、关键词、截图已锁定** ⇒ 改元数据只能发新版本；
-  只有 App 级字段（副标题/类目/分级/隐私政策 URL）可直接改。
+- **✅ v1.0 已上架（2026-09-25）**：218.5MB / 免费 / 教育 / 4+ / 首发 9 天。
+  线上核验 `node scripts/verify_live.mjs cn`（版本/截图缺漏/体积；**build 号查不到**）。
+  ⚠️ **元数据改动规则**：描述、关键词、截图、**名称/副标题**都要发新版本才生效
+  （名称/副标题仅在存在未发布版本时可编辑，否则 ASC 里**灰色只读**）；
+  只有推广文本与类目/分级/隐私政策 URL 能立即改。
 - **memory 补记必须在推送前写完、与代码一起提交**（`APP_BUILD` 没变时第二个包会因
   build 号重复被 ASC 拒收；攒着一起推也省构建时长）。
-- **本地 `vite build` 在沙箱会卡死**（卡在 `transforming...` 无限挂起，与"清空 dist 被
-  拦截"是不同症状）。**卡超 3 分钟就停掉直接推**，`tsc -b --noEmit` 过即可。
 - 改 Capacitor 配置后务必跑 `npx tsc -b --noEmit`（`cap sync` 静默忽略未知字段）。
 - **`CURRICULUM_VERSION` 当前 = 30**（2026-09-15 核对 `curriculum.ts:102`；29 = build 99 六线专有词条清理）。
   每次删/动词条（id 全局递增）都必须升版触发 `freshProgress` 重置（积分保留、
@@ -87,8 +86,7 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
 - 动手前先复述对需求的理解并确认，再输出正式内容。
 - 反馈精准到部件级 / 字段级，喜欢结构化表格、分步骤、定量核验。
 - 要求列表完整不省略、保留英文原文。
-- **教材数据以用户提供截图为唯一准绳**；第三方来源只用于查漏，**有出入时不改数据**
-  （2026-09-05 再次强调：G4 不要找官方目录，按拍的来）。拍图节奏与分组见
-  `topics/curriculum-data.md`。
+- **教材数据以用户截图为准**；第三方只用于查漏，**有出入时不改数据**（G4 不找官方
+  目录，按拍的来）。拍图节奏与分组见 `topics/curriculum-data.md`。
 - **用户 2026-09-06 起明确要求「所有任务不用询问，自行执行」**。
   含此前挂起的拍板项（版本号、优化取舍）也一并自行判断执行，只在回复里说明依据。

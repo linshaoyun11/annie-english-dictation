@@ -13,6 +13,10 @@
 //   ✅ 是否已上架、版本号、上架时间、价格、类目、内容分级、描述全文、
 //      截图张数与文件名、支持语言、最低系统、包体积
 //   ❌ build 号（CFBundleVersion）——Apple 不通过任何公开接口暴露，只能在 ASC 里看
+//   ❌ 副标题 —— 该接口**根本不返回 subtitle 字段**（实测 lookup / lookup+lang / search
+//      三种调法都是 undefined，不是空字符串）。⚠️ 所以「这里查不到」**绝不等于**
+//      「线上副标题为空」—— 曾据此误判过一次。要确认副标题只能看 ASC → App 信息。
+//      推广同理：任何字段拿到 undefined，都只能记"无法核验"，不能记成"线上为空"。
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
@@ -76,7 +80,10 @@ for (const region of regions) {
   console.log(`${"=".repeat(64)}`);
   console.log(`  App ID       ${r.trackId}`);
   console.log(`  名称         ${r.trackName}`);
-  console.log(`  副标题       ${r.subtitle ? r.subtitle : "⚠️  (空 —— 第二高权重搜索字段未使用)"}`);
+  // ⚠️ 踩过的坑：iTunes API **不返回** subtitle 字段（实测 lookup / lookup+lang /
+  //    search 三种调法都是 undefined，不是空字符串）。所以「这里查不到」**绝不能**
+  //    推断成「线上副标题为空」—— 要确认副标题只能看 ASC 的「App 信息」页。
+  console.log(`  副标题       ${r.subtitle ?? "(该接口不返回此字段 · 无法核验，只能看 ASC → App 信息)"}`);
   console.log(`  版本         ${r.version}`);
   console.log(`  上架时间     ${ts(r.releaseDate)}`);
   console.log(`  本版发布     ${ts(r.currentVersionReleaseDate)}`);
