@@ -67,16 +67,16 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
 
 - **本机 `npm run build` 必然失败于清空 dist**（沙箱 safe-delete 拦截）。
   **本地冒烟一律 `npx vite build --emptyOutDir=false`**（增量，不等价 CI 全量）。
-- **⚠️ Codemagic 只能手动点「Start new build」**：有 `codemagic.yaml` 时，网页端
-  Build triggers 的勾选项**被完全忽略**，只认 yaml 的 `triggering` 段；本项目的 yaml
-  **只有 `branch_patterns: main`、没有 `events`** ⇒ 按官方规则不自动触发，这是
-  **用户主动关掉的**（控制构建次数）。**不要"顺手"把 `events` 加回去。**
+- **⚠️ Codemagic 只能手动点「Start new build」**（用户主动关掉自动触发，
+  **不要"顺手"把 `events` 加回去**）。原理与踩坑史详见 topics/build-config.md。
+- **✅ v1.0 已上架（2026-09-25）**：218.5MB / 免费 / 教育 / 4+ / 首发审核 9 天。
+  核验线上真实状态用 `node scripts/verify_live.mjs cn`（版本、截图缺漏、体积）。
+  ⚠️ **已上线版本的描述、关键词、截图已锁定** ⇒ 改元数据只能发新版本；
+  只有 App 级字段（副标题/类目/分级/隐私政策 URL）可直接改。
 - **memory 补记必须在推送前写完、与代码一起提交**（`APP_BUILD` 没变时第二个包会因
   build 号重复被 ASC 拒收；攒着一起推也省构建时长）。
-- **本地 `vite build` 在沙箱会卡死**（2026-09-06 新踩坑）：卡在
-  `transforming... 56 modules transformed.` 无限挂起（与上面"清空 dist 被拦截"是不同
-  症状，那个秒失败）。**卡超 3 分钟就停掉直接推**，别当推送门禁，`tsc -b --noEmit` 过即可。
-- **`vite build` 约 2 分钟，用 run_in_background**，前台会超时。
+- **本地 `vite build` 在沙箱会卡死**（卡在 `transforming...` 无限挂起，与"清空 dist 被
+  拦截"是不同症状）。**卡超 3 分钟就停掉直接推**，`tsc -b --noEmit` 过即可。
 - 改 Capacitor 配置后务必跑 `npx tsc -b --noEmit`（`cap sync` 静默忽略未知字段）。
 - **`CURRICULUM_VERSION` 当前 = 30**（2026-09-15 核对 `curriculum.ts:102`；29 = build 99 六线专有词条清理）。
   每次删/动词条（id 全局递增）都必须升版触发 `freshProgress` 重置（积分保留、
@@ -88,8 +88,7 @@ Skill：`~/.workbuddy/skills/annie-rebuild-curriculum/SKILL.md`（重建教材�
 - 反馈精准到部件级 / 字段级，喜欢结构化表格、分步骤、定量核验。
 - 要求列表完整不省略、保留英文原文。
 - **教材数据以用户提供截图为唯一准绳**；第三方来源只用于查漏，**有出入时不改数据**
-  （2026-09-05 再次强调：G4 不要找官方目录，按拍的来）。
-- 逐册拍截图推进，一次一册；每册 4 组页（CONTENTS + Vocabulary in Each Unit +
-  Vocabulary A-Z + Useful Expressions）约 22-25 张。
+  （2026-09-05 再次强调：G4 不要找官方目录，按拍的来）。拍图节奏与分组见
+  `topics/curriculum-data.md`。
 - **用户 2026-09-06 起明确要求「所有任务不用询问，自行执行」**。
   含此前挂起的拍板项（版本号、优化取舍）也一并自行判断执行，只在回复里说明依据。

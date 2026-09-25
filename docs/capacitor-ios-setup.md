@@ -65,7 +65,7 @@ Xcode、签名、iOS 编译只能在 macOS 上运行，但 Codemagic 会在云�
 ### 3.2 前置准备（全在浏览器中完成）
 
 1. **推送代码到 Git 仓库**（GitHub/GitLab/Bitbucket 均可）：
-   - `public/audio/`（114MB 音频）**必须随仓库提交**，否则云端打出的包没有声音。仓库整体约 130MB，在 GitHub 限制内（单文件 100MB、建议仓库 <1GB），首次 push 耗时较长属正常；
+   - `public/audio/`（163.1MB 音频、12216 个 mp3）**必须随仓库提交**，否则云端打出的包没有声音。单文件均远小于 GitHub 的 100MB 上限、仓库总量也在建议的 1GB 以内，但首次 push 耗时较长属正常；
    - `ios/` 已在 `.gitignore` 中，云端 CI 会现场生成，不提交。
 2. **注册 Apple Developer 账号**（$99/年）并完成激活；
 3. **创建 App Store Connect API 密钥**：登录 [App Store Connect](https://appstoreconnect.apple.com) → 用户和访问 → 集成 → 「+」创建密钥，权限选 **App Manager**，下载 `.p8` 文件并记下 Key ID 和 Issuer ID；
@@ -295,7 +295,7 @@ npx cap open ios
 1. **Git 管理**：将 `ios/` 和 `android/` 加入 `.gitignore`（已做），避免跨平台生成文件冲突。
 2. **前端迭代**：Windows 侧修改代码 → `npm run build` 验证 → 提交 push → Mac 侧 `git pull && npx cap sync ios`。
 3. **版本号统一**：每次提审前同步修改 `package.json` 的 `version`、`capacitor.config.ts` 的版本提示、Xcode 中的 Version/Build。
-4. **大文件处理**：`public/audio/` 约 114MB，随 `dist/` 一起打包进 App。确保 Git LFS 未误追踪音频文件（音频不应提交到 Git，而应作为构建输入保留在项目目录）。
+4. **大文件处理**：`public/audio/` 163.1MB（12216 个 mp3），随 `dist/` 一起打包进 App。**因为云 CI 要从仓库取构建输入，音频必须提交到 Git**（这也是仓库体积的主要来源）；单文件均 <100MB，符合 GitHub 限制。
 
 ---
 
